@@ -1329,7 +1329,7 @@ Phase 6: Testing & CI/CD
 
 ---
 
-- [ ] 4.1. Initialize Next.js Project
+- [x] 4.1. Initialize Next.js Project
 
   **What to do**:
   - Create Next.js app with App Router (JavaScript)
