@@ -1232,7 +1232,7 @@ Phase 6: Testing & CI/CD
 
 ---
 
-- [ ] 3.2. Add Database Seed Script
+- [x] 3.2. Add Database Seed Script
 
   **What to do**:
   - Create `scripts/seed.js` - Seeds database with test users
