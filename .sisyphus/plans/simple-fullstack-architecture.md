@@ -349,7 +349,7 @@ Phase 6: Testing & CI/CD
 
 ---
 
-- [ ] 1.3. Create Utility Functions
+- [x] 1.3. Create Utility Functions
 
   **What to do**:
   - Create `src/utils/catchAsync.js` - async error wrapper
@@ -398,7 +398,7 @@ Phase 6: Testing & CI/CD
 
 ---
 
-- [ ] 1.4. Create Middleware
+- [x] 1.4. Create Middleware
 
   **What to do**:
   - Create `src/middleware/error.middleware.js` - global error handler
