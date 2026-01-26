@@ -796,7 +796,7 @@ Phase 6: Testing & CI/CD
 
 ---
 
-- [ ] 2.4. Create Auth Middleware
+- [x] 2.4. Create Auth Middleware
 
   **What to do**:
   - Create `src/middleware/auth.middleware.js`
