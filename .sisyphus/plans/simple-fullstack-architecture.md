@@ -863,7 +863,7 @@ Phase 6: Testing & CI/CD
 
 ---
 
-- [ ] 2.5. Create Controllers
+- [x] 2.5. Create Controllers
 
   **What to do**:
   - Create `src/controllers/auth.controller.js`
