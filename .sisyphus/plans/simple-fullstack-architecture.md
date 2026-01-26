@@ -564,7 +564,7 @@ Phase 6: Testing & CI/CD
 
 ---
 
-- [ ] 2.1. Create User Model
+- [x] 2.1. Create User Model
 
   **What to do**:
   - Create `src/models/User.js` with Mongoose schema
