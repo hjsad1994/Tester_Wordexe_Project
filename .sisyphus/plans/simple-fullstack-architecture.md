@@ -655,7 +655,7 @@ Phase 6: Testing & CI/CD
 
 ---
 
-- [ ] 2.2. Create Auth Service
+- [x] 2.2. Create Auth Service
 
   **What to do**:
   - Create `src/services/auth.service.js`
@@ -725,7 +725,7 @@ Phase 6: Testing & CI/CD
 
 ---
 
-- [ ] 2.3. Create User Service
+- [x] 2.3. Create User Service
 
   **What to do**:
   - Create `src/services/user.service.js`
