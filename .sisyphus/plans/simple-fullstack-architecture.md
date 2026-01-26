@@ -983,7 +983,7 @@ Phase 6: Testing & CI/CD
 
 ---
 
-- [ ] 2.6. Create Routes and Validation
+- [x] 2.6. Create Routes and Validation
 
   **What to do**:
   - Create `src/routes/auth.routes.js`

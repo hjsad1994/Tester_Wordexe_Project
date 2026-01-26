@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const config = require('./config');
 const { errorHandler, notFoundHandler } = require('./middleware/error.middleware');
+const routes = require('./routes');
 
 const app = express();
 
@@ -27,8 +28,8 @@ app.get('/health', (req, res) => {
   res.json({ success: true, message: 'Server is running' });
 });
 
-// API routes (to be added)
-// app.use('/api', routes);
+// API routes
+app.use('/api', routes);
 
 // Error handling
 app.use(notFoundHandler);
