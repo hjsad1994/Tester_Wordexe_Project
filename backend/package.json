@@ -2,11 +2,12 @@
   "name": "fullstack-app-backend",
   "version": "1.0.0",
   "description": "Backend API for fullstack application",
-  "main": "src/index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
-    "lint": "eslint src/**/*.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "lint": "eslint src --ext .js",
+    "lint:fix": "eslint src --ext .js --fix"
   },
   "keywords": [
     "express",

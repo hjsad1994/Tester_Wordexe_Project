@@ -459,7 +459,7 @@ Phase 6: Testing & CI/CD
 
 ---
 
-- [ ] 1.5. Create Express App and Server Entry Point
+- [x] 1.5. Create Express App and Server Entry Point
 
   **What to do**:
   - Create `src/app.js` - Express app with middleware setup
