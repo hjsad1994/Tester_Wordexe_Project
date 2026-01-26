@@ -3,9 +3,11 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+const swaggerUi = require('swagger-ui-express');
 const config = require('./config');
 const { errorHandler, notFoundHandler } = require('./middleware/error.middleware');
 const routes = require('./routes');
+const swaggerSpec = require('./docs/swagger');
 
 const app = express();
 
@@ -27,6 +29,9 @@ if (config.nodeEnv === 'development') {
 app.get('/health', (req, res) => {
   res.json({ success: true, message: 'Server is running' });
 });
+
+// Swagger documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // API routes
 app.use('/api', routes);
