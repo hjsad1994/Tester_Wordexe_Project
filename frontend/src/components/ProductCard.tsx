@@ -144,16 +144,12 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               />
             ))}
           </div>
-          <span className="text-sm text-[var(--text-muted)]">
-            ({product.reviews})
-          </span>
+          <span className="text-sm text-[var(--text-muted)]">({product.reviews})</span>
         </div>
 
         {/* Price */}
         <div className="flex items-center gap-3">
-          <span className="text-xl font-bold text-pink-500">
-            {formatPrice(product.price)}
-          </span>
+          <span className="text-xl font-bold text-pink-500">{formatPrice(product.price)}</span>
           {product.originalPrice && (
             <span className="text-sm text-[var(--text-muted)] line-through">
               {formatPrice(product.originalPrice)}

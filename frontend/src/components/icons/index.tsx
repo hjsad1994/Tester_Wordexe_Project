@@ -104,12 +104,7 @@ export const SearchIcon = ({ className = '', size = 24 }: IconProps) => (
     xmlns="http://www.w3.org/2000/svg"
   >
     <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-    <path
-      d="M16 16l4.5 4.5"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
+    <path d="M16 16l4.5 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
   </svg>
 );
 
@@ -143,12 +138,7 @@ export const MenuIcon = ({ className = '', size = 24 }: IconProps) => (
     className={className}
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path
-      d="M3 6h18M3 12h18M3 18h18"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
+    <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
   </svg>
 );
 
@@ -162,12 +152,7 @@ export const CloseIcon = ({ className = '', size = 24 }: IconProps) => (
     className={className}
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path
-      d="M6 6l12 12M6 18L18 6"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
+    <path d="M6 6l12 12M6 18L18 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
   </svg>
 );
 
@@ -181,22 +166,14 @@ export const BabyBottleIcon = ({ className = '', size = 24 }: IconProps) => (
     className={className}
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path
-      d="M20 6h8v4h-8z"
-      fill="#f9a8d4"
-    />
+    <path d="M20 6h8v4h-8z" fill="#f9a8d4" />
     <path
       d="M18 10h12c2 0 4 2 4 4v24c0 4-3 6-6 6h-8c-3 0-6-2-6-6V14c0-2 2-4 4-4z"
       fill="#fce7f3"
       stroke="#f472b6"
       strokeWidth="2"
     />
-    <path
-      d="M18 18h12M18 24h12M18 30h12"
-      stroke="#f9a8d4"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
+    <path d="M18 18h12M18 24h12M18 30h12" stroke="#f9a8d4" strokeWidth="2" strokeLinecap="round" />
     <ellipse cx="24" cy="4" rx="4" ry="2" fill="#f472b6" />
   </svg>
 );
@@ -269,7 +246,13 @@ export const ToyIcon = ({ className = '', size = 24 }: IconProps) => (
     <circle cx="18" cy="24" r="2" fill="#4a3642" />
     <circle cx="30" cy="24" r="2" fill="#4a3642" />
     <ellipse cx="24" cy="30" rx="3" ry="2" fill="#f472b6" />
-    <path d="M20 34 Q24 38 28 34" stroke="#4a3642" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+    <path
+      d="M20 34 Q24 38 28 34"
+      stroke="#4a3642"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      fill="none"
+    />
   </svg>
 );
 
@@ -289,12 +272,7 @@ export const DiaperIcon = ({ className = '', size = 24 }: IconProps) => (
       stroke="#f472b6"
       strokeWidth="2"
     />
-    <path
-      d="M16 12v6c0 4 4 6 8 6s8-2 8-6v-6"
-      fill="white"
-      stroke="#f472b6"
-      strokeWidth="2"
-    />
+    <path d="M16 12v6c0 4 4 6 8 6s8-2 8-6v-6" fill="white" stroke="#f472b6" strokeWidth="2" />
     <path d="M12 28h4M32 28h4" stroke="#f9a8d4" strokeWidth="2" strokeLinecap="round" />
   </svg>
 );
@@ -346,11 +324,7 @@ export const TruckIcon = ({ className = '', size = 24 }: IconProps) => (
     className={className}
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path
-      d="M1 3h15v13H1z"
-      fill="currentColor"
-      opacity="0.2"
-    />
+    <path d="M1 3h15v13H1z" fill="currentColor" opacity="0.2" />
     <path
       d="M16 8h4l3 4v5h-7V8z"
       stroke="currentColor"
@@ -385,7 +359,13 @@ export const ShieldIcon = ({ className = '', size = 24 }: IconProps) => (
       strokeWidth="2"
       fill="none"
     />
-    <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M9 12l2 2 4-4"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 );
 
@@ -442,7 +422,13 @@ export const EmailIcon = ({ className = '', size = 24 }: IconProps) => (
     xmlns="http://www.w3.org/2000/svg"
   >
     <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" strokeWidth="2" />
-    <path d="M22 6l-10 7L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M22 6l-10 7L2 6"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 );
 
@@ -578,10 +564,7 @@ export const MoonIcon = ({ className = '', size = 24 }: IconProps) => (
     className={className}
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path
-      d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"
-      fill="currentColor"
-    />
+    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" fill="currentColor" />
   </svg>
 );
 
@@ -595,10 +578,7 @@ export const CrownIcon = ({ className = '', size = 24 }: IconProps) => (
     className={className}
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path
-      d="M2 17h20l-3-10-5 4-2-6-2 6-5-4-3 10z"
-      fill="currentColor"
-    />
+    <path d="M2 17h20l-3-10-5 4-2-6-2 6-5-4-3 10z" fill="currentColor" />
     <rect x="2" y="17" width="20" height="3" rx="1" fill="currentColor" />
   </svg>
 );

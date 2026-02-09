@@ -1,15 +1,18 @@
 const HTTP_STATUS = require('../constants/httpStatus');
 
-const sendResponse = (res, { statusCode = HTTP_STATUS.OK, status = 'success', message = '', data = null }) => {
+const sendResponse = (
+  res,
+  { statusCode = HTTP_STATUS.OK, status = 'success', message = '', data = null }
+) => {
   const response = {
     status,
     message,
   };
-  
+
   if (data !== null) {
     response.data = data;
   }
-  
+
   return res.status(statusCode).json(response);
 };
 

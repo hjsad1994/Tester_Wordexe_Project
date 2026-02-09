@@ -14,5 +14,5 @@ class ServiceUnavailableError extends AppError {
 
 module.exports = {
   InternalServerError,
-  ServiceUnavailableError
+  ServiceUnavailableError,
 };

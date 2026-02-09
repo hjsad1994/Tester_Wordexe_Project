@@ -49,9 +49,7 @@ export default function Header() {
       {/* Main Header */}
       <header
         className={`sticky top-0 z-50 transition-all duration-500 ${
-          isScrolled
-            ? 'glass shadow-lg py-3'
-            : 'bg-white/80 backdrop-blur-sm py-4'
+          isScrolled ? 'glass shadow-lg py-3' : 'bg-white/80 backdrop-blur-sm py-4'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

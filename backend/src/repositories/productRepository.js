@@ -6,12 +6,8 @@ class ProductRepository {
     const skip = (page - 1) * limit;
 
     const [products, total] = await Promise.all([
-      Product.find()
-        .populate('category', 'name slug')
-        .sort(sort)
-        .skip(skip)
-        .limit(limit),
-      Product.countDocuments()
+      Product.find().populate('category', 'name slug').sort(sort).skip(skip).limit(limit),
+      Product.countDocuments(),
     ]);
 
     return {
@@ -20,8 +16,8 @@ class ProductRepository {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     };
   }
 
@@ -43,7 +39,7 @@ class ProductRepository {
         .sort(sort)
         .skip(skip)
         .limit(limit),
-      Product.countDocuments({ category: categoryId })
+      Product.countDocuments({ category: categoryId }),
     ]);
 
     return {
@@ -52,8 +48,8 @@ class ProductRepository {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     };
   }
 
@@ -67,7 +63,7 @@ class ProductRepository {
         .sort(sort)
         .skip(skip)
         .limit(limit),
-      Product.countDocuments({ isActive: true })
+      Product.countDocuments({ isActive: true }),
     ]);
 
     return {
@@ -76,8 +72,8 @@ class ProductRepository {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     };
   }
 
@@ -87,11 +83,7 @@ class ProductRepository {
 
     const searchRegex = new RegExp(query, 'i');
     const filter = {
-      $or: [
-        { name: searchRegex },
-        { description: searchRegex },
-        { sku: searchRegex }
-      ]
+      $or: [{ name: searchRegex }, { description: searchRegex }, { sku: searchRegex }],
     };
 
     const [products, total] = await Promise.all([
@@ -100,7 +92,7 @@ class ProductRepository {
         .sort('-createdAt')
         .skip(skip)
         .limit(limit),
-      Product.countDocuments(filter)
+      Product.countDocuments(filter),
     ]);
 
     return {
@@ -109,8 +101,8 @@ class ProductRepository {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     };
   }
 
@@ -121,8 +113,10 @@ class ProductRepository {
   }
 
   async update(id, data) {
-    return Product.findByIdAndUpdate(id, data, { new: true, runValidators: true })
-      .populate('category', 'name slug');
+    return Product.findByIdAndUpdate(id, data, { new: true, runValidators: true }).populate(
+      'category',
+      'name slug'
+    );
   }
 
   async delete(id) {

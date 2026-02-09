@@ -85,10 +85,7 @@ export const BottleIllustration = ({ className = '', size = 120 }: IllustrationP
 
     {/* Nipple */}
     <ellipse cx="60" cy="18" rx="12" ry="8" fill="#fcd34d" />
-    <path
-      d="M52 20 Q60 30 68 20"
-      fill="#fbbf24"
-    />
+    <path d="M52 20 Q60 30 68 20" fill="#fbbf24" />
 
     {/* Cap/Ring */}
     <rect x="45" y="24" width="30" height="10" rx="2" fill="#93c5fd" />
@@ -116,8 +113,12 @@ export const BottleIllustration = ({ className = '', size = 120 }: IllustrationP
     <line x1="44" y1="86" x2="50" y2="86" stroke="#93c5fd" strokeWidth="1.5" />
 
     {/* ml labels */}
-    <text x="54" y="52" fontSize="6" fill="#60a5fa">240</text>
-    <text x="52" y="76" fontSize="6" fill="#60a5fa">120</text>
+    <text x="54" y="52" fontSize="6" fill="#60a5fa">
+      240
+    </text>
+    <text x="52" y="76" fontSize="6" fill="#60a5fa">
+      120
+    </text>
 
     {/* Shine effect */}
     <path
@@ -170,7 +171,13 @@ export const TeddyIllustration = ({ className = '', size = 120 }: IllustrationPr
     <ellipse cx="59" cy="47" rx="2" ry="1" fill="#6b5344" />
 
     {/* Mouth */}
-    <path d="M54 54 Q60 60 66 54" stroke="#4a3728" strokeWidth="2" fill="none" strokeLinecap="round" />
+    <path
+      d="M54 54 Q60 60 66 54"
+      stroke="#4a3728"
+      strokeWidth="2"
+      fill="none"
+      strokeLinecap="round"
+    />
 
     {/* Arms */}
     <ellipse cx="30" cy="78" rx="10" ry="16" fill="#e4c9a8" transform="rotate(-20 30 78)" />
@@ -225,9 +232,18 @@ export const DiaperIllustration = ({ className = '', size = 120 }: IllustrationP
     />
 
     {/* Cute pattern - stars */}
-    <path d="M45 55 L46 58 L49 58 L47 60 L48 63 L45 61 L42 63 L43 60 L41 58 L44 58 Z" fill="#67e8f9" />
-    <path d="M60 50 L61 53 L64 53 L62 55 L63 58 L60 56 L57 58 L58 55 L56 53 L59 53 Z" fill="#f472b6" />
-    <path d="M75 55 L76 58 L79 58 L77 60 L78 63 L75 61 L72 63 L73 60 L71 58 L74 58 Z" fill="#67e8f9" />
+    <path
+      d="M45 55 L46 58 L49 58 L47 60 L48 63 L45 61 L42 63 L43 60 L41 58 L44 58 Z"
+      fill="#67e8f9"
+    />
+    <path
+      d="M60 50 L61 53 L64 53 L62 55 L63 58 L60 56 L57 58 L58 55 L56 53 L59 53 Z"
+      fill="#f472b6"
+    />
+    <path
+      d="M75 55 L76 58 L79 58 L77 60 L78 63 L75 61 L72 63 L73 60 L71 58 L74 58 Z"
+      fill="#67e8f9"
+    />
 
     {/* Side tabs */}
     <rect x="15" y="40" width="12" height="20" rx="3" fill="#22d3ee" />
@@ -274,12 +290,7 @@ export const StrollerIllustration = ({ className = '', size = 120 }: Illustratio
     />
 
     {/* Basket underneath */}
-    <path
-      d="M38 85 L42 75 L78 75 L82 85 Z"
-      fill="#ddd6fe"
-      stroke="#a78bfa"
-      strokeWidth="2"
-    />
+    <path d="M38 85 L42 75 L78 75 L82 85 Z" fill="#ddd6fe" stroke="#a78bfa" strokeWidth="2" />
 
     {/* Seat/Carriage */}
     <path
@@ -298,10 +309,7 @@ export const StrollerIllustration = ({ className = '', size = 120 }: Illustratio
     />
 
     {/* Hood inner */}
-    <path
-      d="M45 25 C45 15 57 10 70 10 C83 10 90 18 90 25"
-      fill="#fce7f3"
-    />
+    <path d="M45 25 C45 15 57 10 70 10 C83 10 90 18 90 25" fill="#fce7f3" />
 
     {/* Handle */}
     <path
@@ -318,7 +326,13 @@ export const StrollerIllustration = ({ className = '', size = 120 }: Illustratio
     <circle cx="65" cy="42" r="12" fill="#fce7f3" />
     <circle cx="62" cy="40" r="2" fill="#4a3642" />
     <circle cx="68" cy="40" r="2" fill="#4a3642" />
-    <path d="M63 45 Q65 47 67 45" stroke="#4a3642" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+    <path
+      d="M63 45 Q65 47 67 45"
+      stroke="#4a3642"
+      strokeWidth="1.5"
+      fill="none"
+      strokeLinecap="round"
+    />
     <ellipse cx="58" cy="43" rx="2" ry="1" fill="#f9a8d4" opacity="0.6" />
     <ellipse cx="72" cy="43" rx="2" ry="1" fill="#f9a8d4" opacity="0.6" />
   </svg>
@@ -338,33 +352,76 @@ export const CribIllustration = ({ className = '', size = 120 }: IllustrationPro
     <ellipse cx="60" cy="108" rx="45" ry="5" fill="#fda4af" opacity="0.3" />
 
     {/* Crib base */}
-    <rect x="15" y="85" width="90" height="8" rx="2" fill="#fecdd3" stroke="#fda4af" strokeWidth="2" />
+    <rect
+      x="15"
+      y="85"
+      width="90"
+      height="8"
+      rx="2"
+      fill="#fecdd3"
+      stroke="#fda4af"
+      strokeWidth="2"
+    />
 
     {/* Legs */}
     <rect x="20" y="93" width="6" height="15" rx="2" fill="#fda4af" />
     <rect x="94" y="93" width="6" height="15" rx="2" fill="#fda4af" />
 
     {/* Side rails - left */}
-    <rect x="15" y="35" width="4" height="55" rx="2" fill="#fecdd3" stroke="#fda4af" strokeWidth="1" />
+    <rect
+      x="15"
+      y="35"
+      width="4"
+      height="55"
+      rx="2"
+      fill="#fecdd3"
+      stroke="#fda4af"
+      strokeWidth="1"
+    />
     {/* Side rails - right */}
-    <rect x="101" y="35" width="4" height="55" rx="2" fill="#fecdd3" stroke="#fda4af" strokeWidth="1" />
+    <rect
+      x="101"
+      y="35"
+      width="4"
+      height="55"
+      rx="2"
+      fill="#fecdd3"
+      stroke="#fda4af"
+      strokeWidth="1"
+    />
 
     {/* Bars */}
     {[25, 35, 45, 55, 65, 75, 85, 95].map((x) => (
-      <rect key={x} x={x} y="40" width="3" height="45" rx="1.5" fill="#fecdd3" stroke="#fda4af" strokeWidth="1" />
+      <rect
+        key={x}
+        x={x}
+        y="40"
+        width="3"
+        height="45"
+        rx="1.5"
+        fill="#fecdd3"
+        stroke="#fda4af"
+        strokeWidth="1"
+      />
     ))}
 
     {/* Mattress */}
-    <rect x="20" y="75" width="80" height="12" rx="3" fill="white" stroke="#e5e7eb" strokeWidth="1" />
+    <rect
+      x="20"
+      y="75"
+      width="80"
+      height="12"
+      rx="3"
+      fill="white"
+      stroke="#e5e7eb"
+      strokeWidth="1"
+    />
 
     {/* Pillow */}
     <ellipse cx="40" cy="72" rx="15" ry="6" fill="#fef3c7" />
 
     {/* Blanket */}
-    <path
-      d="M50 68 L95 68 L95 82 C95 82 85 78 72 78 C59 78 50 82 50 82 Z"
-      fill="#ddd6fe"
-    />
+    <path d="M50 68 L95 68 L95 82 C95 82 85 78 72 78 C59 78 50 82 50 82 Z" fill="#ddd6fe" />
 
     {/* Mobile hanging */}
     <line x1="60" y1="10" x2="60" y2="30" stroke="#f9a8d4" strokeWidth="2" />
@@ -378,7 +435,10 @@ export const CribIllustration = ({ className = '', size = 120 }: IllustrationPro
     <line x1="60" y1="30" x2="75" y2="25" stroke="#f9a8d4" strokeWidth="1" />
 
     {/* Stars on mobile */}
-    <path d="M45 25 L46 27 L48 27 L46.5 28.5 L47 31 L45 29.5 L43 31 L43.5 28.5 L42 27 L44 27 Z" fill="white" />
+    <path
+      d="M45 25 L46 27 L48 27 L46.5 28.5 L47 31 L45 29.5 L43 31 L43.5 28.5 L42 27 L44 27 Z"
+      fill="white"
+    />
   </svg>
 );
 
@@ -457,10 +517,7 @@ export const ShoesIllustration = ({ className = '', size = 120 }: IllustrationPr
       strokeWidth="2"
     />
     {/* Left shoe sole */}
-    <path
-      d="M15 78 C15 85 22 92 35 92 C48 92 58 88 58 78"
-      fill="#f9a8d4"
-    />
+    <path d="M15 78 C15 85 22 92 35 92 C48 92 58 88 58 78" fill="#f9a8d4" />
     {/* Left shoe opening */}
     <ellipse cx="42" cy="50" rx="12" ry="6" fill="#fbcfe8" />
     {/* Left shoe strap */}
@@ -478,10 +535,7 @@ export const ShoesIllustration = ({ className = '', size = 120 }: IllustrationPr
       strokeWidth="2"
     />
     {/* Right shoe sole */}
-    <path
-      d="M62 78 C62 85 69 92 82 92 C95 92 105 88 105 78"
-      fill="#f9a8d4"
-    />
+    <path d="M62 78 C62 85 69 92 82 92 C95 92 105 88 105 78" fill="#f9a8d4" />
     {/* Right shoe opening */}
     <ellipse cx="89" cy="50" rx="12" ry="6" fill="#fbcfe8" />
     {/* Right shoe strap */}
@@ -492,8 +546,14 @@ export const ShoesIllustration = ({ className = '', size = 120 }: IllustrationPr
     <circle cx="85" cy="75" r="2" fill="#f472b6" />
 
     {/* Sparkles */}
-    <path d="M50 35 L51 38 L54 38 L52 40 L53 43 L50 41 L47 43 L48 40 L46 38 L49 38 Z" fill="#fcd34d" />
-    <path d="M75 30 L76 33 L79 33 L77 35 L78 38 L75 36 L72 38 L73 35 L71 33 L74 33 Z" fill="#fcd34d" />
+    <path
+      d="M50 35 L51 38 L54 38 L52 40 L53 43 L50 41 L47 43 L48 40 L46 38 L49 38 Z"
+      fill="#fcd34d"
+    />
+    <path
+      d="M75 30 L76 33 L79 33 L77 35 L78 38 L75 36 L72 38 L73 35 L71 33 L74 33 Z"
+      fill="#fcd34d"
+    />
   </svg>
 );
 
@@ -550,12 +610,7 @@ export const PacifierIllustration = ({ className = '', size = 120 }: Illustratio
     />
 
     {/* Shine on ring */}
-    <path
-      d="M52 18 C54 15 58 14 60 14"
-      stroke="white"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
+    <path d="M52 18 C54 15 58 14 60 14" stroke="white" strokeWidth="2" strokeLinecap="round" />
   </svg>
 );
 
@@ -603,11 +658,23 @@ export const RattleIllustration = ({ className = '', size = 120 }: IllustrationP
     <ellipse cx="74" cy="38" rx="4" ry="2" fill="#fda4af" opacity="0.6" />
 
     {/* Smile */}
-    <path d="M54 42 Q60 48 66 42" stroke="#4a3642" strokeWidth="2" fill="none" strokeLinecap="round" />
+    <path
+      d="M54 42 Q60 48 66 42"
+      stroke="#4a3642"
+      strokeWidth="2"
+      fill="none"
+      strokeLinecap="round"
+    />
 
     {/* Stars around */}
-    <path d="M25 25 L26 28 L29 28 L27 30 L28 33 L25 31 L22 33 L23 30 L21 28 L24 28 Z" fill="#fcd34d" />
-    <path d="M95 25 L96 28 L99 28 L97 30 L98 33 L95 31 L92 33 L93 30 L91 28 L94 28 Z" fill="#fcd34d" />
+    <path
+      d="M25 25 L26 28 L29 28 L27 30 L28 33 L25 31 L22 33 L23 30 L21 28 L24 28 Z"
+      fill="#fcd34d"
+    />
+    <path
+      d="M95 25 L96 28 L99 28 L97 30 L98 33 L95 31 L92 33 L93 30 L91 28 L94 28 Z"
+      fill="#fcd34d"
+    />
     <path d="M60 5 L61 8 L64 8 L62 10 L63 13 L60 11 L57 13 L58 10 L56 8 L59 8 Z" fill="#fcd34d" />
 
     {/* Sound effect lines */}
@@ -651,17 +718,50 @@ export const BabyFoodIllustration = ({ className = '', size = 120 }: Illustratio
     <circle cx="62" cy="73" r="3" fill="#fdba74" opacity="0.6" />
 
     {/* Steam */}
-    <path d="M40 55 Q42 50 40 45 Q38 40 40 35" stroke="#e5e7eb" strokeWidth="2" strokeLinecap="round" fill="none" />
-    <path d="M55 52 Q57 47 55 42 Q53 37 55 32" stroke="#e5e7eb" strokeWidth="2" strokeLinecap="round" fill="none" />
-    <path d="M70 55 Q72 50 70 45 Q68 40 70 35" stroke="#e5e7eb" strokeWidth="2" strokeLinecap="round" fill="none" />
+    <path
+      d="M40 55 Q42 50 40 45 Q38 40 40 35"
+      stroke="#e5e7eb"
+      strokeWidth="2"
+      strokeLinecap="round"
+      fill="none"
+    />
+    <path
+      d="M55 52 Q57 47 55 42 Q53 37 55 32"
+      stroke="#e5e7eb"
+      strokeWidth="2"
+      strokeLinecap="round"
+      fill="none"
+    />
+    <path
+      d="M70 55 Q72 50 70 45 Q68 40 70 35"
+      stroke="#e5e7eb"
+      strokeWidth="2"
+      strokeLinecap="round"
+      fill="none"
+    />
 
     {/* Spoon */}
-    <ellipse cx="100" cy="50" rx="12" ry="8" fill="#e5e7eb" stroke="#d1d5db" strokeWidth="2" transform="rotate(30 100 50)" />
+    <ellipse
+      cx="100"
+      cy="50"
+      rx="12"
+      ry="8"
+      fill="#e5e7eb"
+      stroke="#d1d5db"
+      strokeWidth="2"
+      transform="rotate(30 100 50)"
+    />
     <rect x="95" y="55" width="6" height="40" rx="3" fill="#d1d5db" transform="rotate(30 98 75)" />
 
     {/* Bowl decoration - stars */}
-    <path d="M25 85 L26 87 L28 87 L26.5 88.5 L27 90 L25 89 L23 90 L23.5 88.5 L22 87 L24 87 Z" fill="#f472b6" />
-    <path d="M85 85 L86 87 L88 87 L86.5 88.5 L87 90 L85 89 L83 90 L83.5 88.5 L82 87 L84 87 Z" fill="#f472b6" />
+    <path
+      d="M25 85 L26 87 L28 87 L26.5 88.5 L27 90 L25 89 L23 90 L23.5 88.5 L22 87 L24 87 Z"
+      fill="#f472b6"
+    />
+    <path
+      d="M85 85 L86 87 L88 87 L86.5 88.5 L87 90 L85 89 L83 90 L83.5 88.5 L82 87 L84 87 Z"
+      fill="#f472b6"
+    />
   </svg>
 );
 
@@ -676,24 +776,12 @@ export const BowIllustration = ({ className = '', size = 120 }: IllustrationProp
     xmlns="http://www.w3.org/2000/svg"
   >
     {/* Left ribbon tail */}
-    <path
-      d="M25 60 L35 85 L45 82 L40 60"
-      fill="#f472b6"
-    />
-    <path
-      d="M25 60 L20 95 L30 98 L35 85"
-      fill="#ec4899"
-    />
+    <path d="M25 60 L35 85 L45 82 L40 60" fill="#f472b6" />
+    <path d="M25 60 L20 95 L30 98 L35 85" fill="#ec4899" />
 
     {/* Right ribbon tail */}
-    <path
-      d="M95 60 L85 85 L75 82 L80 60"
-      fill="#f472b6"
-    />
-    <path
-      d="M95 60 L100 95 L90 98 L85 85"
-      fill="#ec4899"
-    />
+    <path d="M95 60 L85 85 L75 82 L80 60" fill="#f472b6" />
+    <path d="M95 60 L100 95 L90 98 L85 85" fill="#ec4899" />
 
     {/* Left bow loop */}
     <ellipse cx="40" cy="45" rx="22" ry="18" fill="#f9a8d4" />
