@@ -582,3 +582,76 @@ export const CrownIcon = ({ className = '', size = 24 }: IconProps) => (
     <rect x="2" y="17" width="20" height="3" rx="1" fill="currentColor" />
   </svg>
 );
+
+// Filter Icon
+export const FilterIcon = ({ className = '', size = 24 }: IconProps) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M3 4h18v2.5l-7 7v7.5l-4 2V13.5l-7-7V4z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+// Grid Icon
+export const GridIcon = ({ className = '', size = 24 }: IconProps) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect x="3" y="3" width="7" height="7" rx="1.5" fill="currentColor" />
+    <rect x="14" y="3" width="7" height="7" rx="1.5" fill="currentColor" />
+    <rect x="3" y="14" width="7" height="7" rx="1.5" fill="currentColor" />
+    <rect x="14" y="14" width="7" height="7" rx="1.5" fill="currentColor" />
+  </svg>
+);
+
+// List Icon
+export const ListIcon = ({ className = '', size = 24 }: IconProps) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect x="3" y="4" width="18" height="4" rx="1" fill="currentColor" />
+    <rect x="3" y="10" width="18" height="4" rx="1" fill="currentColor" />
+    <rect x="3" y="16" width="18" height="4" rx="1" fill="currentColor" />
+  </svg>
+);
+
+// Chevron Down Icon
+export const ChevronDownIcon = ({ className = '', size = 24 }: IconProps) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M6 9l6 6 6-6"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);

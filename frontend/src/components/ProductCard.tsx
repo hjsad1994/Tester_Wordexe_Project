@@ -30,20 +30,20 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     : 0;
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-    }).format(price);
+    if (price >= 1000000) {
+      return (price / 1000000).toFixed(1).replace('.0', '') + 'M';
+    }
+    return (price / 1000).toFixed(0) + 'K';
   };
 
   const getBadgeStyle = () => {
     switch (product.badge) {
       case 'new':
-        return 'bg-gradient-to-r from-blue-400 to-blue-500 text-white';
+        return 'bg-blue-500 text-white';
       case 'sale':
-        return 'bg-gradient-to-r from-red-400 to-pink-500 text-white';
+        return 'bg-red-500 text-white';
       case 'bestseller':
-        return 'bg-gradient-to-r from-amber-400 to-orange-500 text-white';
+        return 'bg-amber-500 text-white';
       default:
         return '';
     }
@@ -56,107 +56,114 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       case 'sale':
         return `-${discount}%`;
       case 'bestseller':
-        return 'Bán chạy';
+        return 'Hot';
       default:
         return '';
     }
   };
 
-  // Get the illustration component
   const IllustrationComponent = productIllustrations[product.illustration];
 
   return (
     <div
-      className="card-product group animate-fade-in-up"
-      style={{ animationDelay: `${index * 0.1}s`, opacity: 0, animationFillMode: 'forwards' }}
+      className="group bg-white rounded-2xl overflow-hidden shadow-sm border border-pink-100 hover:shadow-lg hover:border-pink-200 transition-all duration-300"
+      style={{
+        animationDelay: `${index * 0.05}s`,
+        opacity: 0,
+        animationFillMode: 'forwards',
+        animation: 'fadeInUp 0.4s ease-out forwards'
+      }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Image Container */}
-      <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-pink-50 to-purple-50">
-        {/* Badge */}
+      {/* Image Container - Compact */}
+      <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-pink-50 to-purple-50 p-2">
+        {/* Badge - Smaller */}
         {product.badge && (
           <div
-            className={`absolute top-3 left-3 z-10 px-3 py-1 rounded-full text-xs font-bold shadow-md ${getBadgeStyle()}`}
+            className={`absolute top-2 left-2 z-10 px-2 py-0.5 rounded-md text-[10px] font-bold ${getBadgeStyle()}`}
           >
             {getBadgeText()}
           </div>
         )}
 
-        {/* Wishlist Button */}
+        {/* Wishlist Button - Smaller */}
         <button
-          onClick={() => setIsLiked(!isLiked)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsLiked(!isLiked);
+          }}
           aria-label={isLiked ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'}
-          aria-pressed={isLiked}
-          className={`absolute top-3 right-3 z-10 p-2.5 rounded-full transition-all duration-300 ${
+          className={`absolute top-2 right-2 z-10 p-1.5 rounded-full transition-all duration-200 ${
             isLiked
-              ? 'bg-pink-500 text-white scale-110'
-              : 'bg-white/80 text-pink-400 hover:bg-pink-500 hover:text-white'
-          } shadow-md backdrop-blur-sm`}
+              ? 'bg-pink-500 text-white'
+              : 'bg-white/90 text-pink-400 hover:bg-pink-500 hover:text-white'
+          } shadow-sm`}
         >
-          {isLiked ? <HeartIcon size={18} /> : <HeartOutlineIcon size={18} />}
+          {isLiked ? <HeartIcon size={14} /> : <HeartOutlineIcon size={14} />}
         </button>
 
         {/* Product Illustration */}
-        <div className="w-full h-full flex items-center justify-center p-4">
+        <div className="w-full h-full flex items-center justify-center">
           <div
-            className={`transition-all duration-500 ${
-              isHovered ? 'scale-110 -rotate-3' : 'scale-100'
+            className={`transition-transform duration-300 ${
+              isHovered ? 'scale-110' : 'scale-100'
             }`}
           >
-            <IllustrationComponent size={140} />
+            <IllustrationComponent size={100} />
           </div>
         </div>
 
-        {/* Quick Add Button */}
+        {/* Quick Add Button - Compact */}
         <div
-          className={`absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white/90 to-transparent transition-all duration-500 ${
-            isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full'
+          className={`absolute bottom-2 left-2 right-2 transition-all duration-300 ${
+            isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
           }`}
         >
-          <button className="w-full py-3 bg-gradient-to-r from-pink-400 to-pink-500 text-white font-semibold rounded-full flex items-center justify-center gap-2 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
-            <CartIcon size={18} />
-            <span>Thêm vào giỏ</span>
+          <button className="w-full py-2 bg-pink-500 text-white text-xs font-medium rounded-lg flex items-center justify-center gap-1.5 hover:bg-pink-600 transition-colors">
+            <CartIcon size={14} />
+            <span>Thêm giỏ hàng</span>
           </button>
         </div>
       </div>
 
-      {/* Product Info */}
-      <div className="p-5">
-        {/* Category */}
-        <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-2">
-          {product.category}
-        </p>
-
+      {/* Product Info - Compact */}
+      <div className="p-3">
         {/* Name */}
-        <h3 className="font-semibold text-[var(--text-primary)] text-lg mb-2 line-clamp-2 group-hover:text-pink-500 transition-colors duration-300">
+        <h3 className="font-medium text-[var(--text-primary)] text-sm mb-1.5 line-clamp-2 leading-tight group-hover:text-pink-500 transition-colors min-h-[2.5rem]">
           {product.name}
         </h3>
 
-        {/* Rating */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className="flex items-center gap-0.5">
-            {[...Array(5)].map((_, i) => (
-              <StarIcon
-                key={i}
-                size={14}
-                className={i < Math.floor(product.rating) ? 'text-amber-400' : 'text-gray-200'}
-              />
-            ))}
-          </div>
-          <span className="text-sm text-[var(--text-muted)]">({product.reviews})</span>
+        {/* Rating - Compact */}
+        <div className="flex items-center gap-1 mb-2">
+          <StarIcon size={12} className="text-amber-400" />
+          <span className="text-xs text-[var(--text-secondary)]">{product.rating}</span>
+          <span className="text-xs text-[var(--text-muted)]">({product.reviews})</span>
         </div>
 
-        {/* Price */}
-        <div className="flex items-center gap-3">
-          <span className="text-xl font-bold text-pink-500">{formatPrice(product.price)}</span>
+        {/* Price - Compact */}
+        <div className="flex items-center gap-2">
+          <span className="text-base font-bold text-pink-500">{formatPrice(product.price)}đ</span>
           {product.originalPrice && (
-            <span className="text-sm text-[var(--text-muted)] line-through">
-              {formatPrice(product.originalPrice)}
+            <span className="text-xs text-[var(--text-muted)] line-through">
+              {formatPrice(product.originalPrice)}đ
             </span>
           )}
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 }
