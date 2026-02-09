@@ -86,6 +86,8 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         {/* Wishlist Button */}
         <button
           onClick={() => setIsLiked(!isLiked)}
+          aria-label={isLiked ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'}
+          aria-pressed={isLiked}
           className={`absolute top-3 right-3 z-10 p-2.5 rounded-full transition-all duration-300 ${
             isLiked
               ? 'bg-pink-500 text-white scale-110'

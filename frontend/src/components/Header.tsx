@@ -91,13 +91,18 @@ export default function Header() {
               {/* Search Button */}
               <button
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
+                aria-label={isSearchOpen ? 'Đóng tìm kiếm' : 'Mở tìm kiếm'}
+                aria-expanded={isSearchOpen}
                 className="p-2 rounded-full text-[var(--text-secondary)] hover:text-pink-500 hover:bg-pink-50 transition-all duration-300"
               >
                 <SearchIcon size={22} />
               </button>
 
               {/* Wishlist */}
-              <button className="hidden sm:flex p-2 rounded-full text-[var(--text-secondary)] hover:text-pink-500 hover:bg-pink-50 transition-all duration-300 relative">
+              <button
+                className="hidden sm:flex p-2 rounded-full text-[var(--text-secondary)] hover:text-pink-500 hover:bg-pink-50 transition-all duration-300 relative"
+                aria-label="Xem danh sách yêu thích"
+              >
                 <HeartOutlineIcon size={22} />
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse-soft">
                   3
@@ -105,12 +110,18 @@ export default function Header() {
               </button>
 
               {/* User */}
-              <button className="hidden sm:flex p-2 rounded-full text-[var(--text-secondary)] hover:text-pink-500 hover:bg-pink-50 transition-all duration-300">
+              <button
+                className="hidden sm:flex p-2 rounded-full text-[var(--text-secondary)] hover:text-pink-500 hover:bg-pink-50 transition-all duration-300"
+                aria-label="Mở tài khoản"
+              >
                 <UserIcon size={22} />
               </button>
 
               {/* Cart */}
-              <button className="relative p-2.5 rounded-full bg-gradient-to-r from-pink-400 to-pink-500 text-white shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300">
+              <button
+                className="relative p-2.5 rounded-full bg-gradient-to-r from-pink-400 to-pink-500 text-white shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
+                aria-label="Xem giỏ hàng"
+              >
                 <CartIcon size={22} />
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-white text-pink-500 text-xs font-bold rounded-full flex items-center justify-center shadow-md">
                   2
@@ -120,6 +131,8 @@ export default function Header() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label={isMobileMenuOpen ? 'Đóng menu' : 'Mở menu'}
+                aria-expanded={isMobileMenuOpen}
                 className="lg:hidden p-2 rounded-full text-[var(--text-secondary)] hover:text-pink-500 hover:bg-pink-50 transition-all duration-300"
               >
                 {isMobileMenuOpen ? <CloseIcon size={24} /> : <MenuIcon size={24} />}

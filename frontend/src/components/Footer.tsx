@@ -90,14 +90,20 @@ export default function Footer() {
             {/* Social Links */}
             <div className="flex items-center gap-3 mt-6">
               <a
-                href="#"
+                href="https://facebook.com"
+                target="_blank"
+                rel="noreferrer"
                 className="p-3 rounded-full bg-white shadow-md hover:shadow-lg text-pink-400 hover:text-pink-500 hover:scale-110 transition-all duration-300"
+                aria-label="Facebook"
               >
                 <FacebookIcon size={20} />
               </a>
               <a
-                href="#"
+                href="https://instagram.com"
+                target="_blank"
+                rel="noreferrer"
                 className="p-3 rounded-full bg-white shadow-md hover:shadow-lg text-pink-400 hover:text-pink-500 hover:scale-110 transition-all duration-300"
+                aria-label="Instagram"
               >
                 <InstagramIcon size={20} />
               </a>

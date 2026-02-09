@@ -129,12 +129,14 @@ export default function FeaturedProducts() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => scroll('left')}
+              aria-label="Cuộn sang trái"
               className="p-3 rounded-full bg-white shadow-md hover:shadow-lg border border-pink-100 text-[var(--text-secondary)] hover:text-pink-500 hover:border-pink-300 transition-all duration-300"
             >
               <ArrowRightIcon size={20} className="rotate-180" />
             </button>
             <button
               onClick={() => scroll('right')}
+              aria-label="Cuộn sang phải"
               className="p-3 rounded-full bg-gradient-to-r from-pink-400 to-pink-500 text-white shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
             >
               <ArrowRightIcon size={20} />
