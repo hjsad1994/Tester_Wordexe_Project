@@ -1,15 +1,189 @@
-# Tester Wordexe Project
+# 🎭 Playwright Demo Testing Project
 
-This is a testing project.
+A full-stack application for demonstrating Playwright testing capabilities. Built with Node.js/Express backend, Next.js frontend, and Playwright test framework.
 
-## Description
+## 📁 Project Structure
 
-A simple project for testing purposes.
+```
+playwright-demo/
+├── backend/                 # Node.js/Express API server
+│   ├── src/
+│   │   ├── config/         # Database configuration
+│   │   ├── constants/      # HTTP status codes, app constants
+│   │   ├── controllers/    # Request handlers
+│   │   ├── errors/         # Custom error classes (3xx, 4xx, 5xx)
+│   │   ├── middlewares/    # Express middlewares
+│   │   ├── models/         # Mongoose schemas
+│   │   ├── repositories/   # Data access layer
+│   │   ├── routes/         # API routes
+│   │   ├── services/       # Business logic
+│   │   └── utils/          # Helper functions
+│   └── .env                # Environment variables
+│
+├── frontend/               # Next.js 16 application
+│   └── src/
+│       ├── app/           # App Router pages
+│       ├── components/    # React components
+│       └── lib/           # Utilities and API client
+│
+└── playwright/            # Playwright test suite
+    ├── tests/
+    │   ├── demo-user-01/  # Homepage navigation tests
+    │   ├── demo-user-02/  # Test case list tests
+    │   ├── demo-user-03/  # Click interaction tests
+    │   ├── demo-user-04/  # Form interaction tests
+    │   ├── demo-user-05/  # API response tests
+    │   ├── demo-user-06/  # Navigation link tests
+    │   ├── demo-user-07/  # Responsive design tests
+    │   ├── demo-user-08/  # Accessibility tests
+    │   ├── demo-user-09/  # Screenshot tests
+    │   └── demo-user-10/  # Error state tests
+    ├── pages/             # Page Object Model
+    ├── fixtures/          # Test fixtures
+    ├── data/              # Test data
+    └── utils/             # Test utilities
+```
 
-## Getting Started
+## 🚀 Quick Start
 
-Clone the repository and follow the setup instructions.
+### Prerequisites
+- Node.js 18+ 
+- npm
+- MongoDB (connection string provided)
 
-## License
+### 1. Backend Setup
+```bash
+cd backend
+npm install
+npm run dev
+```
+Server runs on http://localhost:3001
 
-MIT
+### 2. Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Application runs on http://localhost:3000
+
+### 3. Playwright Setup
+```bash
+cd playwright
+npm install
+npx playwright install
+```
+
+## 🧪 Running Tests
+
+### Run all tests
+```bash
+cd playwright
+npx playwright test
+```
+
+### Run specific demo user tests
+```bash
+npx playwright test tests/demo-user-01
+npx playwright test tests/demo-user-05
+```
+
+### Run tests with UI mode
+```bash
+npx playwright test --ui
+```
+
+### Run tests in headed mode (see browser)
+```bash
+npx playwright test --headed
+```
+
+### View test report
+```bash
+npx playwright show-report
+```
+
+## 👥 Demo User Assignments
+
+| User | Test Focus | Test File |
+|------|------------|-----------|
+| Demo User 01 | Homepage Navigation | `tests/demo-user-01/test-cases.spec.ts` |
+| Demo User 02 | Test Case List Display | `tests/demo-user-02/test-cases.spec.ts` |
+| Demo User 03 | Click Interactions | `tests/demo-user-03/test-cases.spec.ts` |
+| Demo User 04 | Form Interactions | `tests/demo-user-04/test-cases.spec.ts` |
+| Demo User 05 | API Response Mocking | `tests/demo-user-05/test-cases.spec.ts` |
+| Demo User 06 | Navigation & URLs | `tests/demo-user-06/test-cases.spec.ts` |
+| Demo User 07 | Responsive Design | `tests/demo-user-07/test-cases.spec.ts` |
+| Demo User 08 | Accessibility Basics | `tests/demo-user-08/test-cases.spec.ts` |
+| Demo User 09 | Screenshot Testing | `tests/demo-user-09/test-cases.spec.ts` |
+| Demo User 10 | Error State Handling | `tests/demo-user-10/test-cases.spec.ts` |
+
+## 📡 API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Health check |
+| GET | `/api/test-cases` | Get all test cases |
+| GET | `/api/test-cases/:id` | Get single test case |
+| POST | `/api/test-cases` | Create test case |
+| PUT | `/api/test-cases/:id` | Update test case |
+| DELETE | `/api/test-cases/:id` | Delete test case |
+| GET | `/api/test-cases/status/:status` | Get by status |
+
+### Example Request
+```bash
+# Create a test case
+curl -X POST http://localhost:3001/api/test-cases \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Login Test", "description": "Test user login flow", "assignee": "demo-user-01", "priority": "high"}'
+
+# Get all test cases
+curl http://localhost:3001/api/test-cases
+```
+
+## 🏗️ Architecture
+
+### Backend (Layer Architecture)
+- **Model**: Mongoose schemas with validation
+- **Repository**: Data access layer (CRUD operations)
+- **Service**: Business logic layer
+- **Controller**: HTTP request/response handling
+- **Routes**: API endpoint definitions
+
+### Error Handling
+- `AppError`: Base error class
+- `ClientError`: 4xx errors (BadRequest, NotFound, etc.)
+- `ServerError`: 5xx errors (InternalServerError, etc.)
+- `RedirectError`: 3xx redirects
+- Centralized error middleware
+
+## 🔧 Environment Variables
+
+### Backend (.env)
+```env
+NODE_ENV=development
+PORT=3001
+MONGODB_URI=your_mongodb_connection_string
+```
+
+### Frontend (.env.local)
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3001
+```
+
+## 📝 Tech Stack
+
+- **Backend**: Node.js, Express, Mongoose, MongoDB
+- **Frontend**: Next.js 16, React, TypeScript, Tailwind CSS
+- **Testing**: Playwright, TypeScript
+
+## 🤝 Contributing
+
+1. Choose your assigned demo-user folder
+2. Modify/add tests in your folder
+3. Run tests locally to verify
+4. Share results with the team
+
+---
+
+Made with ❤️ for Playwright Demo Testing
