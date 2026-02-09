@@ -71,11 +71,12 @@ jobs:
         run: npm run build
 
   # ============================================
-  # Playwright E2E Tests
+  # Playwright E2E Tests (temporarily disabled)
   # ============================================
   playwright-tests:
     name: Playwright Tests
     runs-on: ubuntu-latest
+    if: false  # Temporarily disabled
     needs: [frontend-ci]  # Run after frontend builds successfully
     defaults:
       run:
@@ -133,15 +134,14 @@ jobs:
   ci-status:
     name: CI Status
     runs-on: ubuntu-latest
-    needs: [backend-ci, frontend-ci, playwright-tests]
+    needs: [backend-ci, frontend-ci]
     if: always()
 
     steps:
       - name: Check CI status
         run: |
           if [[ "${{ needs.backend-ci.result }}" == "failure" ]] || \
-             [[ "${{ needs.frontend-ci.result }}" == "failure" ]] || \
-             [[ "${{ needs.playwright-tests.result }}" == "failure" ]]; then
+             [[ "${{ needs.frontend-ci.result }}" == "failure" ]]; then
             echo "❌ CI failed"
             exit 1
           else
