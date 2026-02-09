@@ -71,7 +71,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         animationDelay: `${index * 0.05}s`,
         opacity: 0,
         animationFillMode: 'forwards',
-        animation: 'fadeInUp 0.4s ease-out forwards'
+        animation: 'fadeInUp 0.4s ease-out forwards',
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -106,9 +106,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         {/* Product Illustration */}
         <div className="w-full h-full flex items-center justify-center">
           <div
-            className={`transition-transform duration-300 ${
-              isHovered ? 'scale-110' : 'scale-100'
-            }`}
+            className={`transition-transform duration-300 ${isHovered ? 'scale-110' : 'scale-100'}`}
           >
             <IllustrationComponent size={100} />
           </div>

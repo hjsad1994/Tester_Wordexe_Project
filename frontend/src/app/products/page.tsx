@@ -371,7 +371,10 @@ export default function ProductsPage() {
                 >
                   <div className={`w-6 h-6 flex items-center justify-center`}>
                     {category.id === 'all' ? (
-                      <IconComponent size={16} className={isActive ? 'text-white' : 'text-pink-500'} />
+                      <IconComponent
+                        size={16}
+                        className={isActive ? 'text-white' : 'text-pink-500'}
+                      />
                     ) : (
                       <IconComponent size={24} />
                     )}
@@ -619,7 +622,10 @@ export default function ProductsPage() {
                       >
                         <div className="w-8 h-8 flex items-center justify-center">
                           {category.id === 'all' ? (
-                            <IconComponent size={18} className={isActive ? 'text-white' : 'text-pink-500'} />
+                            <IconComponent
+                              size={18}
+                              className={isActive ? 'text-white' : 'text-pink-500'}
+                            />
                           ) : (
                             <IconComponent size={28} />
                           )}
@@ -633,7 +639,9 @@ export default function ProductsPage() {
 
               {/* Price Range */}
               <div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-3 text-sm">Khoảng giá</h3>
+                <h3 className="font-semibold text-[var(--text-primary)] mb-3 text-sm">
+                  Khoảng giá
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {priceRanges.map((range) => (
                     <button
