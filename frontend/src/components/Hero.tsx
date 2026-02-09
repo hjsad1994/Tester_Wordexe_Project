@@ -41,33 +41,57 @@ export default function Hero() {
       {/* Background Decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Floating Clouds */}
-        <div className="parallax absolute top-20 left-10 text-white/30 animate-float-slow" data-speed="2">
+        <div
+          className="parallax absolute top-20 left-10 text-white/30 animate-float-slow"
+          data-speed="2"
+        >
           <CloudIcon size={120} />
         </div>
-        <div className="parallax absolute top-40 right-20 text-white/20 animate-float-reverse" data-speed="1.5">
+        <div
+          className="parallax absolute top-40 right-20 text-white/20 animate-float-reverse"
+          data-speed="1.5"
+        >
           <CloudIcon size={80} />
         </div>
-        <div className="parallax absolute bottom-40 left-1/4 text-white/25 animate-float" data-speed="1">
+        <div
+          className="parallax absolute bottom-40 left-1/4 text-white/25 animate-float"
+          data-speed="1"
+        >
           <CloudIcon size={100} />
         </div>
 
         {/* Sparkles */}
-        <div className="parallax absolute top-32 left-1/3 text-pink-300 animate-sparkle" data-speed="3">
+        <div
+          className="parallax absolute top-32 left-1/3 text-pink-300 animate-sparkle"
+          data-speed="3"
+        >
           <SparkleIcon size={32} />
         </div>
-        <div className="parallax absolute top-60 right-1/4 text-purple-300 animate-sparkle delay-300" data-speed="2">
+        <div
+          className="parallax absolute top-60 right-1/4 text-purple-300 animate-sparkle delay-300"
+          data-speed="2"
+        >
           <SparkleIcon size={24} />
         </div>
-        <div className="parallax absolute bottom-60 right-1/3 text-pink-400 animate-sparkle delay-500" data-speed="2.5">
+        <div
+          className="parallax absolute bottom-60 right-1/3 text-pink-400 animate-sparkle delay-500"
+          data-speed="2.5"
+        >
           <SparkleIcon size={28} />
         </div>
-        <div className="parallax absolute top-1/2 left-20 text-blue-300 animate-sparkle delay-700" data-speed="1.5">
+        <div
+          className="parallax absolute top-1/2 left-20 text-blue-300 animate-sparkle delay-700"
+          data-speed="1.5"
+        >
           <SparkleIcon size={20} />
         </div>
 
         {/* Gradient Blobs */}
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-pink-300/30 rounded-full blur-3xl blob-animate"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-300/30 rounded-full blur-3xl blob-animate" style={{ animationDelay: '2s' }}></div>
+        <div
+          className="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-300/30 rounded-full blur-3xl blob-animate"
+          style={{ animationDelay: '2s' }}
+        ></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-pink-200/20 rounded-full blur-3xl"></div>
 
         {/* Decorative Circles */}
@@ -114,14 +138,18 @@ export default function Hero() {
 
             {/* Description */}
             <p className="text-lg sm:text-xl text-[var(--text-secondary)] mb-10 max-w-xl mx-auto lg:mx-0 animate-fade-in-up delay-200 leading-relaxed">
-              Khám phá bộ sưu tập đồ dùng cho bé với chất liệu an toàn, thiết kế xinh xắn, đem lại niềm vui và sự thoải mái cho thiên thần nhỏ của bạn.
+              Khám phá bộ sưu tập đồ dùng cho bé với chất liệu an toàn, thiết kế xinh xắn, đem lại
+              niềm vui và sự thoải mái cho thiên thần nhỏ của bạn.
             </p>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in-up delay-300">
               <button className="btn-primary group flex items-center justify-center gap-3">
                 <span>Mua sắm ngay</span>
-                <ArrowRightIcon size={20} className="group-hover:translate-x-1 transition-transform" />
+                <ArrowRightIcon
+                  size={20}
+                  className="group-hover:translate-x-1 transition-transform"
+                />
               </button>
               <button className="btn-secondary group flex items-center justify-center gap-3">
                 <PlayIcon size={20} className="group-hover:scale-110 transition-transform" />
@@ -174,45 +202,85 @@ export default function Hero() {
                     <ellipse cx="135" cy="95" rx="8" ry="5" fill="#f9a8d4" opacity="0.6" />
 
                     {/* Smile */}
-                    <path d="M85 105 Q100 120 115 105" stroke="#4a3642" strokeWidth="3" strokeLinecap="round" fill="none" />
+                    <path
+                      d="M85 105 Q100 120 115 105"
+                      stroke="#4a3642"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      fill="none"
+                    />
 
                     {/* Hair/Bow */}
                     <circle cx="60" cy="50" r="12" fill="#f472b6" />
                     <circle cx="140" cy="50" r="12" fill="#f472b6" />
-                    <path d="M70 45 Q100 30 130 45" stroke="#f472b6" strokeWidth="8" strokeLinecap="round" fill="none" />
+                    <path
+                      d="M70 45 Q100 30 130 45"
+                      stroke="#f472b6"
+                      strokeWidth="8"
+                      strokeLinecap="round"
+                      fill="none"
+                    />
 
                     {/* Body/Onesie */}
                     <ellipse cx="100" cy="170" rx="45" ry="35" fill="#fce7f3" />
-                    <path d="M70 155 L55 180" stroke="#f9a8d4" strokeWidth="6" strokeLinecap="round" />
-                    <path d="M130 155 L145 180" stroke="#f9a8d4" strokeWidth="6" strokeLinecap="round" />
+                    <path
+                      d="M70 155 L55 180"
+                      stroke="#f9a8d4"
+                      strokeWidth="6"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M130 155 L145 180"
+                      stroke="#f9a8d4"
+                      strokeWidth="6"
+                      strokeLinecap="round"
+                    />
 
                     {/* Heart on onesie */}
-                    <path d="M100 165 L95 160 Q90 155 95 150 Q100 145 100 150 Q100 145 105 150 Q110 155 105 160 Z" fill="#f472b6" />
+                    <path
+                      d="M100 165 L95 160 Q90 155 95 150 Q100 145 100 150 Q100 145 105 150 Q110 155 105 160 Z"
+                      fill="#f472b6"
+                    />
                   </svg>
                 </div>
 
                 {/* Floating Products - Using SVG Illustrations */}
-                <div className="absolute top-8 right-8 animate-float" style={{ animationDelay: '0.5s' }}>
+                <div
+                  className="absolute top-8 right-8 animate-float"
+                  style={{ animationDelay: '0.5s' }}
+                >
                   <div className="w-20 h-20 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2">
                     <BottleIllustration size={60} />
                   </div>
                 </div>
-                <div className="absolute bottom-16 left-4 animate-float-reverse" style={{ animationDelay: '1s' }}>
+                <div
+                  className="absolute bottom-16 left-4 animate-float-reverse"
+                  style={{ animationDelay: '1s' }}
+                >
                   <div className="w-18 h-18 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2">
                     <TeddyIllustration size={55} />
                   </div>
                 </div>
-                <div className="absolute top-1/4 left-4 animate-float" style={{ animationDelay: '1.5s' }}>
+                <div
+                  className="absolute top-1/4 left-4 animate-float"
+                  style={{ animationDelay: '1.5s' }}
+                >
                   <div className="w-16 h-16 bg-white rounded-xl shadow-lg flex items-center justify-center p-2">
                     <ClothesIllustration size={48} />
                   </div>
                 </div>
-                <div className="absolute bottom-8 right-12 animate-float-reverse" style={{ animationDelay: '0.8s' }}>
+                <div
+                  className="absolute bottom-8 right-12 animate-float-reverse"
+                  style={{ animationDelay: '0.8s' }}
+                >
                   <div className="w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2">
                     <PacifierIllustration size={48} />
                   </div>
                 </div>
-                <div className="absolute top-1/2 right-2 animate-float" style={{ animationDelay: '1.2s' }}>
+                <div
+                  className="absolute top-1/2 right-2 animate-float"
+                  style={{ animationDelay: '1.2s' }}
+                >
                   <div className="w-14 h-14 bg-white rounded-xl shadow-lg flex items-center justify-center p-1">
                     <RattleIllustration size={44} />
                   </div>
@@ -221,7 +289,10 @@ export default function Hero() {
             </div>
 
             {/* Decorative Ring */}
-            <div className="absolute w-[420px] h-[420px] lg:w-[520px] lg:h-[520px] border-2 border-dashed border-pink-200/50 rounded-full animate-spin" style={{ animationDuration: '30s' }}></div>
+            <div
+              className="absolute w-[420px] h-[420px] lg:w-[520px] lg:h-[520px] border-2 border-dashed border-pink-200/50 rounded-full animate-spin"
+              style={{ animationDuration: '30s' }}
+            ></div>
           </div>
         </div>
       </div>

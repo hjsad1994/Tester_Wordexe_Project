@@ -7,7 +7,8 @@ const testimonials = [
     id: '1',
     name: 'Nguyễn Thị Minh',
     role: 'Mẹ bỉm sữa',
-    content: 'Sản phẩm chất lượng tuyệt vời! Con tôi rất thích những bộ quần áo từ Baby Bliss. Chất liệu mềm mại và an toàn cho da bé.',
+    content:
+      'Sản phẩm chất lượng tuyệt vời! Con tôi rất thích những bộ quần áo từ Baby Bliss. Chất liệu mềm mại và an toàn cho da bé.',
     rating: 5,
     product: 'Bộ Body Cotton Organic',
     avatarColor: 'from-pink-300 to-pink-400',
@@ -16,7 +17,8 @@ const testimonials = [
     id: '2',
     name: 'Trần Văn Hùng',
     role: 'Bố của 2 bé',
-    content: 'Giao hàng nhanh, đóng gói cẩn thận. Đã mua nhiều lần và luôn hài lòng với dịch vụ của shop.',
+    content:
+      'Giao hàng nhanh, đóng gói cẩn thận. Đã mua nhiều lần và luôn hài lòng với dịch vụ của shop.',
     rating: 5,
     product: 'Xe đẩy gấp gọn',
     avatarColor: 'from-blue-300 to-blue-400',
@@ -25,7 +27,8 @@ const testimonials = [
     id: '3',
     name: 'Lê Thị Hương',
     role: 'Mẹ bầu',
-    content: 'Tư vấn nhiệt tình, sản phẩm đúng như mô tả. Sẽ tiếp tục ủng hộ Baby Bliss trong tương lai.',
+    content:
+      'Tư vấn nhiệt tình, sản phẩm đúng như mô tả. Sẽ tiếp tục ủng hộ Baby Bliss trong tương lai.',
     rating: 5,
     product: 'Nôi điện tự động',
     avatarColor: 'from-purple-300 to-purple-400',
@@ -34,10 +37,16 @@ const testimonials = [
 
 // Custom Avatar SVG Component
 const AvatarIllustration = ({ name, colorClass }: { name: string; colorClass: string }) => {
-  const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2);
+  const initials = name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .slice(0, 2);
 
   return (
-    <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${colorClass} flex items-center justify-center shadow-md relative overflow-hidden`}>
+    <div
+      className={`w-14 h-14 rounded-full bg-gradient-to-br ${colorClass} flex items-center justify-center shadow-md relative overflow-hidden`}
+    >
       {/* Background pattern */}
       <svg className="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 56 56">
         <circle cx="14" cy="14" r="8" fill="white" />
@@ -113,15 +122,14 @@ export default function Testimonials() {
               {/* Author */}
               <div className="flex items-center gap-4">
                 <div className="group-hover:scale-110 transition-transform duration-300">
-                  <AvatarIllustration name={testimonial.name} colorClass={testimonial.avatarColor} />
+                  <AvatarIllustration
+                    name={testimonial.name}
+                    colorClass={testimonial.avatarColor}
+                  />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-[var(--text-primary)]">
-                    {testimonial.name}
-                  </h4>
-                  <p className="text-sm text-[var(--text-muted)]">
-                    {testimonial.role}
-                  </p>
+                  <h4 className="font-semibold text-[var(--text-primary)]">{testimonial.name}</h4>
+                  <p className="text-sm text-[var(--text-muted)]">{testimonial.role}</p>
                 </div>
               </div>
 

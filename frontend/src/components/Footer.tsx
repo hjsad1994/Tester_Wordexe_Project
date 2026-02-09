@@ -62,18 +62,25 @@ export default function Footer() {
             </Link>
 
             <p className="text-[var(--text-secondary)] mb-6 max-w-sm leading-relaxed">
-              Chúng tôi mang đến những sản phẩm chất lượng cao và an toàn nhất cho bé yêu của bạn, với tình yêu thương và sự chăm sóc tận tâm.
+              Chúng tôi mang đến những sản phẩm chất lượng cao và an toàn nhất cho bé yêu của bạn,
+              với tình yêu thương và sự chăm sóc tận tâm.
             </p>
 
             {/* Contact Info */}
             <div className="space-y-3">
-              <a href="tel:1900123456" className="flex items-center gap-3 text-[var(--text-secondary)] hover:text-pink-500 transition-colors">
+              <a
+                href="tel:1900123456"
+                className="flex items-center gap-3 text-[var(--text-secondary)] hover:text-pink-500 transition-colors"
+              >
                 <div className="p-2 rounded-full bg-pink-100">
                   <PhoneIcon size={16} className="text-pink-500" />
                 </div>
                 <span>1900 123 456</span>
               </a>
-              <a href="mailto:hello@babybliss.vn" className="flex items-center gap-3 text-[var(--text-secondary)] hover:text-pink-500 transition-colors">
+              <a
+                href="mailto:hello@babybliss.vn"
+                className="flex items-center gap-3 text-[var(--text-secondary)] hover:text-pink-500 transition-colors"
+              >
                 <div className="p-2 rounded-full bg-pink-100">
                   <EmailIcon size={16} className="text-pink-500" />
                 </div>
@@ -178,7 +185,8 @@ export default function Footer() {
               © 2026 Baby Bliss. Tất cả quyền được bảo lưu.
             </p>
             <p className="text-sm text-[var(--text-muted)] flex items-center gap-1">
-              Made with <HeartIcon size={14} className="text-pink-500 animate-heart-beat" /> in Vietnam
+              Made with <HeartIcon size={14} className="text-pink-500 animate-heart-beat" /> in
+              Vietnam
             </p>
           </div>
         </div>

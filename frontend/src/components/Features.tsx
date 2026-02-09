@@ -59,9 +59,7 @@ export default function Features() {
                     <h3 className="font-semibold text-[var(--text-primary)] mb-1">
                       {feature.title}
                     </h3>
-                    <p className="text-sm text-[var(--text-muted)]">
-                      {feature.description}
-                    </p>
+                    <p className="text-sm text-[var(--text-muted)]">{feature.description}</p>
                   </div>
                 </div>
               </div>

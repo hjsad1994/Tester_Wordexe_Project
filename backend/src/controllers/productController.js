@@ -7,7 +7,7 @@ exports.getAllProducts = asyncHandler(async (req, res) => {
   const options = {
     page: parseInt(page) || 1,
     limit: parseInt(limit) || 10,
-    sort: sort || '-createdAt'
+    sort: sort || '-createdAt',
   };
   const result = await productService.getAllProducts(options);
   sendSuccess(res, result, 'Products retrieved successfully');
@@ -28,7 +28,7 @@ exports.getProductsByCategory = asyncHandler(async (req, res) => {
   const options = {
     page: parseInt(page) || 1,
     limit: parseInt(limit) || 10,
-    sort: sort || '-createdAt'
+    sort: sort || '-createdAt',
   };
   const result = await productService.getProductsByCategory(req.params.categoryId, options);
   sendSuccess(res, result, 'Products retrieved successfully');
@@ -39,7 +39,7 @@ exports.getActiveProducts = asyncHandler(async (req, res) => {
   const options = {
     page: parseInt(page) || 1,
     limit: parseInt(limit) || 10,
-    sort: sort || '-createdAt'
+    sort: sort || '-createdAt',
   };
   const result = await productService.getActiveProducts(options);
   sendSuccess(res, result, 'Active products retrieved successfully');
@@ -49,7 +49,7 @@ exports.searchProducts = asyncHandler(async (req, res) => {
   const { q, page, limit } = req.query;
   const options = {
     page: parseInt(page) || 1,
-    limit: parseInt(limit) || 10
+    limit: parseInt(limit) || 10,
   };
   const result = await productService.searchProducts(q, options);
   sendSuccess(res, result, 'Search results retrieved successfully');

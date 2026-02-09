@@ -18,7 +18,9 @@ export default function TestCaseCard({ testCase }: { testCase: TestCase }) {
     <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
       <div className="flex justify-between items-start mb-2">
         <h3 className="font-semibold text-lg">{testCase.title}</h3>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[testCase.status]}`}>
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[testCase.status]}`}
+        >
           {testCase.status}
         </span>
       </div>

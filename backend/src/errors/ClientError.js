@@ -35,5 +35,5 @@ module.exports = {
   UnauthorizedError,
   ForbiddenError,
   NotFoundError,
-  ValidationError
+  ValidationError,
 };

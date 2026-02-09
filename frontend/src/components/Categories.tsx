@@ -146,7 +146,8 @@ export default function Categories() {
                     Giảm đến 50% cho bé yêu
                   </h3>
                   <p className="text-white/80 max-w-lg">
-                    Đăng ký thành viên ngay để nhận ưu đãi độc quyền và cập nhật những sản phẩm mới nhất
+                    Đăng ký thành viên ngay để nhận ưu đãi độc quyền và cập nhật những sản phẩm mới
+                    nhất
                   </p>
                 </div>
 

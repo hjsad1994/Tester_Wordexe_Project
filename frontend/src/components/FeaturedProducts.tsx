@@ -154,10 +154,7 @@ export default function FeaturedProducts() {
           }}
         >
           {featuredProducts.map((product, index) => (
-            <div
-              key={product.id}
-              className="flex-shrink-0 w-[280px] sm:w-[300px]"
-            >
+            <div key={product.id} className="flex-shrink-0 w-[280px] sm:w-[300px]">
               <ProductCard product={product} index={index} />
             </div>
           ))}
