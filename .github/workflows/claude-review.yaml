@@ -34,4 +34,4 @@ jobs:
           custom_api_key: ${{ secrets.CUSTOM_API_KEY }}
           trigger_phrase: "/claude"
           claude_args: |
-            --model "claude-opus-4-5-20251101"
+            --model "gpt-5.2-codex"
