@@ -36,3 +36,6 @@ playwright/.cache/
 
 # Misc
 *.tsbuildinfo
+
+# Sisyphus
+.sisyphus/
