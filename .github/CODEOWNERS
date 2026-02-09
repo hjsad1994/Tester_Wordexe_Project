@@ -1,0 +1,17 @@
+# CODEOWNERS file for Playwright Demo Project
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# All files require review from hjsad1994
+* @hjsad1994
+
+# Backend specific ownership
+/backend/ @hjsad1994
+
+# Frontend specific ownership
+/frontend/ @hjsad1994
+
+# Playwright tests ownership
+/playwright/ @hjsad1994
+
+# CI/CD configuration
+/.github/ @hjsad1994

@@ -4,7 +4,11 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "test": "echo \"Add tests with Jest or Mocha\" && exit 0",
+    "test:ci": "echo \"Tests placeholder - CI passing\" && exit 0"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -14,6 +18,8 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0"
   }
 }
