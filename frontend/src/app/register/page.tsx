@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { UserPlusIcon, EyeIcon, EyeOffIcon } from "@/components/icons";
-import { useAuth } from "@/contexts/AuthContext";
+import { useState, type FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import { UserPlusIcon, EyeIcon, EyeOffIcon } from '@/components/icons';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface RegisterForm {
   name: string;
@@ -29,11 +29,11 @@ export default function RegisterPage() {
   const { register } = useAuth();
 
   const [form, setForm] = useState<RegisterForm>({
-    name: "",
-    email: "",
-    phone: "",
-    password: "",
-    confirmPassword: "",
+    name: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
   });
   const [errors, setErrors] = useState<RegisterErrors>({});
   const [showPassword, setShowPassword] = useState(false);
@@ -44,31 +44,31 @@ export default function RegisterPage() {
     const newErrors: RegisterErrors = {};
 
     if (!form.name.trim()) {
-      newErrors.name = "Vui lòng nhập họ và tên";
+      newErrors.name = 'Vui lòng nhập họ và tên';
     }
 
     if (!form.email.trim()) {
-      newErrors.email = "Vui lòng nhập email";
+      newErrors.email = 'Vui lòng nhập email';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-      newErrors.email = "Email không hợp lệ";
+      newErrors.email = 'Email không hợp lệ';
     }
 
     if (!form.phone.trim()) {
-      newErrors.phone = "Vui lòng nhập số điện thoại";
-    } else if (!/^(0|\+84)\d{9,10}$/.test(form.phone.replace(/\s/g, ""))) {
-      newErrors.phone = "Số điện thoại không hợp lệ";
+      newErrors.phone = 'Vui lòng nhập số điện thoại';
+    } else if (!/^(0|\+84)\d{9,10}$/.test(form.phone.replace(/\s/g, ''))) {
+      newErrors.phone = 'Số điện thoại không hợp lệ';
     }
 
     if (!form.password) {
-      newErrors.password = "Vui lòng nhập mật khẩu";
+      newErrors.password = 'Vui lòng nhập mật khẩu';
     } else if (form.password.length < 8) {
-      newErrors.password = "Mật khẩu phải có ít nhất 8 ký tự";
+      newErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự';
     }
 
     if (!form.confirmPassword) {
-      newErrors.confirmPassword = "Vui lòng xác nhận mật khẩu";
+      newErrors.confirmPassword = 'Vui lòng xác nhận mật khẩu';
     } else if (form.password !== form.confirmPassword) {
-      newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
+      newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp';
     }
 
     setErrors(newErrors);
@@ -87,7 +87,7 @@ export default function RegisterPage() {
       phone: form.phone,
       password: form.password,
     });
-    router.push("/");
+    router.push('/');
   };
 
   const handleChange = (field: keyof RegisterForm, value: string) => {
@@ -130,11 +130,11 @@ export default function RegisterPage() {
                   id="register-name"
                   type="text"
                   value={form.name}
-                  onChange={(e) => handleChange("name", e.target.value)}
+                  onChange={(e) => handleChange('name', e.target.value)}
                   className={`w-full px-4 py-3 rounded-xl border-2 bg-white transition-colors focus:outline-none ${
                     errors.name
-                      ? "border-red-300 focus:border-red-400"
-                      : "border-pink-200 focus:border-pink-400"
+                      ? 'border-red-300 focus:border-red-400'
+                      : 'border-pink-200 focus:border-pink-400'
                   }`}
                   placeholder="Nguyễn Văn A"
                   autoComplete="name"
@@ -158,11 +158,11 @@ export default function RegisterPage() {
                   id="register-email"
                   type="email"
                   value={form.email}
-                  onChange={(e) => handleChange("email", e.target.value)}
+                  onChange={(e) => handleChange('email', e.target.value)}
                   className={`w-full px-4 py-3 rounded-xl border-2 bg-white transition-colors focus:outline-none ${
                     errors.email
-                      ? "border-red-300 focus:border-red-400"
-                      : "border-pink-200 focus:border-pink-400"
+                      ? 'border-red-300 focus:border-red-400'
+                      : 'border-pink-200 focus:border-pink-400'
                   }`}
                   placeholder="email@example.com"
                   autoComplete="email"
@@ -186,11 +186,11 @@ export default function RegisterPage() {
                   id="register-phone"
                   type="tel"
                   value={form.phone}
-                  onChange={(e) => handleChange("phone", e.target.value)}
+                  onChange={(e) => handleChange('phone', e.target.value)}
                   className={`w-full px-4 py-3 rounded-xl border-2 bg-white transition-colors focus:outline-none ${
                     errors.phone
-                      ? "border-red-300 focus:border-red-400"
-                      : "border-pink-200 focus:border-pink-400"
+                      ? 'border-red-300 focus:border-red-400'
+                      : 'border-pink-200 focus:border-pink-400'
                   }`}
                   placeholder="0901234567"
                   autoComplete="tel"
@@ -213,13 +213,13 @@ export default function RegisterPage() {
                 <div className="relative">
                   <input
                     id="register-password"
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     value={form.password}
-                    onChange={(e) => handleChange("password", e.target.value)}
+                    onChange={(e) => handleChange('password', e.target.value)}
                     className={`w-full px-4 py-3 pr-12 rounded-xl border-2 bg-white transition-colors focus:outline-none ${
                       errors.password
-                        ? "border-red-300 focus:border-red-400"
-                        : "border-pink-200 focus:border-pink-400"
+                        ? 'border-red-300 focus:border-red-400'
+                        : 'border-pink-200 focus:border-pink-400'
                     }`}
                     placeholder="Tối thiểu 8 ký tự"
                     autoComplete="new-password"
@@ -228,7 +228,7 @@ export default function RegisterPage() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
-                    aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                    aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                   >
                     {showPassword ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
                   </button>
@@ -251,13 +251,13 @@ export default function RegisterPage() {
                 <div className="relative">
                   <input
                     id="register-confirm-password"
-                    type={showConfirmPassword ? "text" : "password"}
+                    type={showConfirmPassword ? 'text' : 'password'}
                     value={form.confirmPassword}
-                    onChange={(e) => handleChange("confirmPassword", e.target.value)}
+                    onChange={(e) => handleChange('confirmPassword', e.target.value)}
                     className={`w-full px-4 py-3 pr-12 rounded-xl border-2 bg-white transition-colors focus:outline-none ${
                       errors.confirmPassword
-                        ? "border-red-300 focus:border-red-400"
-                        : "border-pink-200 focus:border-pink-400"
+                        ? 'border-red-300 focus:border-red-400'
+                        : 'border-pink-200 focus:border-pink-400'
                     }`}
                     placeholder="Nhập lại mật khẩu"
                     autoComplete="new-password"
@@ -266,7 +266,7 @@ export default function RegisterPage() {
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
-                    aria-label={showConfirmPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                    aria-label={showConfirmPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                   >
                     {showConfirmPassword ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
                   </button>
@@ -284,14 +284,14 @@ export default function RegisterPage() {
                 disabled={isSubmitting}
                 className="w-full py-3.5 bg-gradient-to-r from-pink-400 to-pink-500 text-white font-semibold rounded-2xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-300 focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? "Đang đăng ký..." : "Đăng ký"}
+                {isSubmitting ? 'Đang đăng ký...' : 'Đăng ký'}
               </button>
             </form>
 
             {/* Login Link */}
             <div className="mt-6 text-center">
               <p className="text-[var(--text-secondary)] text-sm">
-                Đã có tài khoản?{" "}
+                Đã có tài khoản?{' '}
                 <Link
                   href="/login"
                   className="text-pink-500 font-semibold hover:text-pink-600 transition-colors"

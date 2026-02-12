@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { LoginIcon, EyeIcon, EyeOffIcon } from "@/components/icons";
-import { useAuth } from "@/contexts/AuthContext";
+import { useState, type FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import { LoginIcon, EyeIcon, EyeOffIcon } from '@/components/icons';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface LoginErrors {
   email?: string;
@@ -17,7 +17,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
 
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState<LoginErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,13 +26,13 @@ export default function LoginPage() {
     const newErrors: LoginErrors = {};
 
     if (!form.email.trim()) {
-      newErrors.email = "Vui lòng nhập email";
+      newErrors.email = 'Vui lòng nhập email';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-      newErrors.email = "Email không hợp lệ";
+      newErrors.email = 'Email không hợp lệ';
     }
 
     if (!form.password) {
-      newErrors.password = "Vui lòng nhập mật khẩu";
+      newErrors.password = 'Vui lòng nhập mật khẩu';
     }
 
     setErrors(newErrors);
@@ -46,7 +46,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
     // Mock login — always succeeds
     login(form.email, form.password);
-    router.push("/");
+    router.push('/');
   };
 
   const handleChange = (field: keyof typeof form, value: string) => {
@@ -87,11 +87,11 @@ export default function LoginPage() {
                   id="login-email"
                   type="email"
                   value={form.email}
-                  onChange={(e) => handleChange("email", e.target.value)}
+                  onChange={(e) => handleChange('email', e.target.value)}
                   className={`w-full px-4 py-3 rounded-xl border-2 bg-white transition-colors focus:outline-none ${
                     errors.email
-                      ? "border-red-300 focus:border-red-400"
-                      : "border-pink-200 focus:border-pink-400"
+                      ? 'border-red-300 focus:border-red-400'
+                      : 'border-pink-200 focus:border-pink-400'
                   }`}
                   placeholder="email@example.com"
                   autoComplete="email"
@@ -114,13 +114,13 @@ export default function LoginPage() {
                 <div className="relative">
                   <input
                     id="login-password"
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     value={form.password}
-                    onChange={(e) => handleChange("password", e.target.value)}
+                    onChange={(e) => handleChange('password', e.target.value)}
                     className={`w-full px-4 py-3 pr-12 rounded-xl border-2 bg-white transition-colors focus:outline-none ${
                       errors.password
-                        ? "border-red-300 focus:border-red-400"
-                        : "border-pink-200 focus:border-pink-400"
+                        ? 'border-red-300 focus:border-red-400'
+                        : 'border-pink-200 focus:border-pink-400'
                     }`}
                     placeholder="Nhập mật khẩu"
                     autoComplete="current-password"
@@ -129,7 +129,7 @@ export default function LoginPage() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
-                    aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                    aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                   >
                     {showPassword ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
                   </button>
@@ -147,14 +147,14 @@ export default function LoginPage() {
                 disabled={isSubmitting}
                 className="w-full py-3.5 bg-gradient-to-r from-pink-400 to-pink-500 text-white font-semibold rounded-2xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-300 focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
+                {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
               </button>
             </form>
 
             {/* Register Link */}
             <div className="mt-6 text-center">
               <p className="text-[var(--text-secondary)] text-sm">
-                Chưa có tài khoản?{" "}
+                Chưa có tài khoản?{' '}
                 <Link
                   href="/register"
                   className="text-pink-500 font-semibold hover:text-pink-600 transition-colors"
