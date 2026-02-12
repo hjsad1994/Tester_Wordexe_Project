@@ -110,12 +110,13 @@ export default function Header() {
               </button>
 
               {/* User */}
-              <button
+              <Link
+                href="/profile"
                 className="hidden sm:flex p-2 rounded-full text-[var(--text-secondary)] hover:text-pink-500 hover:bg-pink-50 transition-all duration-300"
                 aria-label="Mở tài khoản"
               >
                 <UserIcon size={22} />
-              </button>
+              </Link>
 
               {/* Cart */}
               <Link
@@ -193,10 +194,14 @@ export default function Header() {
                 <HeartOutlineIcon size={20} />
                 <span>Yêu thích</span>
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 text-[var(--text-secondary)] hover:text-pink-500 transition-colors">
+              <Link
+                href="/profile"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-4 py-2 text-[var(--text-secondary)] hover:text-pink-500 transition-colors"
+              >
                 <UserIcon size={20} />
                 <span>Tài khoản</span>
-              </button>
+              </Link>
             </div>
           </nav>
         </div>
