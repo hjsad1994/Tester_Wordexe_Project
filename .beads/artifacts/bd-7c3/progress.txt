@@ -1,0 +1,31 @@
+# Progress Log
+
+Bead: bd-7c3
+Started: 2026-02-13
+
+## Codebase Patterns
+
+- Header uses `<button>` for wishlist (desktop + mobile) — needs `<Link>`
+- WishlistContext provides `useWishlist()` with `wishlistCount`
+- Existing pattern: cart icon uses `<Link href="/cart">` in same Header
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
+
+## [ui-1] Desktop wishlist → Link ✅
+- Converted `<button>` to `<Link href="/wishlist">` for desktop heart icon
+- Imported `useWishlist()` from WishlistContext for dynamic badge count
+- Badge hidden when wishlistCount === 0, capped at 99+
+- `npm run typecheck` passes
+
+## [ui-2] Mobile wishlist → Link ✅
+- Converted `<button>` to `<Link href="/wishlist">` for mobile menu item
+- Added `onClick={() => setIsMobileMenuOpen(false)}` to close menu on click
+- Shows inline count: "Yêu thích (N)" when items exist, plain "Yêu thích" when empty
+- `npm run typecheck` passes
+
+## [qa-1] Verification gates ✅
+- `npm run lint:fix` — passed
+- `npm run typecheck` — passed (tsc --noEmit, exit 0)
+- `npm run format:check` — passed (ran prettier --write first to fix formatting)

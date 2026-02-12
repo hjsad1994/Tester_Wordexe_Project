@@ -1,0 +1,77 @@
+{
+  "beadId": "bd-7c3",
+  "prdName": "fix-wishlist-nav",
+  "tasks": [
+    {
+      "id": "ui-1",
+      "category": "ui",
+      "description": "Desktop wishlist heart icon in Header navigates to /wishlist with dynamic badge count from useWishlist()",
+      "steps": [
+        "Click heart icon in desktop header → URL changes to /wishlist",
+        "Badge shows real wishlist count (not hardcoded '3')",
+        "No badge when wishlist is empty",
+        "npm run typecheck passes"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": ["ui-2"],
+        "files": ["frontend/src/components/Header.tsx"]
+      }
+    },
+    {
+      "id": "ui-2",
+      "category": "ui",
+      "description": "Mobile menu 'Yêu thích' item navigates to /wishlist and closes the mobile menu on click",
+      "steps": [
+        "Open mobile menu → tap 'Yêu thích' → URL changes to /wishlist and menu closes",
+        "Count shown inline when items exist (e.g. 'Yêu thích (2)')",
+        "npm run typecheck passes"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": ["ui-1"],
+        "files": ["frontend/src/components/Header.tsx"]
+      }
+    },
+    {
+      "id": "qa-1",
+      "category": "qa",
+      "description": "All lint, typecheck, and format checks pass after changes",
+      "steps": [
+        "npm run lint:fix passes",
+        "npm run typecheck passes",
+        "npm run format:check passes"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["ui-1", "ui-2"],
+        "parallel": false,
+        "conflicts_with": [],
+        "files": []
+      }
+    }
+  ],
+  "context": {
+    "patterns": [
+      "Header component: frontend/src/components/Header.tsx",
+      "WishlistContext: frontend/src/contexts/WishlistContext.tsx provides useWishlist()"
+    ],
+    "keyFiles": ["frontend/src/components/Header.tsx", "frontend/src/contexts/WishlistContext.tsx"],
+    "nonGoals": [
+      "Changes to /wishlist page",
+      "Changes to WishlistContext",
+      "Adding Playwright tests"
+    ]
+  },
+  "beadMetadata": {
+    "depends_on": [],
+    "parallel": true,
+    "conflicts_with": [],
+    "blocks": [],
+    "estimated_hours": 0.5
+  }
+}
