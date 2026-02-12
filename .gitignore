@@ -40,3 +40,8 @@ playwright/.cache/
 
 # Sisyphus
 .sisyphus/
+
+# OpenCode
+.opencode/
+.opencode.bak-*/
+session-*.md

@@ -18,6 +18,7 @@ import {
   ArrowRightIcon,
   ChevronDownIcon,
 } from '@/components/icons';
+import { useCart } from '@/contexts/CartContext';
 import { productIllustrations } from '@/components/icons/ProductIllustrations';
 
 // All products data
@@ -301,6 +302,7 @@ export default function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState(0);
   const [selectedSize, setSelectedSize] = useState(0);
   const [showAllReviews, setShowAllReviews] = useState(false);
+  const { addToCart } = useCart();
 
   // Find product
   const product = allProducts.find((p) => p.id === productId);
@@ -577,7 +579,8 @@ export default function ProductDetailPage() {
                   <div className="flex items-center border-2 border-pink-200 rounded-xl overflow-hidden">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-12 h-12 flex items-center justify-center text-[var(--text-secondary)] hover:bg-pink-50 transition-colors text-xl"
+                      className="w-12 h-12 flex items-center justify-center text-[var(--text-secondary)] hover:bg-pink-50 transition-colors text-xl focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none"
+                      aria-label="Giảm số lượng"
                     >
                       −
                     </button>
@@ -586,7 +589,8 @@ export default function ProductDetailPage() {
                     </span>
                     <button
                       onClick={() => setQuantity(quantity + 1)}
-                      className="w-12 h-12 flex items-center justify-center text-[var(--text-secondary)] hover:bg-pink-50 transition-colors text-xl"
+                      className="w-12 h-12 flex items-center justify-center text-[var(--text-secondary)] hover:bg-pink-50 transition-colors text-xl focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none"
+                      aria-label="Tăng số lượng"
                     >
                       +
                     </button>
@@ -597,7 +601,19 @@ export default function ProductDetailPage() {
 
               {/* Action Buttons */}
               <div className="flex gap-4 mb-8">
-                <button className="flex-1 py-4 px-6 bg-gradient-to-r from-pink-400 to-pink-500 text-white font-semibold rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-pink-200 transition-all active:scale-[0.98]">
+                <button
+                  onClick={() => {
+                    for (let i = 0; i < quantity; i++) {
+                      addToCart({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        image: product.illustration,
+                      });
+                    }
+                  }}
+                  className="flex-1 py-4 px-6 bg-gradient-to-r from-pink-400 to-pink-500 text-white font-semibold rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-pink-200 transition-all active:scale-[0.98]"
+                >
                   <CartIcon size={22} />
                   <span>Thêm vào giỏ hàng</span>
                 </button>
