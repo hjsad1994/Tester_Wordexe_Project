@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { HeartIcon, HeartOutlineIcon, StarIcon, CartIcon } from './icons';
 import { productIllustrations, ProductIllustrationType } from './icons/ProductIllustrations';
 
@@ -66,7 +67,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
   return (
     <div
-      className="group bg-white rounded-2xl overflow-hidden shadow-sm border border-pink-100 hover:shadow-lg hover:border-pink-200 transition-all duration-300"
+      className="group product-card-animated bg-white rounded-2xl overflow-hidden shadow-sm border border-pink-100 hover:shadow-lg hover:border-pink-200 transition-all duration-300"
       style={{
         animationDelay: `${index * 0.05}s`,
         opacity: 0,
@@ -76,70 +77,69 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Image Container - Compact */}
-      <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-pink-50 to-purple-50 p-2">
-        {/* Badge - Smaller */}
-        {product.badge && (
-          <div
-            className={`absolute top-2 left-2 z-10 px-2 py-0.5 rounded-md text-[10px] font-bold ${getBadgeStyle()}`}
+      {/* Image Container - Clickable Link */}
+      <Link
+        href={`/products/${product.id}`}
+        className="block focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none rounded-t-2xl"
+      >
+        <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-pink-50 to-purple-50 p-2">
+          {/* Badge */}
+          {product.badge && (
+            <div
+              className={`absolute top-2 left-2 z-10 px-2 py-0.5 rounded-md text-[10px] font-bold ${getBadgeStyle()}`}
+            >
+              {getBadgeText()}
+            </div>
+          )}
+
+          {/* Wishlist Button */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsLiked(!isLiked);
+            }}
+            aria-label={isLiked ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'}
+            className={`absolute top-2 right-2 z-10 p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-all duration-200 focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none ${
+              isLiked
+                ? 'bg-pink-500 text-white'
+                : 'bg-white/90 text-pink-400 hover:bg-pink-500 hover:text-white'
+            } shadow-md`}
           >
-            {getBadgeText()}
-          </div>
-        )}
-
-        {/* Wishlist Button - Smaller */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsLiked(!isLiked);
-          }}
-          aria-label={isLiked ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'}
-          className={`absolute top-2 right-2 z-10 p-1.5 rounded-full transition-all duration-200 ${
-            isLiked
-              ? 'bg-pink-500 text-white'
-              : 'bg-white/90 text-pink-400 hover:bg-pink-500 hover:text-white'
-          } shadow-sm`}
-        >
-          {isLiked ? <HeartIcon size={14} /> : <HeartOutlineIcon size={14} />}
-        </button>
-
-        {/* Product Illustration */}
-        <div className="w-full h-full flex items-center justify-center">
-          <div
-            className={`transition-transform duration-300 ${isHovered ? 'scale-110' : 'scale-100'}`}
-          >
-            <IllustrationComponent size={100} />
-          </div>
-        </div>
-
-        {/* Quick Add Button - Compact */}
-        <div
-          className={`absolute bottom-2 left-2 right-2 transition-all duration-300 ${
-            isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
-          }`}
-        >
-          <button className="w-full py-2 bg-pink-500 text-white text-xs font-medium rounded-lg flex items-center justify-center gap-1.5 hover:bg-pink-600 transition-colors">
-            <CartIcon size={14} />
-            <span>Thêm giỏ hàng</span>
+            {isLiked ? <HeartIcon size={18} /> : <HeartOutlineIcon size={18} />}
           </button>
-        </div>
-      </div>
 
-      {/* Product Info - Compact */}
-      <div className="p-3">
+          {/* Product Illustration */}
+          <div className="w-full h-full flex items-center justify-center">
+            <div
+              className={`transition-transform duration-300 ${
+                isHovered ? 'scale-110' : 'scale-100'
+              }`}
+            >
+              <IllustrationComponent size={100} />
+            </div>
+          </div>
+        </div>
+      </Link>
+
+      {/* Product Info */}
+      <Link
+        href={`/products/${product.id}`}
+        className="block p-3 pb-2 focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none"
+      >
         {/* Name */}
         <h3 className="font-medium text-[var(--text-primary)] text-sm mb-1.5 line-clamp-2 leading-tight group-hover:text-pink-500 transition-colors min-h-[2.5rem]">
           {product.name}
         </h3>
 
-        {/* Rating - Compact */}
-        <div className="flex items-center gap-1 mb-2">
-          <StarIcon size={12} className="text-amber-400" />
-          <span className="text-xs text-[var(--text-secondary)]">{product.rating}</span>
-          <span className="text-xs text-[var(--text-muted)]">({product.reviews})</span>
+        {/* Rating */}
+        <div className="flex items-center gap-1.5 mb-2">
+          <StarIcon size={16} className="text-amber-400" />
+          <span className="text-sm font-medium text-[var(--text-secondary)]">{product.rating}</span>
+          <span className="text-sm text-[var(--text-muted)]">({product.reviews})</span>
         </div>
 
-        {/* Price - Compact */}
+        {/* Price */}
         <div className="flex items-center gap-2">
           <span className="text-base font-bold text-pink-500">{formatPrice(product.price)}đ</span>
           {product.originalPrice && (
@@ -148,6 +148,27 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             </span>
           )}
         </div>
+      </Link>
+
+      {/* Action Buttons - Always Visible */}
+      <div className="px-3 pb-3 flex gap-2">
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // Add to cart logic
+          }}
+          className="flex-1 py-2.5 min-h-[44px] bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 hover:from-pink-600 hover:to-rose-600 hover:shadow-lg hover:shadow-pink-200 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:ring-offset-1 focus-visible:outline-none transition-all duration-200"
+        >
+          <CartIcon size={15} />
+          <span>Thêm giỏ</span>
+        </button>
+        <Link
+          href={`/products/${product.id}`}
+          className="flex-1 py-2.5 min-h-[44px] bg-white border-2 border-pink-300 text-pink-500 text-xs font-semibold rounded-xl flex items-center justify-center hover:bg-pink-50 hover:border-pink-400 hover:shadow-md active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:ring-offset-1 focus-visible:outline-none transition-all duration-200"
+        >
+          Chi tiết
+        </Link>
       </div>
 
       <style jsx>{`
@@ -159,6 +180,11 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           to {
             opacity: 1;
             transform: translateY(0);
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .product-card-animated {
+            animation: none !important;
           }
         }
       `}</style>
