@@ -1,0 +1,70 @@
+{
+  "beadId": "bd-3a7",
+  "prdName": "about-page",
+  "tasks": [
+    {
+      "id": "frontend-1",
+      "category": "frontend",
+      "description": "Create About page with all 7 sections (Hero, Story, Values, Stats, Team, Commitments, CTA), SEO metadata, responsive design, Baby Bliss pink pastel OKLCH theme, reusing Header/Footer",
+      "steps": [
+        "cd frontend && npm run build succeeds (page renders as RSC)",
+        "curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/about returns 200",
+        "Visual inspection: 7 sections present, responsive, consistent theming"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/app/about/page.tsx"]
+      }
+    },
+    {
+      "id": "ci-1",
+      "category": "ci",
+      "description": "Ensure new code passes all CI checks: ESLint, Prettier format, Next.js build",
+      "steps": [
+        "cd frontend && npm run lint passes",
+        "cd frontend && npm run format:check passes",
+        "cd frontend && npm run build passes"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["frontend-1"],
+        "parallel": false,
+        "conflicts_with": [],
+        "files": ["frontend/src/app/about/page.tsx"]
+      }
+    }
+  ],
+  "context": {
+    "patterns": [
+      "App Router pages: frontend/src/app/**/page.tsx",
+      "Component pattern: Hero.tsx, Features.tsx, Testimonials.tsx",
+      "Design tokens: frontend/src/app/globals.css (OKLCH vars)",
+      "Icons: frontend/src/components/icons/index.tsx"
+    ],
+    "keyFiles": [
+      "frontend/src/app/page.tsx",
+      "frontend/src/app/globals.css",
+      "frontend/src/components/Header.tsx",
+      "frontend/src/components/Footer.tsx",
+      "frontend/src/components/icons/index.tsx"
+    ],
+    "nonGoals": [
+      "Backend API integration",
+      "Dark mode",
+      "Complex animations with external libraries",
+      "Unit tests",
+      "Structured data JSON-LD",
+      "i18n framework"
+    ]
+  },
+  "beadMetadata": {
+    "depends_on": [],
+    "parallel": true,
+    "conflicts_with": [],
+    "blocks": [],
+    "estimated_hours": 3
+  }
+}
