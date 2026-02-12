@@ -1,19 +1,19 @@
-# 🎭 Playwright Demo Testing Project
+# 🍼 Baby Products E-commerce Platform
 
-A full-stack application for demonstrating Playwright testing capabilities. Built with Node.js/Express backend, Next.js frontend, and Playwright test framework.
+A full-stack e-commerce application for baby products, built with Node.js/Express backend, Next.js frontend, and Playwright test framework. Features a beautiful, responsive UI with Vietnamese localization.
 
 ## 📁 Project Structure
 
 ```
-playwright-demo/
+project/
 ├── backend/                 # Node.js/Express API server
 │   ├── src/
 │   │   ├── config/         # Database configuration
-│   │   ├── constants/      # HTTP status codes, app constants
+│   │   ├── constants/      # HTTP status codes
 │   │   ├── controllers/    # Request handlers
-│   │   ├── errors/         # Custom error classes (3xx, 4xx, 5xx)
-│   │   ├── middlewares/    # Express middlewares
-│   │   ├── models/         # Mongoose schemas
+│   │   ├── errors/         # Custom error classes (AppError, ClientError, ServerError, RedirectError)
+│   │   ├── middlewares/    # Express middlewares (asyncHandler)
+│   │   ├── models/         # Mongoose schemas (Product, Category)
 │   │   ├── repositories/   # Data access layer
 │   │   ├── routes/         # API routes
 │   │   ├── services/       # Business logic
@@ -22,8 +22,8 @@ playwright-demo/
 │
 ├── frontend/               # Next.js 16 application
 │   └── src/
-│       ├── app/           # App Router pages
-│       ├── components/    # React components
+│       ├── app/           # App Router pages (Home, Products, Product Detail)
+│       ├── components/    # React components (Header, Hero, Features, etc.)
 │       └── lib/           # Utilities and API client
 │
 └── playwright/            # Playwright test suite
@@ -47,7 +47,7 @@ playwright-demo/
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js 18+ (see `.nvmrc`)
 - npm
 - MongoDB (connection string provided)
 
@@ -120,35 +120,102 @@ npx playwright show-report
 
 ## 📡 API Endpoints
 
+### Products
+
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/health` | Health check |
-| GET | `/api/test-cases` | Get all test cases |
-| GET | `/api/test-cases/:id` | Get single test case |
-| POST | `/api/test-cases` | Create test case |
-| PUT | `/api/test-cases/:id` | Update test case |
-| DELETE | `/api/test-cases/:id` | Delete test case |
-| GET | `/api/test-cases/status/:status` | Get by status |
+| GET | `/api/products` | Get all products |
+| GET | `/api/products/active` | Get active products only |
+| GET | `/api/products/search` | Search products |
+| GET | `/api/products/category/:categoryId` | Get products by category |
+| GET | `/api/products/:id` | Get product by ID |
+| GET | `/api/products/slug/:slug` | Get product by slug |
+| POST | `/api/products` | Create product |
+| PUT | `/api/products/:id` | Update product |
+| DELETE | `/api/products/:id` | Delete product |
 
-### Example Request
+### Categories
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/categories` | Get all categories |
+| GET | `/api/categories/active` | Get active categories only |
+| GET | `/api/categories/:id` | Get category by ID |
+| GET | `/api/categories/slug/:slug` | Get category by slug |
+| POST | `/api/categories` | Create category |
+| PUT | `/api/categories/:id` | Update category |
+| DELETE | `/api/categories/:id` | Delete category |
+
+### Health Check
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Server health check |
+
+### Example Requests
+
 ```bash
-# Create a test case
-curl -X POST http://localhost:3001/api/test-cases \
+# Create a product
+curl -X POST http://localhost:3001/api/products \
   -H "Content-Type: application/json" \
-  -d '{"title": "Login Test", "description": "Test user login flow", "assignee": "demo-user-01", "priority": "high"}'
+  -d '{
+    "name": "Baby Bottle 250ml",
+    "description": "BPA-free baby bottle",
+    "price": 250000,
+    "category": "<category_id>",
+    "quantity": 100
+  }'
 
-# Get all test cases
-curl http://localhost:3001/api/test-cases
+# Get all products
+curl http://localhost:3001/api/products
+
+# Create a category
+curl -X POST http://localhost:3001/api/categories \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Feeding",
+    "description": "Baby feeding products"
+  }'
+
+# Get active categories
+curl http://localhost:3001/api/categories/active
 ```
 
 ## 🏗️ Architecture
 
-### Backend (Layer Architecture)
-- **Model**: Mongoose schemas with validation
+### Backend (Layered Architecture)
+- **Model**: Mongoose schemas with validation (Product, Category)
 - **Repository**: Data access layer (CRUD operations)
 - **Service**: Business logic layer
 - **Controller**: HTTP request/response handling
 - **Routes**: API endpoint definitions
+
+### Data Models
+
+#### Product
+```javascript
+{
+  name: String,          // Required, max 200 chars
+  description: String,   // Max 2000 chars
+  price: Number,         // Required, min 0
+  category: ObjectId,    // Reference to Category
+  slug: String,          // Auto-generated from name
+  sku: String,           // Unique product code
+  quantity: Number,      // Stock count, default 0
+  images: [String],      // Array of image URLs
+  isActive: Boolean      // Default true
+}
+```
+
+#### Category
+```javascript
+{
+  name: String,          // Required, unique, max 100 chars
+  description: String,   // Max 500 chars
+  slug: String,          // Auto-generated from name
+  isActive: Boolean      // Default true
+}
+```
 
 ### Error Handling
 - `AppError`: Base error class
@@ -173,17 +240,49 @@ NEXT_PUBLIC_API_URL=http://localhost:3001
 
 ## 📝 Tech Stack
 
-- **Backend**: Node.js, Express, Mongoose, MongoDB
-- **Frontend**: Next.js 16, React, TypeScript, Tailwind CSS
-- **Testing**: Playwright, TypeScript
+### Backend
+- **Runtime**: Node.js 18+
+- **Framework**: Express 4.x
+- **Database**: MongoDB with Mongoose 8.x
+- **Logging**: Morgan
+- **Environment**: dotenv
+
+### Frontend
+- **Framework**: Next.js 16 (App Router)
+- **UI**: React 19, TypeScript, Tailwind CSS 4
+- **Styling**: Custom CSS variables, animations
+
+### Testing
+- **Framework**: Playwright 1.49+
+- **Language**: TypeScript
+- **Pattern**: Page Object Model
+
+### Code Quality
+- **Linting**: ESLint 9
+- **Formatting**: Prettier 3.4
+- **CI/CD**: GitHub Actions
+
+## 🎨 Frontend Features
+
+- Responsive design (mobile-first)
+- Vietnamese localization
+- Modern UI with animations
+- Product catalog with filtering
+- Category browsing
+- Product detail pages with modal view
+- Hero section with parallax effects
+- Featured products carousel
+- Testimonials section
 
 ## 🤝 Contributing
 
 1. Choose your assigned demo-user folder
 2. Modify/add tests in your folder
 3. Run tests locally to verify
-4. Share results with the team
+4. Run linting: `npm run lint`
+5. Run formatting: `npm run format`
+6. Share results with the team
 
 ---
 
-Made with ❤️ for Playwright Demo Testing
+Made with ❤️ for Baby Products E-commerce Demo

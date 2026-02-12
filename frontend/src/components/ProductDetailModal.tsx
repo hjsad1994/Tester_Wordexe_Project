@@ -15,6 +15,7 @@ import {
 } from './icons';
 import { productIllustrations } from './icons/ProductIllustrations';
 import { Product } from './ProductCard';
+import { useCart } from '@/contexts/CartContext';
 
 interface ProductDetailModalProps {
   product: Product | null;
@@ -60,6 +61,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
   const [quantity, setQuantity] = useState(1);
   const [isLiked, setIsLiked] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'reviews'>('details');
+  const { addToCart } = useCart();
 
   if (!product || !isOpen) return null;
 
@@ -75,8 +77,14 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
   };
 
   const handleAddToCart = () => {
-    // Add to cart logic here
-    console.log('Added to cart:', product.name, 'Quantity:', quantity);
+    for (let i = 0; i < quantity; i++) {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.illustration,
+      });
+    }
     onClose();
   };
 
@@ -329,7 +337,8 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
               <div className="flex items-center border border-pink-200 rounded-xl overflow-hidden">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 flex items-center justify-center text-[var(--text-secondary)] hover:bg-pink-50 transition-colors"
+                  className="w-10 h-10 flex items-center justify-center text-[var(--text-secondary)] hover:bg-pink-50 transition-colors focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none min-h-[44px] min-w-[44px]"
+                  aria-label="Giảm số lượng"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -345,7 +354,8 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                 </span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="w-10 h-10 flex items-center justify-center text-[var(--text-secondary)] hover:bg-pink-50 transition-colors"
+                  className="w-10 h-10 flex items-center justify-center text-[var(--text-secondary)] hover:bg-pink-50 transition-colors focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none min-h-[44px] min-w-[44px]"
+                  aria-label="Tăng số lượng"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
