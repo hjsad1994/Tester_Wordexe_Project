@@ -1,10 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   LogoIcon,
-  SearchIcon,
   UserIcon,
   CartIcon,
   HeartOutlineIcon,
@@ -12,22 +11,21 @@ import {
   CloseIcon,
   GiftIcon,
   SparkleIcon,
-} from './icons';
-import { useCart } from '@/contexts/CartContext';
-import { useWishlist } from '@/contexts/WishlistContext';
+} from "./icons";
+import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 
 const navLinks = [
-  { name: 'Trang chủ', href: '/' },
-  { name: 'Sản phẩm', href: '/products' },
-  { name: 'Khuyến mãi', href: '/sale' },
-  { name: 'Danh mục', href: '/categories' },
-  { name: 'Về chúng tôi', href: '/about' },
+  { name: "Trang chủ", href: "/" },
+  { name: "Sản phẩm", href: "/products" },
+  { name: "Khuyến mãi", href: "/sale" },
+  { name: "Danh mục", href: "/categories" },
+  { name: "Về chúng tôi", href: "/about" },
 ];
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { cartCount } = useCart();
   const { wishlistCount } = useWishlist();
 
@@ -35,8 +33,8 @@ export default function Header() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
@@ -53,7 +51,7 @@ export default function Header() {
       {/* Main Header */}
       <header
         className={`sticky top-0 z-50 transition-all duration-500 ${
-          isScrolled ? 'glass shadow-lg py-3' : 'bg-white/80 backdrop-blur-sm py-4'
+          isScrolled ? "glass shadow-lg py-3" : "bg-white/80 backdrop-blur-sm py-4"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -90,16 +88,6 @@ export default function Header() {
 
             {/* Action Buttons */}
             <div className="flex items-center gap-2 sm:gap-4">
-              {/* Search Button */}
-              <button
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
-                aria-label={isSearchOpen ? 'Đóng tìm kiếm' : 'Mở tìm kiếm'}
-                aria-expanded={isSearchOpen}
-                className="p-2 rounded-full text-[var(--text-secondary)] hover:text-pink-500 hover:bg-pink-50 transition-all duration-300"
-              >
-                <SearchIcon size={22} />
-              </button>
-
               {/* Wishlist */}
               <Link
                 href="/wishlist"
@@ -109,7 +97,7 @@ export default function Header() {
                 <HeartOutlineIcon size={22} />
                 {wishlistCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse-soft">
-                    {wishlistCount > 99 ? '99+' : wishlistCount}
+                    {wishlistCount > 99 ? "99+" : wishlistCount}
                   </span>
                 )}
               </Link>
@@ -136,7 +124,7 @@ export default function Header() {
                     aria-live="polite"
                     role="status"
                   >
-                    {cartCount > 99 ? '99+' : cartCount}
+                    {cartCount > 99 ? "99+" : cartCount}
                   </span>
                 )}
               </Link>
@@ -144,33 +132,11 @@ export default function Header() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                aria-label={isMobileMenuOpen ? 'Đóng menu' : 'Mở menu'}
+                aria-label={isMobileMenuOpen ? "Đóng menu" : "Mở menu"}
                 aria-expanded={isMobileMenuOpen}
                 className="lg:hidden p-2 rounded-full text-[var(--text-secondary)] hover:text-pink-500 hover:bg-pink-50 transition-all duration-300"
               >
                 {isMobileMenuOpen ? <CloseIcon size={24} /> : <MenuIcon size={24} />}
-              </button>
-            </div>
-          </div>
-
-          {/* Search Bar (Expandable) */}
-          <div
-            className={`overflow-hidden transition-all duration-500 ease-out ${
-              isSearchOpen ? 'max-h-20 opacity-100 mt-4' : 'max-h-0 opacity-0'
-            }`}
-          >
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Tìm kiếm sản phẩm cho bé yêu..."
-                className="w-full px-5 py-3 pl-12 rounded-full border-2 border-pink-200 focus:border-pink-400 focus:outline-none bg-white/80 backdrop-blur-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] transition-all duration-300"
-              />
-              <SearchIcon
-                size={20}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-pink-400"
-              />
-              <button className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-gradient-to-r from-pink-400 to-pink-500 text-white font-medium rounded-full hover:shadow-lg transition-all duration-300">
-                Tìm kiếm
               </button>
             </div>
           </div>
@@ -179,7 +145,7 @@ export default function Header() {
         {/* Mobile Menu */}
         <div
           className={`lg:hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-md shadow-lg overflow-hidden transition-all duration-500 ${
-            isMobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+            isMobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
           }`}
         >
           <nav className="flex flex-col p-4">
@@ -201,7 +167,7 @@ export default function Header() {
                 className="flex items-center gap-2 px-4 py-2 text-[var(--text-secondary)] hover:text-pink-500 transition-colors"
               >
                 <HeartOutlineIcon size={20} />
-                <span>Yêu thích{wishlistCount > 0 ? ` (${wishlistCount})` : ''}</span>
+                <span>Yêu thích{wishlistCount > 0 ? ` (${wishlistCount})` : ""}</span>
               </Link>
               <Link
                 href="/profile"
