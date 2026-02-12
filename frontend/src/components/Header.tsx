@@ -7,13 +7,17 @@ import {
   CloseIcon,
   GiftIcon,
   HeartOutlineIcon,
+  LoginIcon,
+  LogoutIcon,
   LogoIcon,
   MenuIcon,
   SparkleIcon,
   UserIcon,
+  UserPlusIcon,
 } from './icons';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 const navLinks = [
   { name: 'Trang chủ', href: '/' },
@@ -28,6 +32,7 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { cartCount } = useCart();
   const { wishlistCount } = useWishlist();
+  const { isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -102,14 +107,44 @@ export default function Header() {
                 )}
               </Link>
 
-              {/* User */}
-              <Link
-                href="/profile"
-                className="hidden sm:flex p-2 rounded-full text-[var(--text-secondary)] hover:text-pink-500 hover:bg-pink-50 transition-all duration-300"
-                aria-label="Mở tài khoản"
-              >
-                <UserIcon size={22} />
-              </Link>
+              {/* Auth Actions */}
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    href="/profile"
+                    className="hidden sm:flex p-2 rounded-full text-[var(--text-secondary)] hover:text-pink-500 hover:bg-pink-50 transition-all duration-300"
+                    aria-label="Mở tài khoản"
+                  >
+                    <UserIcon size={22} />
+                  </Link>
+                  <button
+                    onClick={logout}
+                    className="hidden sm:flex p-2 rounded-full text-[var(--text-secondary)] hover:text-pink-500 hover:bg-pink-50 transition-all duration-300"
+                    aria-label="Đăng xuất"
+                  >
+                    <LogoutIcon size={22} />
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-full text-[var(--text-secondary)] hover:text-pink-500 hover:bg-pink-50 transition-all duration-300 text-sm font-medium"
+                    aria-label="Đăng nhập"
+                  >
+                    <LoginIcon size={20} />
+                    <span className="hidden md:inline">Đăng nhập</span>
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-full bg-pink-50 text-pink-500 hover:bg-pink-100 transition-all duration-300 text-sm font-medium"
+                    aria-label="Đăng ký"
+                  >
+                    <UserPlusIcon size={20} />
+                    <span className="hidden md:inline">Đăng ký</span>
+                  </Link>
+                </>
+              )}
 
               {/* Cart */}
               <Link
@@ -160,7 +195,7 @@ export default function Header() {
                 {link.name}
               </Link>
             ))}
-            <div className="flex gap-4 mt-4 pt-4 border-t border-pink-100">
+            <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-pink-100">
               <Link
                 href="/wishlist"
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -172,14 +207,47 @@ export default function Header() {
                   {wishlistCount > 0 ? ` (${wishlistCount > 99 ? '99+' : wishlistCount})` : ''}
                 </span>
               </Link>
-              <Link
-                href="/profile"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-2 px-4 py-2 text-[var(--text-secondary)] hover:text-pink-500 transition-colors"
-              >
-                <UserIcon size={20} />
-                <span>Tài khoản</span>
-              </Link>
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    href="/profile"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2 text-[var(--text-secondary)] hover:text-pink-500 transition-colors"
+                  >
+                    <UserIcon size={20} />
+                    <span>Tài khoản</span>
+                  </Link>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 text-[var(--text-secondary)] hover:text-pink-500 transition-colors"
+                  >
+                    <LogoutIcon size={20} />
+                    <span>Đăng xuất</span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2 text-[var(--text-secondary)] hover:text-pink-500 transition-colors"
+                  >
+                    <LoginIcon size={20} />
+                    <span>Đăng nhập</span>
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2 text-pink-500 font-medium hover:text-pink-600 transition-colors"
+                  >
+                    <UserPlusIcon size={20} />
+                    <span>Đăng ký</span>
+                  </Link>
+                </>
+              )}
             </div>
           </nav>
         </div>

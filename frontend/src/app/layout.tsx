@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Nunito, Quicksand } from 'next/font/google';
 import { CartProvider } from '@/contexts/CartContext';
 import { WishlistProvider } from '@/contexts/WishlistContext';
+import { AuthProvider } from '@/contexts/AuthContext';
 import './globals.css';
 
 const nunito = Nunito({
@@ -48,9 +49,11 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <body className={`${nunito.variable} ${quicksand.variable} antialiased font-sans`}>
-        <CartProvider>
-          <WishlistProvider>{children}</WishlistProvider>
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <WishlistProvider>{children}</WishlistProvider>
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );
