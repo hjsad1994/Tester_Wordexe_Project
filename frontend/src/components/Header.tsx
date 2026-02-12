@@ -13,6 +13,7 @@ import {
   GiftIcon,
   SparkleIcon,
 } from './icons';
+import { useCart } from '@/contexts/CartContext';
 
 const navLinks = [
   { name: 'Trang chủ', href: '/' },
@@ -26,6 +27,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { cartCount } = useCart();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -117,15 +119,22 @@ export default function Header() {
               </Link>
 
               {/* Cart */}
-              <button
+              <Link
+                href="/cart"
                 className="relative p-2.5 rounded-full bg-gradient-to-r from-pink-400 to-pink-500 text-white shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
                 aria-label="Xem giỏ hàng"
               >
                 <CartIcon size={22} />
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-white text-pink-500 text-xs font-bold rounded-full flex items-center justify-center shadow-md">
-                  2
-                </span>
-              </button>
+                {cartCount > 0 && (
+                  <span
+                    className="absolute -top-1 -right-1 w-5 h-5 bg-white text-pink-500 text-xs font-bold rounded-full flex items-center justify-center shadow-md"
+                    aria-live="polite"
+                    role="status"
+                  >
+                    {cartCount > 99 ? '99+' : cartCount}
+                  </span>
+                )}
+              </Link>
 
               {/* Mobile Menu Button */}
               <button

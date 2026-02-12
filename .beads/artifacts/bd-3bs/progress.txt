@@ -1,0 +1,20 @@
+# Progress Log
+
+Bead: bd-3bs
+Started: 2026-02-12
+
+## Codebase Patterns
+
+- Components use `"use client"` for client interactivity
+- Styling: Tailwind + OKLCH CSS vars (--pink-*, --warm-white, --soft-cream)
+- Icons centralized in `frontend/src/components/icons/index.tsx`
+- Header cart badge hardcoded to `2` at Header.tsx:125
+- ProductCard "Thêm giỏ" button has empty placeholder at ProductCard.tsx:155-159
+- ProductDetailModal handleAddToCart only does console.log at ProductDetailModal.tsx:77-81
+- Product detail page add-to-cart button has no onClick at products/[id]/page.tsx:600
+- No existing state management (no Context, Zustand, or Redux)
+- Next.js 16 App Router with React 19
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
