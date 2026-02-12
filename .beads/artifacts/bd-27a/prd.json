@@ -1,0 +1,144 @@
+{
+  "beadId": "bd-27a",
+  "prdName": "user-profile-page",
+  "tasks": [
+    {
+      "id": "frontend-1",
+      "category": "frontend",
+      "title": "Header Avatar Navigation",
+      "description": "Avatar icon button trên Header (desktop + mobile) navigate đến /profile khi click.",
+      "steps": [
+        "`npm run lint && npm run build` passes",
+        "Click avatar icon → navigates to /profile"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": ["Profile Page Layout"],
+        "files": ["frontend/src/components/Header.tsx"]
+      }
+    },
+    {
+      "id": "frontend-2",
+      "category": "frontend",
+      "title": "Profile Page Layout",
+      "description": "Trang /profile có layout hoàn chỉnh với sidebar navigation (avatar + menu items) và main content area, responsive trên mobile/desktop, dùng mock user data.",
+      "steps": [
+        "`npm run lint && npm run build` passes",
+        "Page renders tại /profile với avatar, user info, navigation tabs",
+        "Responsive layout kiểm tra ở 320px, 768px, 1280px"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": ["Header Avatar Navigation"],
+        "files": ["frontend/src/app/profile/page.tsx", "frontend/src/components/icons/index.tsx"]
+      }
+    },
+    {
+      "id": "frontend-3",
+      "category": "frontend",
+      "title": "Avatar Upload & Crop",
+      "description": "User có thể upload ảnh, crop 1:1 ratio trong modal, preview ảnh mới — validate file type và size (max 5MB).",
+      "steps": [
+        "`npm run lint && npm run build` passes",
+        "Upload image → crop modal appears → confirm → new avatar displays",
+        "File > 5MB → error message shown",
+        "Non-image file → rejected by file picker"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["Profile Page Layout"],
+        "parallel": false,
+        "conflicts_with": [],
+        "files": ["frontend/src/app/profile/page.tsx", "frontend/package.json"]
+      }
+    },
+    {
+      "id": "frontend-4",
+      "category": "frontend",
+      "title": "Edit Profile Form",
+      "description": "Form chỉnh sửa thông tin cá nhân (tên, email [readonly], SĐT, địa chỉ, bio) với inline validation và toast feedback.",
+      "steps": [
+        "`npm run lint && npm run build` passes",
+        "Sửa thông tin → 'Lưu thay đổi' → toast success",
+        "Bỏ trống tên → validation error hiển thị inline"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["Profile Page Layout"],
+        "parallel": true,
+        "conflicts_with": ["Avatar Upload & Crop"],
+        "files": ["frontend/src/app/profile/page.tsx"]
+      }
+    },
+    {
+      "id": "frontend-5",
+      "category": "frontend",
+      "title": "Change Password Section",
+      "description": "Form đổi mật khẩu với validation (min 8 chars, confirm match) và feedback.",
+      "steps": [
+        "`npm run lint && npm run build` passes",
+        "Mật khẩu < 8 chars → error message",
+        "Confirm không khớp → error message",
+        "Thành công → toast + clear form"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["Profile Page Layout"],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/app/profile/page.tsx"]
+      }
+    },
+    {
+      "id": "frontend-6",
+      "category": "frontend",
+      "title": "Order History Section",
+      "description": "Tab/section hiển thị danh sách đơn hàng mock với status badges, expandable chi tiết, và empty state.",
+      "steps": [
+        "`npm run lint && npm run build` passes",
+        "Hiển thị danh sách mock orders với status (Đang xử lý, Đang giao, Hoàn thành)",
+        "Click vào order → expand chi tiết sản phẩm",
+        "Empty state hiển thị khi không có đơn hàng"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["Profile Page Layout"],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/app/profile/page.tsx"]
+      }
+    }
+  ],
+  "context": {
+    "patterns": [
+      "Page pattern: frontend/src/app/about/page.tsx — React component with Header/Footer, Tailwind utility classes",
+      "Header: frontend/src/components/Header.tsx — 'use client', icons from ./icons",
+      "CSS theming: frontend/src/app/globals.css — Pink pastel CSS variables, utility classes",
+      "Icons: frontend/src/components/icons/index.tsx — Centralized exports"
+    ],
+    "keyFiles": [
+      "frontend/src/components/Header.tsx",
+      "frontend/src/app/globals.css",
+      "frontend/src/components/icons/index.tsx",
+      "frontend/src/app/layout.tsx"
+    ],
+    "nonGoals": [
+      "Auth provider setup (Supabase Auth, NextAuth)",
+      "Cloudinary integration for avatar storage",
+      "Login/register pages",
+      "Backend API routes for profile",
+      "Email verification flow"
+    ]
+  },
+  "beadMetadata": {
+    "depends_on": [],
+    "parallel": true,
+    "conflicts_with": [],
+    "blocks": [],
+    "estimated_hours": 8
+  }
+}

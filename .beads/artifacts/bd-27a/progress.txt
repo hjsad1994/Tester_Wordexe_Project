@@ -1,0 +1,19 @@
+# Progress Log
+
+Bead: bd-27a
+Started: 2026-02-12
+
+## Codebase Patterns
+
+- Pages import Header/Footer directly (not via layout)
+- 'use client' directive for interactive components
+- Tailwind v4 utility classes + CSS variables from globals.css
+- Pink pastel theme: --pink-50 to --pink-500, gradient utilities
+- Icons centralized in frontend/src/components/icons/index.tsx
+- Vietnamese UI text throughout
+- No auth system — all user data will be mock/local state
+- No form validation library — use native HTML validation + custom logic
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
