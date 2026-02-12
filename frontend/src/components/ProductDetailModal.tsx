@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   CloseIcon,
   HeartIcon,
@@ -61,7 +62,8 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
   const [quantity, setQuantity] = useState(1);
   const [isLiked, setIsLiked] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'reviews'>('details');
-  const { addToCart } = useCart();
+  const { addToCart, setBuyNowItem } = useCart();
+  const router = useRouter();
 
   if (!product || !isOpen) return null;
 
@@ -379,7 +381,20 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
             </div>
 
             {/* Buy Now */}
-            <button className="w-full py-3 px-6 border-2 border-pink-400 text-pink-500 font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-pink-50 transition-all mb-5">
+            <button
+              onClick={() => {
+                if (!product) return;
+                setBuyNowItem({
+                  id: product.id,
+                  name: product.name,
+                  price: product.price,
+                  image: product.illustration,
+                  quantity,
+                });
+                router.push('/checkout?buyNow=true');
+              }}
+              className="w-full py-3 px-6 border-2 border-pink-400 text-pink-500 font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-pink-50 transition-all mb-5"
+            >
               <span>Mua ngay</span>
               <ArrowRightIcon size={18} />
             </button>

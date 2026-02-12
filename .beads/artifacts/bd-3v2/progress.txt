@@ -1,0 +1,19 @@
+# Progress Log
+
+Bead: bd-3v2
+Started: 2026-02-12
+
+## Codebase Patterns
+
+- React 19 Context: `<Context value={}>` directly — no `.Provider`
+- Cart state: `useReducer` in `src/contexts/CartContext.tsx`
+- Styling: Baby Bliss pastel OKLCH theme (pink-500 primary, warm-white bg, lavender/mint accents)
+- Icons: Custom SVG components in `src/components/icons/index.tsx`
+- Vietnamese UI: All user-facing text in Vietnamese
+- Product type: `{ id, name, price, originalPrice?, illustration, rating, reviews, badge?, category }`
+- CartItem type: `{ id, name, price, image, quantity }`
+- Mock data: hardcoded `allProducts` arrays in page files
+
+---
+
+<!-- Task logs below - APPEND ONLY -->

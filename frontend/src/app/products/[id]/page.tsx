@@ -302,7 +302,7 @@ export default function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState(0);
   const [selectedSize, setSelectedSize] = useState(0);
   const [showAllReviews, setShowAllReviews] = useState(false);
-  const { addToCart } = useCart();
+  const { addToCart, setBuyNowItem } = useCart();
 
   // Find product
   const product = allProducts.find((p) => p.id === productId);
@@ -617,7 +617,19 @@ export default function ProductDetailPage() {
                   <CartIcon size={22} />
                   <span>Thêm vào giỏ hàng</span>
                 </button>
-                <button className="py-4 px-8 border-2 border-pink-400 text-pink-500 font-semibold rounded-2xl hover:bg-pink-50 transition-all">
+                <button
+                  onClick={() => {
+                    setBuyNowItem({
+                      id: product.id,
+                      name: product.name,
+                      price: product.price,
+                      image: product.illustration,
+                      quantity,
+                    });
+                    router.push('/checkout?buyNow=true');
+                  }}
+                  className="py-4 px-8 border-2 border-pink-400 text-pink-500 font-semibold rounded-2xl hover:bg-pink-50 transition-all"
+                >
                   Mua ngay
                 </button>
               </div>

@@ -12,13 +12,16 @@ export interface CartItem {
 
 interface CartState {
   items: CartItem[];
+  buyNowItem: CartItem | null;
 }
 
 type CartAction =
   | { type: 'ADD_ITEM'; payload: Omit<CartItem, 'quantity'> }
   | { type: 'REMOVE_ITEM'; payload: { id: string } }
   | { type: 'UPDATE_QUANTITY'; payload: { id: string; quantity: number } }
-  | { type: 'CLEAR_CART' };
+  | { type: 'CLEAR_CART' }
+  | { type: 'SET_BUY_NOW'; payload: CartItem }
+  | { type: 'CLEAR_BUY_NOW' };
 
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
@@ -30,24 +33,29 @@ function cartReducer(state: CartState, action: CartAction): CartState {
           ...updatedItems[existingIndex],
           quantity: updatedItems[existingIndex].quantity + 1,
         };
-        return { items: updatedItems };
+        return { ...state, items: updatedItems };
       }
-      return { items: [...state.items, { ...action.payload, quantity: 1 }] };
+      return { ...state, items: [...state.items, { ...action.payload, quantity: 1 }] };
     }
     case 'REMOVE_ITEM':
-      return { items: state.items.filter((item) => item.id !== action.payload.id) };
+      return { ...state, items: state.items.filter((item) => item.id !== action.payload.id) };
     case 'UPDATE_QUANTITY': {
       if (action.payload.quantity <= 0) {
-        return { items: state.items.filter((item) => item.id !== action.payload.id) };
+        return { ...state, items: state.items.filter((item) => item.id !== action.payload.id) };
       }
       return {
+        ...state,
         items: state.items.map((item) =>
           item.id === action.payload.id ? { ...item, quantity: action.payload.quantity } : item
         ),
       };
     }
     case 'CLEAR_CART':
-      return { items: [] };
+      return { ...state, items: [] };
+    case 'SET_BUY_NOW':
+      return { ...state, buyNowItem: action.payload };
+    case 'CLEAR_BUY_NOW':
+      return { ...state, buyNowItem: null };
     default:
       return state;
   }
@@ -57,16 +65,19 @@ interface CartContextValue {
   cartItems: CartItem[];
   cartCount: number;
   cartTotal: number;
+  buyNowItem: CartItem | null;
   addToCart: (item: Omit<CartItem, 'quantity'>) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
+  setBuyNowItem: (item: CartItem) => void;
+  clearBuyNowItem: () => void;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(cartReducer, { items: [] });
+  const [state, dispatch] = useReducer(cartReducer, { items: [], buyNowItem: null });
 
   const cartCount = useMemo(
     () => state.items.reduce((sum, item) => sum + item.quantity, 0),
@@ -94,17 +105,28 @@ export function CartProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'CLEAR_CART' });
   };
 
+  const setBuyNowItem = (item: CartItem) => {
+    dispatch({ type: 'SET_BUY_NOW', payload: item });
+  };
+
+  const clearBuyNowItem = () => {
+    dispatch({ type: 'CLEAR_BUY_NOW' });
+  };
+
   const value = useMemo(
     () => ({
       cartItems: state.items,
       cartCount,
       cartTotal,
+      buyNowItem: state.buyNowItem,
       addToCart,
       removeFromCart,
       updateQuantity,
       clearCart,
+      setBuyNowItem,
+      clearBuyNowItem,
     }),
-    [state.items, cartCount, cartTotal]
+    [state.items, state.buyNowItem, cartCount, cartTotal]
   );
 
   return <CartContext value={value}>{children}</CartContext>;
