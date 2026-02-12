@@ -23,23 +23,35 @@ interface ProductDetailModalProps {
 }
 
 // Extended product details
-const productDetails: Record<string, { description: string; features: string[]; colors?: string[] }> = {
+const productDetails: Record<
+  string,
+  { description: string; features: string[]; colors?: string[] }
+> = {
   '1': {
-    description: 'Bộ quần áo cotton organic cao cấp, được làm từ 100% cotton hữu cơ, mềm mại và an toàn cho làn da nhạy cảm của bé. Thiết kế tiện lợi với nút bấm dễ dàng thay đồ.',
-    features: ['100% Cotton Organic', 'Không chất tẩy độc hại', 'Nút bấm tiện lợi', 'Giặt máy được'],
+    description:
+      'Bộ quần áo cotton organic cao cấp, được làm từ 100% cotton hữu cơ, mềm mại và an toàn cho làn da nhạy cảm của bé. Thiết kế tiện lợi với nút bấm dễ dàng thay đồ.',
+    features: [
+      '100% Cotton Organic',
+      'Không chất tẩy độc hại',
+      'Nút bấm tiện lợi',
+      'Giặt máy được',
+    ],
     colors: ['Trắng', 'Hồng nhạt', 'Xanh mint'],
   },
   '2': {
-    description: 'Bình sữa chống đầy hơi với công nghệ van khí tiên tiến, giúp bé bú thoải mái mà không bị sặc hay đầy bụng. Chất liệu nhựa PP an toàn, không BPA.',
+    description:
+      'Bình sữa chống đầy hơi với công nghệ van khí tiên tiến, giúp bé bú thoải mái mà không bị sặc hay đầy bụng. Chất liệu nhựa PP an toàn, không BPA.',
     features: ['Chống đầy hơi', 'Không BPA', 'Núm ti silicon mềm', 'Dễ vệ sinh'],
   },
   '3': {
-    description: 'Gấu bông Teddy Bear siêu mềm mại, làm từ chất liệu plush cao cấp, an toàn cho bé. Người bạn đồng hành đáng yêu cho những giấc ngủ ngon.',
+    description:
+      'Gấu bông Teddy Bear siêu mềm mại, làm từ chất liệu plush cao cấp, an toàn cho bé. Người bạn đồng hành đáng yêu cho những giấc ngủ ngon.',
     features: ['Chất liệu plush mềm', 'An toàn cho bé', 'Có thể giặt', 'Không rụng lông'],
     colors: ['Nâu', 'Trắng kem', 'Hồng'],
   },
   default: {
-    description: 'Sản phẩm chất lượng cao, được thiết kế đặc biệt cho bé yêu của bạn. An toàn, tiện lợi và đáng tin cậy.',
+    description:
+      'Sản phẩm chất lượng cao, được thiết kế đặc biệt cho bé yêu của bạn. An toàn, tiện lợi và đáng tin cậy.',
     features: ['Chất lượng cao', 'An toàn cho bé', 'Thiết kế tiện lợi', 'Đảm bảo chính hãng'],
   },
 };
@@ -106,11 +118,15 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                   product.badge === 'new'
                     ? 'bg-blue-500 text-white'
                     : product.badge === 'sale'
-                    ? 'bg-red-500 text-white'
-                    : 'bg-amber-500 text-white'
+                      ? 'bg-red-500 text-white'
+                      : 'bg-amber-500 text-white'
                 }`}
               >
-                {product.badge === 'new' ? 'Mới' : product.badge === 'sale' ? `-${discount}%` : 'Hot'}
+                {product.badge === 'new'
+                  ? 'Mới'
+                  : product.badge === 'sale'
+                    ? `-${discount}%`
+                    : 'Hot'}
               </div>
             )}
 
@@ -155,7 +171,9 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                   />
                 ))}
               </div>
-              <span className="text-sm font-medium text-[var(--text-primary)]">{product.rating}</span>
+              <span className="text-sm font-medium text-[var(--text-primary)]">
+                {product.rating}
+              </span>
               <span className="text-sm text-[var(--text-muted)]">({product.reviews} đánh giá)</span>
             </div>
 
@@ -222,7 +240,11 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                       className="flex items-center gap-2 text-sm text-[var(--text-secondary)]"
                     >
                       <span className="w-5 h-5 rounded-full bg-pink-100 flex items-center justify-center flex-shrink-0">
-                        <svg className="w-3 h-3 text-pink-500" fill="currentColor" viewBox="0 0 20 20">
+                        <svg
+                          className="w-3 h-3 text-pink-500"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
                           <path
                             fillRule="evenodd"
                             d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -262,8 +284,16 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
               <div className="space-y-3 mb-6">
                 {/* Sample reviews */}
                 {[
-                  { name: 'Nguyễn Thị M.', rating: 5, comment: 'Sản phẩm rất tốt, bé nhà mình rất thích!' },
-                  { name: 'Trần Văn H.', rating: 5, comment: 'Chất lượng tuyệt vời, giao hàng nhanh.' },
+                  {
+                    name: 'Nguyễn Thị M.',
+                    rating: 5,
+                    comment: 'Sản phẩm rất tốt, bé nhà mình rất thích!',
+                  },
+                  {
+                    name: 'Trần Văn H.',
+                    rating: 5,
+                    comment: 'Chất lượng tuyệt vời, giao hàng nhanh.',
+                  },
                   { name: 'Lê Thị L.', rating: 4, comment: 'Đóng gói cẩn thận, sẽ mua lại.' },
                 ].map((review, i) => (
                   <div key={i} className="p-3 rounded-xl bg-pink-50/50 border border-pink-100">
@@ -271,10 +301,16 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                       <div className="w-7 h-7 rounded-full bg-gradient-to-br from-pink-400 to-purple-400 flex items-center justify-center text-white text-xs font-bold">
                         {review.name[0]}
                       </div>
-                      <span className="text-sm font-medium text-[var(--text-primary)]">{review.name}</span>
+                      <span className="text-sm font-medium text-[var(--text-primary)]">
+                        {review.name}
+                      </span>
                       <div className="flex gap-0.5 ml-auto">
                         {[...Array(5)].map((_, j) => (
-                          <StarIcon key={j} size={12} className={j < review.rating ? 'text-amber-400' : 'text-gray-200'} />
+                          <StarIcon
+                            key={j}
+                            size={12}
+                            className={j < review.rating ? 'text-amber-400' : 'text-gray-200'}
+                          />
                         ))}
                       </div>
                     </div>
@@ -296,16 +332,28 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                   className="w-10 h-10 flex items-center justify-center text-[var(--text-secondary)] hover:bg-pink-50 transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M20 12H4"
+                    />
                   </svg>
                 </button>
-                <span className="w-12 text-center font-medium text-[var(--text-primary)]">{quantity}</span>
+                <span className="w-12 text-center font-medium text-[var(--text-primary)]">
+                  {quantity}
+                </span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
                   className="w-10 h-10 flex items-center justify-center text-[var(--text-secondary)] hover:bg-pink-50 transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
                   </svg>
                 </button>
               </div>
@@ -332,19 +380,25 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                 <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center mb-1">
                   <TruckIcon size={18} className="text-pink-500" />
                 </div>
-                <span className="text-[10px] text-[var(--text-muted)] leading-tight">Miễn phí ship từ 500K</span>
+                <span className="text-[10px] text-[var(--text-muted)] leading-tight">
+                  Miễn phí ship từ 500K
+                </span>
               </div>
               <div className="flex flex-col items-center text-center p-2">
                 <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center mb-1">
                   <ShieldIcon size={18} className="text-pink-500" />
                 </div>
-                <span className="text-[10px] text-[var(--text-muted)] leading-tight">Đổi trả 30 ngày</span>
+                <span className="text-[10px] text-[var(--text-muted)] leading-tight">
+                  Đổi trả 30 ngày
+                </span>
               </div>
               <div className="flex flex-col items-center text-center p-2">
                 <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center mb-1">
                   <GiftIcon size={18} className="text-pink-500" />
                 </div>
-                <span className="text-[10px] text-[var(--text-muted)] leading-tight">Quà tặng kèm</span>
+                <span className="text-[10px] text-[var(--text-muted)] leading-tight">
+                  Quà tặng kèm
+                </span>
               </div>
             </div>
           </div>
@@ -353,8 +407,12 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
 
       <style jsx>{`
         @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
         }
         @keyframes modalSlideUp {
           from {

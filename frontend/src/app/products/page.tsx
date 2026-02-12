@@ -10,7 +10,6 @@ import {
   FilterIcon,
   GridIcon,
   ListIcon,
-  ChevronDownIcon,
   CloseIcon,
 } from '@/components/icons';
 import {
@@ -251,8 +250,6 @@ export default function ProductsPage() {
   const [selectedSort, setSelectedSort] = useState('popular');
   const [selectedPriceRange, setSelectedPriceRange] = useState('all');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [isSortOpen, setIsSortOpen] = useState(false);
-  const [isPriceOpen, setIsPriceOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   const filteredProducts = useMemo(() => {
@@ -337,7 +334,8 @@ export default function ProductsPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Tìm kiếm sản phẩm..."
-                className="w-full px-4 py-2.5 pl-10 rounded-xl border border-pink-200 focus:border-pink-400 focus:outline-none bg-white text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] transition-all"
+                aria-label="Tìm kiếm sản phẩm"
+                className="w-full px-4 py-2.5 pl-10 rounded-xl border border-pink-200 focus-visible:border-pink-400 focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none bg-white text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] transition-all"
               />
               <SearchIcon
                 size={18}
@@ -346,7 +344,8 @@ export default function ProductsPage() {
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-pink-500"
+                  aria-label="Xóa tìm kiếm"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[var(--text-muted)] hover:text-pink-500 focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none rounded"
                 >
                   <CloseIcon size={16} />
                 </button>
@@ -363,7 +362,7 @@ export default function ProductsPage() {
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                  className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl text-sm font-medium transition-all focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none ${
                     isActive
                       ? 'bg-gradient-to-r from-pink-400 to-pink-500 text-white shadow-md'
                       : 'bg-white border border-pink-100 text-[var(--text-secondary)] hover:border-pink-300 hover:bg-pink-50'
@@ -403,63 +402,38 @@ export default function ProductsPage() {
               {/* Mobile Filter Button */}
               <button
                 onClick={() => setIsFilterOpen(true)}
-                className="lg:hidden flex items-center gap-1.5 px-3 py-2 rounded-lg bg-pink-50 text-pink-600 text-sm font-medium hover:bg-pink-100 transition-colors"
+                className="lg:hidden flex items-center gap-1.5 px-3 py-2.5 min-h-[44px] rounded-lg bg-pink-50 text-pink-600 text-sm font-medium hover:bg-pink-100 transition-colors focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none"
               >
                 <FilterIcon size={16} />
                 <span>Lọc</span>
               </button>
 
-              {/* Price Filter Dropdown */}
-              <div className="relative hidden sm:block">
-                <button
-                  onClick={() => {
-                    setIsPriceOpen(!isPriceOpen);
-                    setIsSortOpen(false);
-                  }}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              {/* Price Filter Select */}
+              <div className="hidden sm:block">
+                <select
+                  value={selectedPriceRange}
+                  onChange={(e) => setSelectedPriceRange(e.target.value)}
+                  aria-label="Lọc theo giá"
+                  className={`px-3 py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-colors appearance-none bg-no-repeat bg-[length:14px] bg-[right_8px_center] bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23ec4899%22%20stroke-width%3D%222%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] pr-7 cursor-pointer focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none ${
                     selectedPriceRange !== 'all'
                       ? 'bg-pink-500 text-white'
                       : 'bg-pink-50 text-pink-600 hover:bg-pink-100'
                   }`}
                 >
-                  <span>
-                    {selectedPriceRange === 'all'
-                      ? 'Giá'
-                      : priceRanges.find((r) => r.id === selectedPriceRange)?.name}
-                  </span>
-                  <ChevronDownIcon size={14} className={isPriceOpen ? 'rotate-180' : ''} />
-                </button>
-
-                {isPriceOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setIsPriceOpen(false)} />
-                    <div className="absolute left-0 top-full mt-1 w-40 bg-white rounded-xl shadow-xl border border-pink-100 py-1 z-50">
-                      {priceRanges.map((range) => (
-                        <button
-                          key={range.id}
-                          onClick={() => {
-                            setSelectedPriceRange(range.id);
-                            setIsPriceOpen(false);
-                          }}
-                          className={`w-full px-3 py-2 text-left text-sm transition-colors ${
-                            selectedPriceRange === range.id
-                              ? 'bg-pink-50 text-pink-600 font-medium'
-                              : 'text-[var(--text-secondary)] hover:bg-pink-50'
-                          }`}
-                        >
-                          {range.name}
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                )}
+                  {priceRanges.map((range) => (
+                    <option key={range.id} value={range.id}>
+                      {range.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Active Filters */}
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
-                  className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-pink-500 hover:bg-pink-50 transition-colors"
+                  aria-label="Xóa tất cả bộ lọc"
+                  className="flex items-center gap-1 px-3 py-2.5 min-h-[44px] rounded-lg text-xs text-pink-500 hover:bg-pink-50 transition-colors focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none"
                 >
                   <CloseIcon size={12} />
                   <span>Xóa lọc</span>
@@ -469,52 +443,29 @@ export default function ProductsPage() {
 
             {/* Right Side - Sort & View */}
             <div className="flex items-center gap-2">
-              {/* Sort Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => {
-                    setIsSortOpen(!isSortOpen);
-                    setIsPriceOpen(false);
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-pink-200 text-sm text-[var(--text-secondary)] hover:border-pink-300 transition-colors"
+              {/* Sort Select */}
+              <div>
+                <select
+                  value={selectedSort}
+                  onChange={(e) => setSelectedSort(e.target.value)}
+                  aria-label="Sắp xếp sản phẩm"
+                  className="px-3 py-2.5 min-h-[44px] rounded-lg bg-white border border-pink-200 text-sm text-[var(--text-secondary)] hover:border-pink-300 transition-colors appearance-none bg-no-repeat bg-[length:14px] bg-[right_8px_center] bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23ec4899%22%20stroke-width%3D%222%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] pr-7 cursor-pointer focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none"
                 >
-                  <span className="hidden sm:inline">
-                    {sortOptions.find((s) => s.id === selectedSort)?.name}
-                  </span>
-                  <span className="sm:hidden">Sắp xếp</span>
-                  <ChevronDownIcon size={14} className={isSortOpen ? 'rotate-180' : ''} />
-                </button>
-
-                {isSortOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setIsSortOpen(false)} />
-                    <div className="absolute right-0 top-full mt-1 w-44 bg-white rounded-xl shadow-xl border border-pink-100 py-1 z-50">
-                      {sortOptions.map((option) => (
-                        <button
-                          key={option.id}
-                          onClick={() => {
-                            setSelectedSort(option.id);
-                            setIsSortOpen(false);
-                          }}
-                          className={`w-full px-3 py-2 text-left text-sm transition-colors ${
-                            selectedSort === option.id
-                              ? 'bg-pink-50 text-pink-600 font-medium'
-                              : 'text-[var(--text-secondary)] hover:bg-pink-50'
-                          }`}
-                        >
-                          {option.name}
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                )}
+                  {sortOptions.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* View Mode Toggle */}
               <div className="hidden sm:flex items-center border border-pink-200 rounded-lg overflow-hidden">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 transition-colors ${
+                  aria-label="Xem dạng lưới"
+                  aria-pressed={viewMode === 'grid'}
+                  className={`p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none ${
                     viewMode === 'grid'
                       ? 'bg-pink-500 text-white'
                       : 'bg-white text-[var(--text-muted)] hover:bg-pink-50'
@@ -524,7 +475,9 @@ export default function ProductsPage() {
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 transition-colors ${
+                  aria-label="Xem dạng danh sách"
+                  aria-pressed={viewMode === 'list'}
+                  className={`p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none ${
                     viewMode === 'list'
                       ? 'bg-pink-500 text-white'
                       : 'bg-white text-[var(--text-muted)] hover:bg-pink-50'
@@ -556,7 +509,7 @@ export default function ProductsPage() {
           ) : (
             <div className="text-center py-16">
               <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-pink-100 flex items-center justify-center">
-                <SearchIcon size={32} className="text-pink-300" />
+                <SearchIcon size={32} className="text-pink-500" />
               </div>
               <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
                 Không tìm thấy sản phẩm
@@ -566,7 +519,7 @@ export default function ProductsPage() {
               </p>
               <button
                 onClick={clearFilters}
-                className="px-4 py-2 rounded-lg bg-pink-500 text-white text-sm font-medium hover:bg-pink-600 transition-colors"
+                className="px-4 py-2.5 min-h-[44px] rounded-lg bg-pink-500 text-white text-sm font-medium hover:bg-pink-600 transition-colors focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none"
               >
                 Xóa bộ lọc
               </button>
@@ -576,7 +529,7 @@ export default function ProductsPage() {
           {/* Load More */}
           {filteredProducts.length > 0 && (
             <div className="text-center mt-8">
-              <button className="px-6 py-2.5 rounded-xl border-2 border-pink-300 text-pink-500 text-sm font-medium hover:bg-pink-50 transition-colors">
+              <button className="px-6 py-2.5 min-h-[44px] rounded-xl border-2 border-pink-300 text-pink-500 text-sm font-medium hover:bg-pink-50 transition-colors focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none">
                 Xem thêm sản phẩm
               </button>
             </div>
@@ -586,17 +539,25 @@ export default function ProductsPage() {
 
       {/* Mobile Filter Modal */}
       {isFilterOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="filter-modal-title"
+          className="fixed inset-0 z-50 lg:hidden"
+        >
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setIsFilterOpen(false)}
           />
           <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl max-h-[70vh] overflow-y-auto animate-slide-up">
             <div className="sticky top-0 bg-white border-b border-pink-100 p-4 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-[var(--text-primary)]">Bộ lọc</h2>
+              <h2 id="filter-modal-title" className="text-lg font-bold text-[var(--text-primary)]">
+                Bộ lọc
+              </h2>
               <button
                 onClick={() => setIsFilterOpen(false)}
-                className="p-2 rounded-full hover:bg-pink-50 text-[var(--text-secondary)]"
+                aria-label="Đóng bộ lọc"
+                className="p-3 min-w-[44px] min-h-[44px] rounded-full hover:bg-pink-50 text-[var(--text-secondary)] focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none"
               >
                 <CloseIcon size={20} />
               </button>
@@ -614,7 +575,7 @@ export default function ProductsPage() {
                       <button
                         key={category.id}
                         onClick={() => setSelectedCategory(category.id)}
-                        className={`flex flex-col items-center gap-1 p-3 rounded-xl transition-all text-xs ${
+                        className={`flex flex-col items-center gap-1 p-3 min-h-[44px] rounded-xl transition-all text-xs focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none ${
                           isActive
                             ? 'bg-gradient-to-br from-pink-400 to-pink-500 text-white shadow-md'
                             : 'bg-pink-50 text-[var(--text-secondary)]'
@@ -647,7 +608,7 @@ export default function ProductsPage() {
                     <button
                       key={range.id}
                       onClick={() => setSelectedPriceRange(range.id)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      className={`px-4 py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-all focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none ${
                         selectedPriceRange === range.id
                           ? 'bg-gradient-to-r from-pink-400 to-pink-500 text-white shadow-md'
                           : 'bg-pink-50 text-[var(--text-secondary)]'
@@ -664,13 +625,13 @@ export default function ProductsPage() {
             <div className="sticky bottom-0 bg-white border-t border-pink-100 p-4 flex gap-3">
               <button
                 onClick={clearFilters}
-                className="flex-1 py-3 rounded-xl border-2 border-pink-300 text-pink-500 font-medium text-sm"
+                className="flex-1 py-3 min-h-[44px] rounded-xl border-2 border-pink-300 text-pink-500 font-medium text-sm focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none"
               >
                 Xóa lọc
               </button>
               <button
                 onClick={() => setIsFilterOpen(false)}
-                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-pink-400 to-pink-500 text-white font-medium text-sm shadow-md"
+                className="flex-1 py-3 min-h-[44px] rounded-xl bg-gradient-to-r from-pink-400 to-pink-500 text-white font-medium text-sm shadow-md focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none"
               >
                 Áp dụng
               </button>
@@ -699,6 +660,11 @@ export default function ProductsPage() {
         }
         .animate-slide-up {
           animation: slide-up 0.3s ease-out;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-slide-up {
+            animation: none;
+          }
         }
       `}</style>
     </div>

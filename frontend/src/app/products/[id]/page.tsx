@@ -148,18 +148,29 @@ const allProducts: Product[] = [
 ];
 
 // Extended product details
-const productDetails: Record<string, {
-  description: string;
-  longDescription: string;
-  features: string[];
-  specifications: { label: string; value: string }[];
-  colors?: { name: string; hex: string }[];
-  sizes?: string[];
-}> = {
+const productDetails: Record<
+  string,
+  {
+    description: string;
+    longDescription: string;
+    features: string[];
+    specifications: { label: string; value: string }[];
+    colors?: { name: string; hex: string }[];
+    sizes?: string[];
+  }
+> = {
   '1': {
     description: 'Bộ quần áo cotton organic cao cấp, được làm từ 100% cotton hữu cơ.',
-    longDescription: 'Bộ quần áo được thiết kế đặc biệt cho làn da nhạy cảm của bé sơ sinh. Chất liệu cotton organic 100% mềm mại, thoáng khí, không gây kích ứng. Đường may tỉ mỉ, chắc chắn. Nút bấm tiện lợi giúp ba mẹ dễ dàng thay đồ cho bé. Phù hợp cho bé từ 0-12 tháng tuổi.',
-    features: ['100% Cotton Organic được chứng nhận GOTS', 'Không chất tẩy độc hại', 'Nút bấm chống gỉ sét', 'Giặt máy được ở 40°C', 'Thiết kế thoáng mát cho mùa hè', 'Co giãn 4 chiều thoải mái'],
+    longDescription:
+      'Bộ quần áo được thiết kế đặc biệt cho làn da nhạy cảm của bé sơ sinh. Chất liệu cotton organic 100% mềm mại, thoáng khí, không gây kích ứng. Đường may tỉ mỉ, chắc chắn. Nút bấm tiện lợi giúp ba mẹ dễ dàng thay đồ cho bé. Phù hợp cho bé từ 0-12 tháng tuổi.',
+    features: [
+      '100% Cotton Organic được chứng nhận GOTS',
+      'Không chất tẩy độc hại',
+      'Nút bấm chống gỉ sét',
+      'Giặt máy được ở 40°C',
+      'Thiết kế thoáng mát cho mùa hè',
+      'Co giãn 4 chiều thoải mái',
+    ],
     specifications: [
       { label: 'Chất liệu', value: '100% Cotton Organic' },
       { label: 'Xuất xứ', value: 'Việt Nam' },
@@ -175,8 +186,16 @@ const productDetails: Record<string, {
   },
   '2': {
     description: 'Bình sữa chống đầy hơi với công nghệ van khí tiên tiến.',
-    longDescription: 'Bình sữa Pigeon được thiết kế với công nghệ van khí độc quyền, giúp điều tiết lượng không khí vào bình, ngăn ngừa tình trạng bé nuốt phải khí khi bú. Núm ti silicon mềm mại, có hình dáng tương tự núm vú mẹ, giúp bé dễ dàng chuyển đổi giữa bú mẹ và bú bình.',
-    features: ['Công nghệ van khí chống đầy hơi', 'Núm ti Peristaltic Plus', 'Chất liệu PP an toàn, không BPA', 'Dễ vệ sinh, có thể tiệt trùng', 'Vạch chia ml rõ ràng', 'Nắp đậy kín chống tràn'],
+    longDescription:
+      'Bình sữa Pigeon được thiết kế với công nghệ van khí độc quyền, giúp điều tiết lượng không khí vào bình, ngăn ngừa tình trạng bé nuốt phải khí khi bú. Núm ti silicon mềm mại, có hình dáng tương tự núm vú mẹ, giúp bé dễ dàng chuyển đổi giữa bú mẹ và bú bình.',
+    features: [
+      'Công nghệ van khí chống đầy hơi',
+      'Núm ti Peristaltic Plus',
+      'Chất liệu PP an toàn, không BPA',
+      'Dễ vệ sinh, có thể tiệt trùng',
+      'Vạch chia ml rõ ràng',
+      'Nắp đậy kín chống tràn',
+    ],
     specifications: [
       { label: 'Dung tích', value: '240ml' },
       { label: 'Chất liệu', value: 'Nhựa PP cao cấp' },
@@ -186,8 +205,16 @@ const productDetails: Record<string, {
   },
   '3': {
     description: 'Gấu bông Teddy Bear siêu mềm mại, người bạn đồng hành đáng yêu.',
-    longDescription: 'Gấu bông Teddy Bear được làm từ chất liệu plush cao cấp, siêu mềm mại và an toàn cho bé. Bông nhồi bên trong được xử lý kháng khuẩn, không gây dị ứng. Đường may chắc chắn, mắt và mũi được thêu trực tiếp thay vì dùng nút, đảm bảo an toàn tuyệt đối cho bé.',
-    features: ['Chất liệu plush siêu mềm', 'Bông nhồi kháng khuẩn', 'An toàn cho bé từ sơ sinh', 'Có thể giặt máy', 'Không rụng lông', 'Đạt tiêu chuẩn EN71'],
+    longDescription:
+      'Gấu bông Teddy Bear được làm từ chất liệu plush cao cấp, siêu mềm mại và an toàn cho bé. Bông nhồi bên trong được xử lý kháng khuẩn, không gây dị ứng. Đường may chắc chắn, mắt và mũi được thêu trực tiếp thay vì dùng nút, đảm bảo an toàn tuyệt đối cho bé.',
+    features: [
+      'Chất liệu plush siêu mềm',
+      'Bông nhồi kháng khuẩn',
+      'An toàn cho bé từ sơ sinh',
+      'Có thể giặt máy',
+      'Không rụng lông',
+      'Đạt tiêu chuẩn EN71',
+    ],
     specifications: [
       { label: 'Kích thước', value: '35cm' },
       { label: 'Chất liệu', value: 'Plush + PP Cotton' },
@@ -202,8 +229,16 @@ const productDetails: Record<string, {
   },
   default: {
     description: 'Sản phẩm chất lượng cao, được thiết kế đặc biệt cho bé yêu của bạn.',
-    longDescription: 'Sản phẩm được sản xuất theo tiêu chuẩn an toàn quốc tế, đảm bảo chất lượng và an toàn tuyệt đối cho bé. Thiết kế tiện lợi, dễ sử dụng, phù hợp với nhu cầu chăm sóc bé hàng ngày của ba mẹ.',
-    features: ['Chất lượng cao cấp', 'An toàn cho bé', 'Thiết kế tiện lợi', 'Đảm bảo chính hãng', 'Bảo hành đổi trả', 'Hỗ trợ 24/7'],
+    longDescription:
+      'Sản phẩm được sản xuất theo tiêu chuẩn an toàn quốc tế, đảm bảo chất lượng và an toàn tuyệt đối cho bé. Thiết kế tiện lợi, dễ sử dụng, phù hợp với nhu cầu chăm sóc bé hàng ngày của ba mẹ.',
+    features: [
+      'Chất lượng cao cấp',
+      'An toàn cho bé',
+      'Thiết kế tiện lợi',
+      'Đảm bảo chính hãng',
+      'Bảo hành đổi trả',
+      'Hỗ trợ 24/7',
+    ],
     specifications: [
       { label: 'Chất lượng', value: 'Cao cấp' },
       { label: 'Bảo hành', value: '30 ngày' },
@@ -220,7 +255,8 @@ const sampleReviews = [
     avatar: 'NM',
     rating: 5,
     date: '15/01/2025',
-    comment: 'Sản phẩm rất tốt, bé nhà mình rất thích! Chất liệu mềm mại, an toàn. Sẽ ủng hộ shop dài dài.',
+    comment:
+      'Sản phẩm rất tốt, bé nhà mình rất thích! Chất liệu mềm mại, an toàn. Sẽ ủng hộ shop dài dài.',
     helpful: 24,
   },
   {
@@ -229,7 +265,8 @@ const sampleReviews = [
     avatar: 'TH',
     rating: 5,
     date: '12/01/2025',
-    comment: 'Giao hàng nhanh, đóng gói cẩn thận. Chất lượng sản phẩm đúng như mô tả. Rất hài lòng!',
+    comment:
+      'Giao hàng nhanh, đóng gói cẩn thận. Chất lượng sản phẩm đúng như mô tả. Rất hài lòng!',
     helpful: 18,
   },
   {
@@ -247,7 +284,8 @@ const sampleReviews = [
     avatar: 'PD',
     rating: 5,
     date: '08/01/2025',
-    comment: 'Mua lần thứ 3 rồi, chất lượng luôn ổn định. Shop tư vấn nhiệt tình, giao hàng đúng hẹn.',
+    comment:
+      'Mua lần thứ 3 rồi, chất lượng luôn ổn định. Shop tư vấn nhiệt tình, giao hàng đúng hẹn.',
     helpful: 31,
   },
 ];
@@ -317,11 +355,17 @@ export default function ProductDetailPage() {
       <div className="bg-white border-b border-pink-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <nav className="flex items-center gap-2 text-sm">
-            <Link href="/" className="text-[var(--text-muted)] hover:text-pink-500 transition-colors">
+            <Link
+              href="/"
+              className="text-[var(--text-muted)] hover:text-pink-500 transition-colors"
+            >
               Trang chủ
             </Link>
             <span className="text-[var(--text-muted)]">/</span>
-            <Link href="/products" className="text-[var(--text-muted)] hover:text-pink-500 transition-colors">
+            <Link
+              href="/products"
+              className="text-[var(--text-muted)] hover:text-pink-500 transition-colors"
+            >
               Sản phẩm
             </Link>
             <span className="text-[var(--text-muted)]">/</span>
@@ -364,11 +408,15 @@ export default function ProductDetailPage() {
                         product.badge === 'new'
                           ? 'bg-blue-500 text-white'
                           : product.badge === 'sale'
-                          ? 'bg-red-500 text-white'
-                          : 'bg-amber-500 text-white'
+                            ? 'bg-red-500 text-white'
+                            : 'bg-amber-500 text-white'
                       }`}
                     >
-                      {product.badge === 'new' ? 'Mới' : product.badge === 'sale' ? `-${discount}%` : 'Bán chạy'}
+                      {product.badge === 'new'
+                        ? 'Mới'
+                        : product.badge === 'sale'
+                          ? `-${discount}%`
+                          : 'Bán chạy'}
                     </div>
                   )}
 
@@ -432,11 +480,15 @@ export default function ProductDetailPage() {
                     <StarIcon
                       key={i}
                       size={20}
-                      className={i < Math.floor(product.rating) ? 'text-amber-400' : 'text-gray-200'}
+                      className={
+                        i < Math.floor(product.rating) ? 'text-amber-400' : 'text-gray-200'
+                      }
                     />
                   ))}
                 </div>
-                <span className="text-lg font-semibold text-[var(--text-primary)]">{product.rating}</span>
+                <span className="text-lg font-semibold text-[var(--text-primary)]">
+                  {product.rating}
+                </span>
                 <span className="text-[var(--text-muted)]">|</span>
                 <span className="text-[var(--text-secondary)]">{product.reviews} đánh giá</span>
                 <span className="text-[var(--text-muted)]">|</span>
@@ -469,7 +521,10 @@ export default function ProductDetailPage() {
               {details.colors && (
                 <div className="mb-6">
                   <label className="block text-sm font-semibold text-[var(--text-primary)] mb-3">
-                    Màu sắc: <span className="font-normal text-[var(--text-secondary)]">{details.colors[selectedColor].name}</span>
+                    Màu sắc:{' '}
+                    <span className="font-normal text-[var(--text-secondary)]">
+                      {details.colors[selectedColor].name}
+                    </span>
                   </label>
                   <div className="flex gap-3">
                     {details.colors.map((color, i) => (
@@ -536,9 +591,7 @@ export default function ProductDetailPage() {
                       +
                     </button>
                   </div>
-                  <span className="text-sm text-[var(--text-muted)]">
-                    Còn 156 sản phẩm
-                  </span>
+                  <span className="text-sm text-[var(--text-muted)]">Còn 156 sản phẩm</span>
                 </div>
               </div>
 
@@ -560,7 +613,9 @@ export default function ProductDetailPage() {
                     <TruckIcon size={24} className="text-pink-500" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-[var(--text-primary)]">Miễn phí ship</p>
+                    <p className="text-sm font-semibold text-[var(--text-primary)]">
+                      Miễn phí ship
+                    </p>
                     <p className="text-xs text-[var(--text-muted)]">Đơn từ 500K</p>
                   </div>
                 </div>
@@ -630,7 +685,11 @@ export default function ProductDetailPage() {
                     {details.features.map((feature, i) => (
                       <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-pink-50/50">
                         <span className="w-6 h-6 rounded-full bg-pink-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <svg
+                            className="w-3.5 h-3.5 text-white"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
                             <path
                               fillRule="evenodd"
                               d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -650,10 +709,7 @@ export default function ProductDetailPage() {
               <div className="animate-fadeIn">
                 <div className="rounded-2xl border border-pink-100 overflow-hidden">
                   {details.specifications.map((spec, i) => (
-                    <div
-                      key={i}
-                      className={`flex ${i % 2 === 0 ? 'bg-pink-50/50' : 'bg-white'}`}
-                    >
+                    <div key={i} className={`flex ${i % 2 === 0 ? 'bg-pink-50/50' : 'bg-white'}`}>
                       <div className="w-1/3 px-6 py-4 font-medium text-[var(--text-primary)]">
                         {spec.label}
                       </div>
@@ -677,11 +733,15 @@ export default function ProductDetailPage() {
                         <StarIcon
                           key={i}
                           size={16}
-                          className={i < Math.floor(product.rating) ? 'text-amber-400' : 'text-gray-200'}
+                          className={
+                            i < Math.floor(product.rating) ? 'text-amber-400' : 'text-gray-200'
+                          }
                         />
                       ))}
                     </div>
-                    <div className="text-sm text-[var(--text-muted)]">{product.reviews} đánh giá</div>
+                    <div className="text-sm text-[var(--text-muted)]">
+                      {product.reviews} đánh giá
+                    </div>
                   </div>
                   <div className="flex-1 space-y-2">
                     {[5, 4, 3, 2, 1].map((star) => (
@@ -690,7 +750,9 @@ export default function ProductDetailPage() {
                         <div className="flex-1 h-2 rounded-full bg-gray-200 overflow-hidden">
                           <div
                             className="h-full bg-amber-400 rounded-full"
-                            style={{ width: `${star === 5 ? 70 : star === 4 ? 20 : star === 3 ? 8 : 2}%` }}
+                            style={{
+                              width: `${star === 5 ? 70 : star === 4 ? 20 : star === 3 ? 8 : 2}%`,
+                            }}
                           />
                         </div>
                         <span className="text-sm text-[var(--text-muted)] w-10">
@@ -704,17 +766,26 @@ export default function ProductDetailPage() {
                 {/* Reviews List */}
                 <div className="space-y-4">
                   {(showAllReviews ? sampleReviews : sampleReviews.slice(0, 3)).map((review) => (
-                    <div key={review.id} className="p-5 rounded-2xl border border-pink-100 hover:border-pink-200 transition-colors">
+                    <div
+                      key={review.id}
+                      className="p-5 rounded-2xl border border-pink-100 hover:border-pink-200 transition-colors"
+                    >
                       <div className="flex items-start gap-4">
                         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-400 to-purple-400 flex items-center justify-center text-white font-bold">
                           {review.avatar}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <span className="font-semibold text-[var(--text-primary)]">{review.name}</span>
+                            <span className="font-semibold text-[var(--text-primary)]">
+                              {review.name}
+                            </span>
                             <div className="flex gap-0.5">
                               {[...Array(5)].map((_, i) => (
-                                <StarIcon key={i} size={14} className={i < review.rating ? 'text-amber-400' : 'text-gray-200'} />
+                                <StarIcon
+                                  key={i}
+                                  size={14}
+                                  className={i < review.rating ? 'text-amber-400' : 'text-gray-200'}
+                                />
                               ))}
                             </div>
                             <span className="text-sm text-[var(--text-muted)]">{review.date}</span>
@@ -749,9 +820,7 @@ export default function ProductDetailPage() {
         <section className="py-12 bg-gradient-to-b from-white to-pink-50/30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold text-[var(--text-primary)]">
-                Sản phẩm liên quan
-              </h2>
+              <h2 className="text-2xl font-bold text-[var(--text-primary)]">Sản phẩm liên quan</h2>
               <Link
                 href={`/products?category=${product.category}`}
                 className="text-pink-500 font-medium hover:underline flex items-center gap-1"
@@ -773,8 +842,14 @@ export default function ProductDetailPage() {
 
       <style jsx>{`
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
         .animate-fadeIn {
           animation: fadeIn 0.3s ease-out;

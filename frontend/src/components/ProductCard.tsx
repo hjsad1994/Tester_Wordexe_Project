@@ -67,18 +67,21 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
   return (
     <div
-      className="group bg-white rounded-2xl overflow-hidden shadow-sm border border-pink-100 hover:shadow-lg hover:border-pink-200 transition-all duration-300"
+      className="group product-card-animated bg-white rounded-2xl overflow-hidden shadow-sm border border-pink-100 hover:shadow-lg hover:border-pink-200 transition-all duration-300"
       style={{
         animationDelay: `${index * 0.05}s`,
         opacity: 0,
         animationFillMode: 'forwards',
-        animation: 'fadeInUp 0.4s ease-out forwards'
+        animation: 'fadeInUp 0.4s ease-out forwards',
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Image Container - Clickable Link */}
-      <Link href={`/products/${product.id}`} className="block">
+      <Link
+        href={`/products/${product.id}`}
+        className="block focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none rounded-t-2xl"
+      >
         <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-pink-50 to-purple-50 p-2">
           {/* Badge */}
           {product.badge && (
@@ -97,7 +100,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               setIsLiked(!isLiked);
             }}
             aria-label={isLiked ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'}
-            className={`absolute top-2 right-2 z-10 p-2 rounded-full transition-all duration-200 ${
+            className={`absolute top-2 right-2 z-10 p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-all duration-200 focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none ${
               isLiked
                 ? 'bg-pink-500 text-white'
                 : 'bg-white/90 text-pink-400 hover:bg-pink-500 hover:text-white'
@@ -116,12 +119,14 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               <IllustrationComponent size={100} />
             </div>
           </div>
-
         </div>
       </Link>
 
       {/* Product Info */}
-      <Link href={`/products/${product.id}`} className="block p-3 pb-2">
+      <Link
+        href={`/products/${product.id}`}
+        className="block p-3 pb-2 focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none"
+      >
         {/* Name */}
         <h3 className="font-medium text-[var(--text-primary)] text-sm mb-1.5 line-clamp-2 leading-tight group-hover:text-pink-500 transition-colors min-h-[2.5rem]">
           {product.name}
@@ -153,14 +158,14 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             e.stopPropagation();
             // Add to cart logic
           }}
-          className="flex-1 py-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 hover:from-pink-600 hover:to-rose-600 hover:shadow-lg hover:shadow-pink-200 active:scale-[0.98] transition-all duration-200"
+          className="flex-1 py-2.5 min-h-[44px] bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 hover:from-pink-600 hover:to-rose-600 hover:shadow-lg hover:shadow-pink-200 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:ring-offset-1 focus-visible:outline-none transition-all duration-200"
         >
           <CartIcon size={15} />
           <span>Thêm giỏ</span>
         </button>
         <Link
           href={`/products/${product.id}`}
-          className="flex-1 py-2 bg-white border-2 border-pink-300 text-pink-500 text-xs font-semibold rounded-xl flex items-center justify-center hover:bg-pink-50 hover:border-pink-400 hover:shadow-md active:scale-[0.98] transition-all duration-200"
+          className="flex-1 py-2.5 min-h-[44px] bg-white border-2 border-pink-300 text-pink-500 text-xs font-semibold rounded-xl flex items-center justify-center hover:bg-pink-50 hover:border-pink-400 hover:shadow-md active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:ring-offset-1 focus-visible:outline-none transition-all duration-200"
         >
           Chi tiết
         </Link>
@@ -175,6 +180,11 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           to {
             opacity: 1;
             transform: translateY(0);
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .product-card-animated {
+            animation: none !important;
           }
         }
       `}</style>
