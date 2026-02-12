@@ -1,0 +1,171 @@
+{
+  "beadId": "bd-3v2",
+  "prdName": "checkout-page",
+  "tasks": [
+    {
+      "id": "context-1",
+      "category": "context",
+      "description": "CartContext includes a buyNowItem state and setBuyNowItem / clearBuyNowItem actions so that 'Mua ngay' can pass a single product to checkout without modifying the cart.",
+      "steps": [
+        "npx tsc --noEmit passes with zero errors",
+        "CartContext exports buyNowItem, setBuyNowItem, clearBuyNowItem"
+      ],
+      "passes": false,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["src/contexts/CartContext.tsx"]
+      }
+    },
+    {
+      "id": "page-1",
+      "category": "page",
+      "description": "/checkout page renders a responsive checkout form with: customer info fields (name, phone, province, district, ward, address, notes), payment method radio buttons (COD default, MoMo), and inline validation for required fields and phone format.",
+      "steps": [
+        "npm run build succeeds with /checkout in route output",
+        "npx tsc --noEmit passes",
+        "Manual: form renders with all fields, validation errors appear on empty submit"
+      ],
+      "passes": false,
+      "metadata": {
+        "depends_on": ["context-1"],
+        "parallel": false,
+        "conflicts_with": [],
+        "files": ["src/app/checkout/page.tsx"]
+      }
+    },
+    {
+      "id": "page-2",
+      "category": "page",
+      "description": "Checkout page includes a live order summary showing items (from cart or Buy Now), quantities, prices, images, subtotal, shipping fee (30,000₫), and grand total. Redirects to /cart if no items.",
+      "steps": [
+        "Order summary shows correct items and calculated totals",
+        "Empty checkout redirects to /cart"
+      ],
+      "passes": false,
+      "metadata": {
+        "depends_on": ["context-1"],
+        "parallel": true,
+        "conflicts_with": ["page-1"],
+        "files": ["src/app/checkout/page.tsx"]
+      }
+    },
+    {
+      "id": "page-3",
+      "category": "page",
+      "description": "/checkout/success page displays order ID (generated), ordered items, customer info, payment method, order status badge, and estimated delivery date. Includes 'Tiếp tục mua sắm' button linking to /products.",
+      "steps": [
+        "npm run build succeeds with /checkout/success in route output",
+        "npx tsc --noEmit passes",
+        "Page shows order details with status badge"
+      ],
+      "passes": false,
+      "metadata": {
+        "depends_on": ["page-1"],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["src/app/checkout/success/page.tsx"]
+      }
+    },
+    {
+      "id": "ui-1",
+      "category": "ui",
+      "description": "Add CodIcon, MomoIcon, CheckCircleIcon, and MapPinIcon SVG icon components to the icons file for use in checkout UI.",
+      "steps": ["npx tsc --noEmit passes", "Icons render without visual defects"],
+      "passes": false,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["src/components/icons/index.tsx"]
+      }
+    },
+    {
+      "id": "integration-1",
+      "category": "integration",
+      "description": "Replace the alert() placeholder on the cart page's 'Thanh toán' button with router.push('/checkout') navigation using Next.js useRouter.",
+      "steps": [
+        "npx tsc --noEmit passes",
+        "Manual: clicking 'Thanh toán' on /cart navigates to /checkout",
+        "No more alert dialog"
+      ],
+      "passes": false,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["src/app/cart/page.tsx"]
+      }
+    },
+    {
+      "id": "integration-2",
+      "category": "integration",
+      "description": "Product detail page and ProductDetailModal 'Mua ngay' buttons call setBuyNowItem() with the current product (respecting selected quantity) then navigate to /checkout?buyNow=true.",
+      "steps": [
+        "npx tsc --noEmit passes",
+        "Manual: 'Mua ngay' on product detail → /checkout with only that product shown",
+        "Manual: 'Mua ngay' on modal → same behavior",
+        "Cart items remain untouched after Buy Now checkout"
+      ],
+      "passes": false,
+      "metadata": {
+        "depends_on": ["context-1"],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["src/app/products/[id]/page.tsx", "src/components/ProductDetailModal.tsx"]
+      }
+    },
+    {
+      "id": "ui-2",
+      "category": "ui",
+      "description": "When MoMo is selected and user clicks 'Đặt hàng', a simulated payment overlay/modal appears with a QR code placeholder, MoMo branding, amount to pay, and a 'Đã thanh toán' (Mark as Paid) button. Includes clear 'Đây là mô phỏng' disclaimer label.",
+      "steps": [
+        "Manual: select MoMo → submit → see QR overlay with disclaimer",
+        "Clicking 'Đã thanh toán' navigates to success page",
+        "npx tsc --noEmit passes"
+      ],
+      "passes": false,
+      "metadata": {
+        "depends_on": ["page-1"],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["src/app/checkout/page.tsx"]
+      }
+    }
+  ],
+  "context": {
+    "patterns": [
+      "React 19 Context: <Context value={}> directly, no .Provider",
+      "Cart state: useReducer in CartContext.tsx",
+      "Styling: Baby Bliss pastel OKLCH theme (pink-500, warm-white, lavender)",
+      "Icons: Custom SVG components in src/components/icons/index.tsx",
+      "Vietnamese UI: All user-facing text in Vietnamese"
+    ],
+    "keyFiles": [
+      "src/contexts/CartContext.tsx",
+      "src/app/cart/page.tsx",
+      "src/app/products/[id]/page.tsx",
+      "src/components/ProductDetailModal.tsx",
+      "src/components/icons/index.tsx",
+      "src/app/globals.css"
+    ],
+    "nonGoals": [
+      "Real backend API integration",
+      "Real MoMo API integration",
+      "User authentication",
+      "Order history page",
+      "Email notifications",
+      "Coupon/discount codes",
+      "Multiple shipping methods",
+      "Credit card/VNPay payment"
+    ]
+  },
+  "beadMetadata": {
+    "depends_on": [],
+    "parallel": true,
+    "conflicts_with": [],
+    "blocks": [],
+    "estimated_hours": 6
+  }
+}

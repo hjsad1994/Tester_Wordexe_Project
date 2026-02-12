@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Nunito, Quicksand } from 'next/font/google';
+import { CartProvider } from '@/contexts/CartContext';
 import './globals.css';
 
 const nunito = Nunito({
@@ -46,7 +47,7 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <body className={`${nunito.variable} ${quicksand.variable} antialiased font-sans`}>
-        {children}
+        <CartProvider>{children}</CartProvider>
       </body>
     </html>
   );

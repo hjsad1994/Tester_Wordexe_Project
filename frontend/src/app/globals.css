@@ -1,45 +1,78 @@
 @import 'tailwindcss';
 
-/* ===== BABY BLISS - PINK PASTEL THEME ===== */
+/* ===== BABY BLISS - PINK PASTEL THEME (OKLCH) ===== */
 
 :root {
-  /* Pink Pastel Palette */
-  --pink-50: #fdf2f8;
-  --pink-100: #fce7f3;
-  --pink-200: #fbcfe8;
-  --pink-300: #f9a8d4;
-  --pink-400: #f472b6;
-  --pink-500: #ec4899;
+  /* Pink Pastel Palette (OKLCH for uniform perceived brightness) */
+  --pink-50: oklch(0.971 0.014 343.4);
+  --pink-100: oklch(0.948 0.028 342.3);
+  --pink-200: oklch(0.899 0.061 343.2);
+  --pink-300: oklch(0.823 0.12 346);
+  --pink-400: oklch(0.718 0.176 349.5);
+  --pink-500: oklch(0.656 0.209 354.3);
+  --pink-600: oklch(0.555 0.209 354.3);
 
-  /* Complementary Pastels */
-  --lavender: #e9d5ff;
-  --mint: #d1fae5;
-  --peach: #fed7aa;
-  --cream: #fefce8;
-  --baby-blue: #dbeafe;
+  /* Complementary Pastels (OKLCH) */
+  --lavender: oklch(0.901 0.058 293.5);
+  --mint: oklch(0.954 0.052 163.1);
+  --peach: oklch(0.904 0.067 62.8);
+  --cream: oklch(0.987 0.026 102.2);
+  --baby-blue: oklch(0.932 0.032 254.1);
 
-  /* Neutral Tones */
-  --warm-white: #fffbf7;
-  --soft-gray: #f8f4f1;
-  --text-primary: #4a3642;
-  --text-secondary: #8b7082;
-  --text-muted: #b8a5b0;
+  /* Neutral Tones (OKLCH) */
+  --warm-white: oklch(0.988 0.008 74.3);
+  --soft-gray: oklch(0.964 0.008 42.7);
+  --text-primary: oklch(0.317 0.031 334.8);
+  --text-secondary: oklch(0.548 0.031 332.5);
+  --text-muted: oklch(0.728 0.024 335.2);
+
+  /* Semantic Colors (OKLCH) */
+  --success: oklch(0.65 0.178 150);
+  --warning: oklch(0.75 0.15 85);
+  --destructive: oklch(0.65 0.2 20);
 
   /* Background */
   --background: var(--warm-white);
   --foreground: var(--text-primary);
 
-  /* Shadows */
-  --shadow-soft: 0 4px 20px rgba(244, 114, 182, 0.15);
-  --shadow-medium: 0 8px 30px rgba(244, 114, 182, 0.2);
-  --shadow-card: 0 2px 15px rgba(139, 112, 130, 0.1);
+  /* Shadows (OKLCH-aware) */
+  --shadow-soft: 0 4px 20px oklch(0.718 0.176 349.5 / 0.15);
+  --shadow-medium: 0 8px 30px oklch(0.718 0.176 349.5 / 0.2);
+  --shadow-card: 0 2px 15px oklch(0.548 0.031 332.5 / 0.1);
 }
 
 @theme inline {
+  /* Semantic Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-destructive: var(--destructive);
+
+  /* Pink Palette (exposed to Tailwind) */
+  --color-pink-50: var(--pink-50);
+  --color-pink-100: var(--pink-100);
+  --color-pink-200: var(--pink-200);
+  --color-pink-300: var(--pink-300);
+  --color-pink-400: var(--pink-400);
+  --color-pink-500: var(--pink-500);
+  --color-pink-600: var(--pink-600);
+
+  /* Accent Colors */
+  --color-lavender: var(--lavender);
+  --color-mint: var(--mint);
+  --color-peach: var(--peach);
+  --color-cream: var(--cream);
+  --color-baby-blue: var(--baby-blue);
+
+  /* Typography */
   --font-sans: var(--font-nunito);
   --font-display: var(--font-quicksand);
+
+  /* Radius Tokens */
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-full: 9999px;
 }
 
 /* ===== BASE STYLES ===== */
@@ -374,14 +407,14 @@ body {
   border-radius: 50px;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+  box-shadow: 0 4px 15px oklch(0.656 0.209 354.3 / 0.4);
   position: relative;
   overflow: hidden;
 }
 
 .btn-primary:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(236, 72, 153, 0.5);
+  box-shadow: 0 8px 25px oklch(0.656 0.209 354.3 / 0.5);
 }
 
 .btn-primary::before {
@@ -446,14 +479,15 @@ body {
 
 /* ===== TEXT STYLES ===== */
 .text-gradient {
-  background: linear-gradient(135deg, var(--pink-400) 0%, var(--pink-500) 50%, #a855f7 100%);
+  background: linear-gradient(135deg, #f472b6 0%, #ec4899 50%, #a855f7 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  color: transparent;
 }
 
 .text-shadow-soft {
-  text-shadow: 0 2px 10px rgba(244, 114, 182, 0.3);
+  text-shadow: 0 2px 10px oklch(0.718 0.176 349.5 / 0.3);
 }
 
 /* ===== PATTERN BACKGROUNDS ===== */

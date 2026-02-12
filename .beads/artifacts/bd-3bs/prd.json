@@ -1,0 +1,152 @@
+{
+  "beadId": "bd-3bs",
+  "prdName": "shopping-cart",
+  "tasks": [
+    {
+      "id": "state-1",
+      "category": "state",
+      "description": "A CartContext with useReducer exists at frontend/src/contexts/CartContext.tsx, providing addToCart, removeFromCart, updateQuantity, clearCart, cartItems, cartCount, and cartTotal to all descendants.",
+      "steps": [
+        "cd frontend && npx tsc --noEmit passes with no errors",
+        "CartContext exports CartProvider, useCart hook, and CartItem type"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/contexts/CartContext.tsx"]
+      }
+    },
+    {
+      "id": "integration-1",
+      "category": "integration",
+      "description": "frontend/src/app/layout.tsx wraps children in <CartProvider> so cart state is available globally.",
+      "steps": ["cd frontend && npx tsc --noEmit passes", "cd frontend && npm run build succeeds"],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["state-1"],
+        "parallel": false,
+        "conflicts_with": [],
+        "files": ["frontend/src/app/layout.tsx"]
+      }
+    },
+    {
+      "id": "ui-1",
+      "category": "ui",
+      "description": "Header.tsx reads cartCount from useCart() and displays it as the badge number, replacing the hardcoded 2. Cart icon click navigates to /cart.",
+      "steps": [
+        "Header badge shows 0 when cart is empty",
+        "Header badge updates when items are added via any source",
+        "Cart icon click navigates to /cart"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["integration-1"],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/components/Header.tsx"]
+      }
+    },
+    {
+      "id": "integration-2",
+      "category": "integration",
+      "description": "ProductCard's 'Thêm giỏ' button calls addToCart() from useCart() with the product's id, name, price, and image.",
+      "steps": [
+        "Click 'Thêm giỏ' on any ProductCard → header badge increments",
+        "cd frontend && npx tsc --noEmit passes"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["integration-1"],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/components/ProductCard.tsx"]
+      }
+    },
+    {
+      "id": "integration-3",
+      "category": "integration",
+      "description": "ProductDetailModal's handleAddToCart calls addToCart() from useCart() instead of console.log.",
+      "steps": [
+        "Open product modal, click add to cart → header badge increments",
+        "cd frontend && npx tsc --noEmit passes"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["integration-1"],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/components/ProductDetailModal.tsx"]
+      }
+    },
+    {
+      "id": "integration-4",
+      "category": "integration",
+      "description": "Product detail page's 'Thêm vào giỏ hàng' button calls addToCart() from useCart().",
+      "steps": [
+        "Navigate to /products/1, click add to cart → header badge increments",
+        "cd frontend && npx tsc --noEmit passes"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["integration-1"],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/app/products/[id]/page.tsx"]
+      }
+    },
+    {
+      "id": "page-1",
+      "category": "page",
+      "description": "Cart page at frontend/src/app/cart/page.tsx displays cart items with image, name, price, quantity controls (+/-), remove button, subtotal per item, grand total, 'Tiếp tục mua sắm' link, and 'Thanh toán' CTA, all styled with Baby Bliss design system.",
+      "steps": [
+        "Navigate to /cart → page renders without errors",
+        "Empty state shows when cart is empty",
+        "Items display with correct info and controls",
+        "Quantity +/- updates total in real-time",
+        "Remove button removes item",
+        "'Tiếp tục mua sắm' navigates to /products",
+        "cd frontend && npm run build succeeds"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["state-1"],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/app/cart/page.tsx"]
+      }
+    }
+  ],
+  "context": {
+    "patterns": [
+      "Components use 'use client' directive for client-side interactivity",
+      "Styling: Tailwind + OKLCH CSS vars (--pink-*, --warm-white, --soft-cream)",
+      "Icons centralized in frontend/src/components/icons/index.tsx",
+      "Products use mock/hardcoded data, no API integration"
+    ],
+    "keyFiles": [
+      "frontend/src/app/layout.tsx",
+      "frontend/src/components/Header.tsx",
+      "frontend/src/components/ProductCard.tsx",
+      "frontend/src/components/ProductDetailModal.tsx",
+      "frontend/src/app/products/[id]/page.tsx",
+      "frontend/src/app/globals.css"
+    ],
+    "nonGoals": [
+      "Size/color selection when adding to cart",
+      "localStorage persistence (session-only state)",
+      "Checkout page / payment integration",
+      "Backend / API integration",
+      "Wishlist functionality",
+      "Coupon / discount codes"
+    ]
+  },
+  "beadMetadata": {
+    "depends_on": [],
+    "parallel": true,
+    "conflicts_with": [],
+    "blocks": [],
+    "estimated_hours": 6
+  }
+}
