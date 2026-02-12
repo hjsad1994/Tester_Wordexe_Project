@@ -1,20 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
-  LogoIcon,
-  SearchIcon,
-  UserIcon,
   CartIcon,
-  HeartOutlineIcon,
-  MenuIcon,
   CloseIcon,
   GiftIcon,
+  HeartOutlineIcon,
+  LogoIcon,
+  MenuIcon,
   SparkleIcon,
+  UserIcon,
 } from './icons';
 import { useCart } from '@/contexts/CartContext';
-import { useWishlist } from '@/contexts/WishlistContext';
 
 const navLinks = [
   { name: 'Trang chủ', href: '/' },
@@ -27,9 +25,7 @@ const navLinks = [
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { cartCount } = useCart();
-  const { wishlistCount } = useWishlist();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -90,29 +86,16 @@ export default function Header() {
 
             {/* Action Buttons */}
             <div className="flex items-center gap-2 sm:gap-4">
-              {/* Search Button */}
-              <button
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
-                aria-label={isSearchOpen ? 'Đóng tìm kiếm' : 'Mở tìm kiếm'}
-                aria-expanded={isSearchOpen}
-                className="p-2 rounded-full text-[var(--text-secondary)] hover:text-pink-500 hover:bg-pink-50 transition-all duration-300"
-              >
-                <SearchIcon size={22} />
-              </button>
-
               {/* Wishlist */}
-              <Link
-                href="/wishlist"
+              <button
                 className="hidden sm:flex p-2 rounded-full text-[var(--text-secondary)] hover:text-pink-500 hover:bg-pink-50 transition-all duration-300 relative"
                 aria-label="Xem danh sách yêu thích"
               >
                 <HeartOutlineIcon size={22} />
-                {wishlistCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse-soft">
-                    {wishlistCount > 99 ? '99+' : wishlistCount}
-                  </span>
-                )}
-              </Link>
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse-soft">
+                  3
+                </span>
+              </button>
 
               {/* User */}
               <Link
@@ -152,28 +135,6 @@ export default function Header() {
               </button>
             </div>
           </div>
-
-          {/* Search Bar (Expandable) */}
-          <div
-            className={`overflow-hidden transition-all duration-500 ease-out ${
-              isSearchOpen ? 'max-h-20 opacity-100 mt-4' : 'max-h-0 opacity-0'
-            }`}
-          >
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Tìm kiếm sản phẩm cho bé yêu..."
-                className="w-full px-5 py-3 pl-12 rounded-full border-2 border-pink-200 focus:border-pink-400 focus:outline-none bg-white/80 backdrop-blur-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] transition-all duration-300"
-              />
-              <SearchIcon
-                size={20}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-pink-400"
-              />
-              <button className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-gradient-to-r from-pink-400 to-pink-500 text-white font-medium rounded-full hover:shadow-lg transition-all duration-300">
-                Tìm kiếm
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Mobile Menu */}
@@ -195,14 +156,10 @@ export default function Header() {
               </Link>
             ))}
             <div className="flex gap-4 mt-4 pt-4 border-t border-pink-100">
-              <Link
-                href="/wishlist"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-2 px-4 py-2 text-[var(--text-secondary)] hover:text-pink-500 transition-colors"
-              >
+              <button className="flex items-center gap-2 px-4 py-2 text-[var(--text-secondary)] hover:text-pink-500 transition-colors">
                 <HeartOutlineIcon size={20} />
-                <span>Yêu thích{wishlistCount > 0 ? ` (${wishlistCount})` : ''}</span>
-              </Link>
+                <span>Yêu thích</span>
+              </button>
               <Link
                 href="/profile"
                 onClick={() => setIsMobileMenuOpen(false)}
