@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { HeartIcon, HeartOutlineIcon, StarIcon, CartIcon } from './icons';
-import { productIllustrations, ProductIllustrationType } from './icons/ProductIllustrations';
-import { useCart } from '@/contexts/CartContext';
+import { useState } from "react";
+import Link from "next/link";
+import { HeartIcon, HeartOutlineIcon, StarIcon, CartIcon } from "./icons";
+import { productIllustrations, ProductIllustrationType } from "./icons/ProductIllustrations";
+import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 
 export interface Product {
   id: string;
@@ -14,7 +15,7 @@ export interface Product {
   illustration: ProductIllustrationType;
   rating: number;
   reviews: number;
-  badge?: 'new' | 'sale' | 'bestseller';
+  badge?: "new" | "sale" | "bestseller";
   category: string;
 }
 
@@ -24,9 +25,11 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
-  const [isLiked, setIsLiked] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+
+  const liked = isInWishlist(product.id);
 
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -34,34 +37,34 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
   const formatPrice = (price: number) => {
     if (price >= 1000000) {
-      return (price / 1000000).toFixed(1).replace('.0', '') + 'M';
+      return (price / 1000000).toFixed(1).replace(".0", "") + "M";
     }
-    return (price / 1000).toFixed(0) + 'K';
+    return (price / 1000).toFixed(0) + "K";
   };
 
   const getBadgeStyle = () => {
     switch (product.badge) {
-      case 'new':
-        return 'bg-blue-500 text-white';
-      case 'sale':
-        return 'bg-red-500 text-white';
-      case 'bestseller':
-        return 'bg-amber-500 text-white';
+      case "new":
+        return "bg-blue-500 text-white";
+      case "sale":
+        return "bg-red-500 text-white";
+      case "bestseller":
+        return "bg-amber-500 text-white";
       default:
-        return '';
+        return "";
     }
   };
 
   const getBadgeText = () => {
     switch (product.badge) {
-      case 'new':
-        return 'Mới';
-      case 'sale':
+      case "new":
+        return "Mới";
+      case "sale":
         return `-${discount}%`;
-      case 'bestseller':
-        return 'Hot';
+      case "bestseller":
+        return "Hot";
       default:
-        return '';
+        return "";
     }
   };
 
@@ -73,8 +76,8 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       style={{
         animationDelay: `${index * 0.05}s`,
         opacity: 0,
-        animationFillMode: 'forwards',
-        animation: 'fadeInUp 0.4s ease-out forwards',
+        animationFillMode: "forwards",
+        animation: "fadeInUp 0.4s ease-out forwards",
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -99,23 +102,27 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              setIsLiked(!isLiked);
+              if (liked) {
+                removeFromWishlist(product.id);
+              } else {
+                addToWishlist(product);
+              }
             }}
-            aria-label={isLiked ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'}
+            aria-label={liked ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
             className={`absolute top-2 right-2 z-10 p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-all duration-200 focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none ${
-              isLiked
-                ? 'bg-pink-500 text-white'
-                : 'bg-white/90 text-pink-400 hover:bg-pink-500 hover:text-white'
+              liked
+                ? "bg-pink-500 text-white"
+                : "bg-white/90 text-pink-400 hover:bg-pink-500 hover:text-white"
             } shadow-md`}
           >
-            {isLiked ? <HeartIcon size={18} /> : <HeartOutlineIcon size={18} />}
+            {liked ? <HeartIcon size={18} /> : <HeartOutlineIcon size={18} />}
           </button>
 
           {/* Product Illustration */}
           <div className="w-full h-full flex items-center justify-center">
             <div
               className={`transition-transform duration-300 ${
-                isHovered ? 'scale-110' : 'scale-100'
+                isHovered ? "scale-110" : "scale-100"
               }`}
             >
               <IllustrationComponent size={100} />

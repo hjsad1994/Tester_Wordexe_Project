@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   CloseIcon,
   HeartIcon,
@@ -13,10 +13,11 @@ import {
   GiftIcon,
   SparkleIcon,
   ArrowRightIcon,
-} from './icons';
-import { productIllustrations } from './icons/ProductIllustrations';
-import { Product } from './ProductCard';
-import { useCart } from '@/contexts/CartContext';
+} from "./icons";
+import { productIllustrations } from "./icons/ProductIllustrations";
+import { Product } from "./ProductCard";
+import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 
 interface ProductDetailModalProps {
   product: Product | null;
@@ -29,43 +30,45 @@ const productDetails: Record<
   string,
   { description: string; features: string[]; colors?: string[] }
 > = {
-  '1': {
+  "1": {
     description:
-      'Bộ quần áo cotton organic cao cấp, được làm từ 100% cotton hữu cơ, mềm mại và an toàn cho làn da nhạy cảm của bé. Thiết kế tiện lợi với nút bấm dễ dàng thay đồ.',
+      "Bộ quần áo cotton organic cao cấp, được làm từ 100% cotton hữu cơ, mềm mại và an toàn cho làn da nhạy cảm của bé. Thiết kế tiện lợi với nút bấm dễ dàng thay đồ.",
     features: [
-      '100% Cotton Organic',
-      'Không chất tẩy độc hại',
-      'Nút bấm tiện lợi',
-      'Giặt máy được',
+      "100% Cotton Organic",
+      "Không chất tẩy độc hại",
+      "Nút bấm tiện lợi",
+      "Giặt máy được",
     ],
-    colors: ['Trắng', 'Hồng nhạt', 'Xanh mint'],
+    colors: ["Trắng", "Hồng nhạt", "Xanh mint"],
   },
-  '2': {
+  "2": {
     description:
-      'Bình sữa chống đầy hơi với công nghệ van khí tiên tiến, giúp bé bú thoải mái mà không bị sặc hay đầy bụng. Chất liệu nhựa PP an toàn, không BPA.',
-    features: ['Chống đầy hơi', 'Không BPA', 'Núm ti silicon mềm', 'Dễ vệ sinh'],
+      "Bình sữa chống đầy hơi với công nghệ van khí tiên tiến, giúp bé bú thoải mái mà không bị sặc hay đầy bụng. Chất liệu nhựa PP an toàn, không BPA.",
+    features: ["Chống đầy hơi", "Không BPA", "Núm ti silicon mềm", "Dễ vệ sinh"],
   },
-  '3': {
+  "3": {
     description:
-      'Gấu bông Teddy Bear siêu mềm mại, làm từ chất liệu plush cao cấp, an toàn cho bé. Người bạn đồng hành đáng yêu cho những giấc ngủ ngon.',
-    features: ['Chất liệu plush mềm', 'An toàn cho bé', 'Có thể giặt', 'Không rụng lông'],
-    colors: ['Nâu', 'Trắng kem', 'Hồng'],
+      "Gấu bông Teddy Bear siêu mềm mại, làm từ chất liệu plush cao cấp, an toàn cho bé. Người bạn đồng hành đáng yêu cho những giấc ngủ ngon.",
+    features: ["Chất liệu plush mềm", "An toàn cho bé", "Có thể giặt", "Không rụng lông"],
+    colors: ["Nâu", "Trắng kem", "Hồng"],
   },
   default: {
     description:
-      'Sản phẩm chất lượng cao, được thiết kế đặc biệt cho bé yêu của bạn. An toàn, tiện lợi và đáng tin cậy.',
-    features: ['Chất lượng cao', 'An toàn cho bé', 'Thiết kế tiện lợi', 'Đảm bảo chính hãng'],
+      "Sản phẩm chất lượng cao, được thiết kế đặc biệt cho bé yêu của bạn. An toàn, tiện lợi và đáng tin cậy.",
+    features: ["Chất lượng cao", "An toàn cho bé", "Thiết kế tiện lợi", "Đảm bảo chính hãng"],
   },
 };
 
 export default function ProductDetailModal({ product, isOpen, onClose }: ProductDetailModalProps) {
   const [quantity, setQuantity] = useState(1);
-  const [isLiked, setIsLiked] = useState(false);
-  const [activeTab, setActiveTab] = useState<'details' | 'reviews'>('details');
+  const [activeTab, setActiveTab] = useState<"details" | "reviews">("details");
   const { addToCart, setBuyNowItem } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const router = useRouter();
 
   if (!product || !isOpen) return null;
+
+  const liked = isInWishlist(product.id);
 
   const details = productDetails[product.id] || productDetails.default;
   const IllustrationComponent = productIllustrations[product.illustration];
@@ -75,7 +78,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
     : 0;
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN').format(price) + 'đ';
+    return new Intl.NumberFormat("vi-VN").format(price) + "đ";
   };
 
   const handleAddToCart = () => {
@@ -125,31 +128,38 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
             {product.badge && (
               <div
                 className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold ${
-                  product.badge === 'new'
-                    ? 'bg-blue-500 text-white'
-                    : product.badge === 'sale'
-                      ? 'bg-red-500 text-white'
-                      : 'bg-amber-500 text-white'
+                  product.badge === "new"
+                    ? "bg-blue-500 text-white"
+                    : product.badge === "sale"
+                      ? "bg-red-500 text-white"
+                      : "bg-amber-500 text-white"
                 }`}
               >
-                {product.badge === 'new'
-                  ? 'Mới'
-                  : product.badge === 'sale'
+                {product.badge === "new"
+                  ? "Mới"
+                  : product.badge === "sale"
                     ? `-${discount}%`
-                    : 'Hot'}
+                    : "Hot"}
               </div>
             )}
 
             {/* Wishlist */}
             <button
-              onClick={() => setIsLiked(!isLiked)}
+              onClick={() => {
+                if (liked) {
+                  removeFromWishlist(product.id);
+                } else {
+                  addToWishlist(product);
+                }
+              }}
+              aria-label={liked ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
               className={`absolute top-4 right-14 md:right-4 p-2.5 rounded-full transition-all shadow-md ${
-                isLiked
-                  ? 'bg-pink-500 text-white'
-                  : 'bg-white/90 text-pink-400 hover:bg-pink-500 hover:text-white'
+                liked
+                  ? "bg-pink-500 text-white"
+                  : "bg-white/90 text-pink-400 hover:bg-pink-500 hover:text-white"
               }`}
             >
-              {isLiked ? <HeartIcon size={18} /> : <HeartOutlineIcon size={18} />}
+              {liked ? <HeartIcon size={18} /> : <HeartOutlineIcon size={18} />}
             </button>
 
             {/* Product Illustration */}
@@ -177,7 +187,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                   <StarIcon
                     key={i}
                     size={16}
-                    className={i < Math.floor(product.rating) ? 'text-amber-400' : 'text-gray-200'}
+                    className={i < Math.floor(product.rating) ? "text-amber-400" : "text-gray-200"}
                   />
                 ))}
               </div>
@@ -207,35 +217,35 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
             {/* Tabs */}
             <div className="flex gap-1 mb-4 border-b border-pink-100">
               <button
-                onClick={() => setActiveTab('details')}
+                onClick={() => setActiveTab("details")}
                 className={`px-4 py-2 text-sm font-medium transition-colors relative ${
-                  activeTab === 'details'
-                    ? 'text-pink-500'
-                    : 'text-[var(--text-muted)] hover:text-pink-400'
+                  activeTab === "details"
+                    ? "text-pink-500"
+                    : "text-[var(--text-muted)] hover:text-pink-400"
                 }`}
               >
                 Chi tiết
-                {activeTab === 'details' && (
+                {activeTab === "details" && (
                   <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-pink-500 rounded-full" />
                 )}
               </button>
               <button
-                onClick={() => setActiveTab('reviews')}
+                onClick={() => setActiveTab("reviews")}
                 className={`px-4 py-2 text-sm font-medium transition-colors relative ${
-                  activeTab === 'reviews'
-                    ? 'text-pink-500'
-                    : 'text-[var(--text-muted)] hover:text-pink-400'
+                  activeTab === "reviews"
+                    ? "text-pink-500"
+                    : "text-[var(--text-muted)] hover:text-pink-400"
                 }`}
               >
                 Đánh giá ({product.reviews})
-                {activeTab === 'reviews' && (
+                {activeTab === "reviews" && (
                   <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-pink-500 rounded-full" />
                 )}
               </button>
             </div>
 
             {/* Tab Content */}
-            {activeTab === 'details' ? (
+            {activeTab === "details" ? (
               <div className="space-y-4 mb-6">
                 {/* Description */}
                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
@@ -279,8 +289,8 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                           key={i}
                           className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                             i === 0
-                              ? 'border-pink-400 bg-pink-50 text-pink-600'
-                              : 'border-gray-200 text-[var(--text-secondary)] hover:border-pink-300'
+                              ? "border-pink-400 bg-pink-50 text-pink-600"
+                              : "border-gray-200 text-[var(--text-secondary)] hover:border-pink-300"
                           }`}
                         >
                           {color}
@@ -295,16 +305,16 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                 {/* Sample reviews */}
                 {[
                   {
-                    name: 'Nguyễn Thị M.',
+                    name: "Nguyễn Thị M.",
                     rating: 5,
-                    comment: 'Sản phẩm rất tốt, bé nhà mình rất thích!',
+                    comment: "Sản phẩm rất tốt, bé nhà mình rất thích!",
                   },
                   {
-                    name: 'Trần Văn H.',
+                    name: "Trần Văn H.",
                     rating: 5,
-                    comment: 'Chất lượng tuyệt vời, giao hàng nhanh.',
+                    comment: "Chất lượng tuyệt vời, giao hàng nhanh.",
                   },
-                  { name: 'Lê Thị L.', rating: 4, comment: 'Đóng gói cẩn thận, sẽ mua lại.' },
+                  { name: "Lê Thị L.", rating: 4, comment: "Đóng gói cẩn thận, sẽ mua lại." },
                 ].map((review, i) => (
                   <div key={i} className="p-3 rounded-xl bg-pink-50/50 border border-pink-100">
                     <div className="flex items-center gap-2 mb-1">
@@ -319,7 +329,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                           <StarIcon
                             key={j}
                             size={12}
-                            className={j < review.rating ? 'text-amber-400' : 'text-gray-200'}
+                            className={j < review.rating ? "text-amber-400" : "text-gray-200"}
                           />
                         ))}
                       </div>
@@ -391,7 +401,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                   image: product.illustration,
                   quantity,
                 });
-                router.push('/checkout?buyNow=true');
+                router.push("/checkout?buyNow=true");
               }}
               className="w-full py-3 px-6 border-2 border-pink-400 text-pink-500 font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-pink-50 transition-all mb-5"
             >
