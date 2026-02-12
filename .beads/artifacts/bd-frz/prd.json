@@ -1,0 +1,51 @@
+{
+  "beadId": "bd-frz",
+  "prdName": "compact-footer-redesign",
+  "tasks": [
+    {
+      "id": "ui-1",
+      "category": "ui",
+      "description": "The footer component has a condensed layout with reduced padding, tighter spacing, and a more horizontal arrangement of content while preserving all existing links, contact info, social icons, and copyright text.",
+      "steps": [
+        "npm run typecheck passes",
+        "npm run lint:fix passes",
+        "Visual inspection confirms compact layout at 375px, 768px, and 1280px widths",
+        "All 16 href attributes are still present in the file",
+        "Pink pastel theme colors are preserved"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/components/Footer.tsx"]
+      }
+    }
+  ],
+  "context": {
+    "patterns": [
+      "Tailwind utilities + CSS variables for theming",
+      "Icon components from ./icons",
+      "Pink pastel design system (pink-50..500, gradients)"
+    ],
+    "keyFiles": [
+      "frontend/src/components/Footer.tsx",
+      "frontend/src/components/icons/index.tsx",
+      "frontend/src/app/globals.css"
+    ],
+    "nonGoals": [
+      "Adding new footer sections or links",
+      "Changing footer content/text",
+      "Modifying icon components",
+      "Adding newsletter signup",
+      "Changes to globals.css or design tokens"
+    ]
+  },
+  "beadMetadata": {
+    "depends_on": [],
+    "parallel": true,
+    "conflicts_with": [],
+    "blocks": [],
+    "estimated_hours": 1
+  }
+}
