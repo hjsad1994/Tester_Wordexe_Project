@@ -17,6 +17,7 @@ import {
 import { productIllustrations } from './icons/ProductIllustrations';
 import { Product } from './ProductCard';
 import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext';
 
 interface ProductDetailModalProps {
   product: Product | null;
@@ -60,12 +61,14 @@ const productDetails: Record<
 
 export default function ProductDetailModal({ product, isOpen, onClose }: ProductDetailModalProps) {
   const [quantity, setQuantity] = useState(1);
-  const [isLiked, setIsLiked] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'reviews'>('details');
   const { addToCart, setBuyNowItem } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const router = useRouter();
 
   if (!product || !isOpen) return null;
+
+  const liked = isInWishlist(product.id);
 
   const details = productDetails[product.id] || productDetails.default;
   const IllustrationComponent = productIllustrations[product.illustration];
@@ -142,14 +145,21 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
 
             {/* Wishlist */}
             <button
-              onClick={() => setIsLiked(!isLiked)}
+              onClick={() => {
+                if (liked) {
+                  removeFromWishlist(product.id);
+                } else {
+                  addToWishlist(product);
+                }
+              }}
+              aria-label={liked ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}
               className={`absolute top-4 right-14 md:right-4 p-2.5 rounded-full transition-all shadow-md ${
-                isLiked
+                liked
                   ? 'bg-pink-500 text-white'
                   : 'bg-white/90 text-pink-400 hover:bg-pink-500 hover:text-white'
               }`}
             >
-              {isLiked ? <HeartIcon size={18} /> : <HeartOutlineIcon size={18} />}
+              {liked ? <HeartIcon size={18} /> : <HeartOutlineIcon size={18} />}
             </button>
 
             {/* Product Illustration */}

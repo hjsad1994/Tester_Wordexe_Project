@@ -19,6 +19,7 @@ import {
   ChevronDownIcon,
 } from '@/components/icons';
 import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext';
 import { productIllustrations } from '@/components/icons/ProductIllustrations';
 
 // All products data
@@ -297,12 +298,12 @@ export default function ProductDetailPage() {
   const productId = params.id as string;
 
   const [quantity, setQuantity] = useState(1);
-  const [isLiked, setIsLiked] = useState(false);
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description');
   const [selectedColor, setSelectedColor] = useState(0);
   const [selectedSize, setSelectedSize] = useState(0);
   const [showAllReviews, setShowAllReviews] = useState(false);
   const { addToCart, setBuyNowItem } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
   // Find product
   const product = allProducts.find((p) => p.id === productId);
@@ -424,14 +425,27 @@ export default function ProductDetailPage() {
 
                   {/* Wishlist */}
                   <button
-                    onClick={() => setIsLiked(!isLiked)}
+                    onClick={() => {
+                      if (isInWishlist(product.id)) {
+                        removeFromWishlist(product.id);
+                      } else {
+                        addToWishlist(product);
+                      }
+                    }}
+                    aria-label={
+                      isInWishlist(product.id) ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'
+                    }
                     className={`absolute top-6 right-6 z-10 p-3 rounded-full transition-all shadow-lg ${
-                      isLiked
+                      isInWishlist(product.id)
                         ? 'bg-pink-500 text-white'
                         : 'bg-white text-pink-400 hover:bg-pink-500 hover:text-white'
                     }`}
                   >
-                    {isLiked ? <HeartIcon size={24} /> : <HeartOutlineIcon size={24} />}
+                    {isInWishlist(product.id) ? (
+                      <HeartIcon size={24} />
+                    ) : (
+                      <HeartOutlineIcon size={24} />
+                    )}
                   </button>
 
                   {/* Product Illustration */}

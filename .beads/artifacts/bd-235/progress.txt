@@ -1,0 +1,47 @@
+# Progress Log
+
+Bead: bd-13p (bd-235)
+Started: 2026-02-12
+
+## Codebase Patterns
+
+- CartContext: useReducer + Context + useMemo in frontend/src/contexts/CartContext.tsx
+- Product interface: { id, name, price, originalPrice, illustration, rating, reviews, badge, category }
+- Icons: HeartIcon + HeartOutlineIcon in frontend/src/components/icons/index.tsx
+- Vietnamese UI text; pink pastel theme via CSS variables
+- Cart page has Header + grid + empty state + Footer pattern
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
+
+## context-1: Create WishlistContext ✅
+- Created frontend/src/contexts/WishlistContext.tsx
+- useReducer + Context + useCallback pattern
+- localStorage persistence with hydration on mount
+- Exports: WishlistProvider, useWishlist
+
+## integration-1: Wire WishlistProvider ✅
+- Added WishlistProvider wrapping children in layout.tsx alongside CartProvider
+
+## integration-2: Connect heart icons ✅
+- Replaced local isLiked state in ProductCard, ProductDetailModal, products/[id]
+- All use useWishlist() with isInWishlist/addToWishlist/removeFromWishlist
+- Added proper aria-labels for accessibility
+
+## ui-1: Header dynamic badge ✅
+- Replaced hardcoded "3" with dynamic wishlistCount
+- Badge hidden when count is 0, caps at 99+
+- Changed button to Link pointing to /wishlist
+- Updated both desktop and mobile menu
+
+## page-1: /wishlist page ✅
+- Created frontend/src/app/wishlist/page.tsx
+- Product grid with remove and add-to-cart buttons
+- Empty state with HeartOutline illustration and CTA to /products
+- Clear all button, Vietnamese text, pink pastel theme
+
+## verification-1: Final verification ✅
+- npm run build passes (Next.js 16.1.6, /wishlist route generated)
+- npm run lint clean (0 errors)
+- TypeScript check passes

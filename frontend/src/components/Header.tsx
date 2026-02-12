@@ -14,6 +14,7 @@ import {
   SparkleIcon,
 } from './icons';
 import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext';
 
 const navLinks = [
   { name: 'Trang chủ', href: '/' },
@@ -28,6 +29,7 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { cartCount } = useCart();
+  const { wishlistCount } = useWishlist();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -99,15 +101,18 @@ export default function Header() {
               </button>
 
               {/* Wishlist */}
-              <button
+              <Link
+                href="/wishlist"
                 className="hidden sm:flex p-2 rounded-full text-[var(--text-secondary)] hover:text-pink-500 hover:bg-pink-50 transition-all duration-300 relative"
                 aria-label="Xem danh sách yêu thích"
               >
                 <HeartOutlineIcon size={22} />
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse-soft">
-                  3
-                </span>
-              </button>
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse-soft">
+                    {wishlistCount > 99 ? '99+' : wishlistCount}
+                  </span>
+                )}
+              </Link>
 
               {/* User */}
               <Link
@@ -190,10 +195,14 @@ export default function Header() {
               </Link>
             ))}
             <div className="flex gap-4 mt-4 pt-4 border-t border-pink-100">
-              <button className="flex items-center gap-2 px-4 py-2 text-[var(--text-secondary)] hover:text-pink-500 transition-colors">
+              <Link
+                href="/wishlist"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-4 py-2 text-[var(--text-secondary)] hover:text-pink-500 transition-colors"
+              >
                 <HeartOutlineIcon size={20} />
-                <span>Yêu thích</span>
-              </button>
+                <span>Yêu thích{wishlistCount > 0 ? ` (${wishlistCount})` : ''}</span>
+              </Link>
               <Link
                 href="/profile"
                 onClick={() => setIsMobileMenuOpen(false)}

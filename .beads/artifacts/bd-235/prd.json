@@ -1,0 +1,146 @@
+{
+  "beadId": "bd-13p",
+  "prdName": "wishlist-favorites",
+  "tasks": [
+    {
+      "id": "context-1",
+      "category": "context",
+      "description": "A WishlistContext.tsx exists in frontend/src/contexts/ providing addToWishlist, removeFromWishlist, isInWishlist, clearWishlist, wishlistItems, and wishlistCount — with localStorage persistence and hydration on mount.",
+      "steps": [
+        "File exists and exports WishlistProvider and useWishlist hook",
+        "npm run build passes (in frontend directory)"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/contexts/WishlistContext.tsx"]
+      }
+    },
+    {
+      "id": "integration-1",
+      "category": "integration",
+      "description": "WishlistProvider wraps the app children in layout.tsx alongside CartProvider.",
+      "steps": [
+        "WishlistProvider is imported and wrapping children in layout.tsx",
+        "npm run build passes"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["context-1"],
+        "parallel": false,
+        "conflicts_with": [],
+        "files": ["frontend/src/app/layout.tsx"]
+      }
+    },
+    {
+      "id": "integration-2",
+      "category": "integration",
+      "description": "ProductCard, ProductDetailModal, and /products/[id] page use useWishlist() instead of local isLiked state — heart icon reflects isInWishlist(product.id) and toggles via addToWishlist/removeFromWishlist.",
+      "steps": [
+        "No local isLiked state remains in ProductCard, ProductDetailModal, or products/[id] page for the wishlist heart",
+        "Heart icon uses HeartIcon (filled) when in wishlist, HeartOutlineIcon when not",
+        "npm run build passes"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["integration-1"],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": [
+          "frontend/src/components/ProductCard.tsx",
+          "frontend/src/components/ProductDetailModal.tsx",
+          "frontend/src/app/products/[id]/page.tsx"
+        ]
+      }
+    },
+    {
+      "id": "ui-1",
+      "category": "ui",
+      "description": "Header wishlist icon shows wishlistCount from useWishlist() (replacing hardcoded \"3\"), hides badge when count is 0, caps at 99+, and links/navigates to /wishlist.",
+      "steps": [
+        "No hardcoded \"3\" remains in Header",
+        "Badge conditionally renders based on wishlistCount",
+        "Wishlist icon links to /wishlist",
+        "npm run build passes"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["integration-1"],
+        "parallel": true,
+        "conflicts_with": ["integration-2"],
+        "files": ["frontend/src/components/Header.tsx"]
+      }
+    },
+    {
+      "id": "page-1",
+      "category": "page",
+      "description": "A /wishlist page exists at frontend/src/app/wishlist/page.tsx with: Header, product grid showing wishlist items, remove button per item, add-to-cart button per item, \"Xoa tat ca\" clear button, empty state with illustration and CTA to /products, Footer — all in Vietnamese with pink pastel theme.",
+      "steps": [
+        "Page renders at /wishlist",
+        "Empty state shows when wishlist is empty",
+        "Products display in grid when wishlist has items",
+        "Remove and add-to-cart buttons function",
+        "npm run build passes"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["integration-1"],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/app/wishlist/page.tsx"]
+      }
+    },
+    {
+      "id": "verification-1",
+      "category": "verification",
+      "description": "All wishlist features work end-to-end: heart icons sync across pages, header badge updates, /wishlist page reflects state, localStorage persistence works across refresh.",
+      "steps": [
+        "npm run build passes",
+        "Manual flow: Add product on homepage -> check /products (heart filled) -> check header (badge = 1) -> go to /wishlist (product visible) -> refresh (state persists) -> remove -> empty state shows"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["integration-2", "ui-1", "page-1"],
+        "parallel": false,
+        "conflicts_with": [],
+        "files": []
+      }
+    }
+  ],
+  "context": {
+    "patterns": [
+      "CartContext uses useReducer + Context + useMemo in frontend/src/contexts/CartContext.tsx",
+      "ProductCard has Product interface: id, name, price, originalPrice, illustration, rating, reviews, badge, category",
+      "Cart page structure: Header + content grid + empty state + Footer",
+      "HeartIcon and HeartOutlineIcon exist in frontend/src/components/icons/index.tsx",
+      "Vietnamese UI text throughout"
+    ],
+    "keyFiles": [
+      "frontend/src/contexts/CartContext.tsx",
+      "frontend/src/components/ProductCard.tsx",
+      "frontend/src/components/ProductDetailModal.tsx",
+      "frontend/src/app/products/[id]/page.tsx",
+      "frontend/src/components/Header.tsx",
+      "frontend/src/app/cart/page.tsx",
+      "frontend/src/app/layout.tsx",
+      "frontend/src/components/icons/index.tsx"
+    ],
+    "nonGoals": [
+      "Backend API / database persistence",
+      "User authentication integration",
+      "Wishlist sharing or public wishlists",
+      "Product availability checks",
+      "Notification when wishlist items go on sale",
+      "Analytics/tracking"
+    ]
+  },
+  "beadMetadata": {
+    "depends_on": [],
+    "parallel": true,
+    "conflicts_with": [],
+    "blocks": [],
+    "estimated_hours": 4
+  }
+}
