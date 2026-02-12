@@ -1,0 +1,27 @@
+# Progress Log
+
+Bead: bd-frz
+Started: 2026-02-13
+
+## Codebase Patterns
+
+- Footer.tsx: 197 lines, 5-col grid, py-16 padding, gap-12, decorative blur circles
+- Styling: Tailwind + CSS vars (--text-primary/secondary/muted), pink pastel theme
+- Icons: LogoIcon, FacebookIcon, InstagramIcon, PhoneIcon, EmailIcon, LocationIcon, HeartIcon
+- Used on 9 pages (all main routes)
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
+
+## ui-1: Redesign footer layout to compact structure [PASSED]
+
+- Reduced py-16 → py-8, gap-12 → gap-x-8/gap-y-6
+- Removed decorative blur circles
+- Compacted contact info into inline flex-wrap row (phone, email, address on one line)
+- Reduced link spacing from space-y-3 → space-y-1.5
+- Smaller social buttons (p-2, size=16 icons)
+- Smaller logo (size=36), tighter brand column
+- Section headers: text-sm uppercase tracking-wide, mb-3
+- Bottom bar: py-4, flex row on sm+, stacked on mobile
+- Verification: typecheck ✅, lint:fix ✅, 22 href occurrences ✅, review ✅
