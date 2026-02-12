@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useCart } from '@/contexts/CartContext';
@@ -23,6 +24,7 @@ function formatPrice(price: number): string {
 
 export default function CartPage() {
   const { cartItems, cartCount, cartTotal, updateQuantity, removeFromCart, clearCart } = useCart();
+  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-[var(--warm-white)]">
@@ -201,7 +203,7 @@ export default function CartPage() {
                   {/* CTA Buttons */}
                   <div className="space-y-3">
                     <button
-                      onClick={() => alert('Chức năng thanh toán sẽ sớm được cập nhật!')}
+                      onClick={() => router.push('/checkout')}
                       className="w-full py-3.5 bg-gradient-to-r from-pink-400 to-pink-500 text-white font-semibold rounded-2xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none min-h-[44px]"
                     >
                       <span>Thanh toán</span>
