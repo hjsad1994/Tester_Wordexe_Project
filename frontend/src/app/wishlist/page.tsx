@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { useWishlist } from "@/contexts/WishlistContext";
-import { useCart } from "@/contexts/CartContext";
+import Link from 'next/link';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import { useWishlist } from '@/contexts/WishlistContext';
+import { useCart } from '@/contexts/CartContext';
 import {
   HeartIcon,
   HeartOutlineIcon,
@@ -12,14 +12,14 @@ import {
   CartIcon,
   ArrowRightIcon,
   SparkleIcon,
-} from "@/components/icons";
+} from '@/components/icons';
 import {
   productIllustrations,
   type ProductIllustrationType,
-} from "@/components/icons/ProductIllustrations";
+} from '@/components/icons/ProductIllustrations';
 
 function formatPrice(price: number): string {
-  return price.toLocaleString("vi-VN") + "đ";
+  return price.toLocaleString('vi-VN') + 'đ';
 }
 
 export default function WishlistPage() {
@@ -44,7 +44,7 @@ export default function WishlistPage() {
           <p className="text-[var(--text-secondary)] ml-14">
             {wishlistCount > 0
               ? `${wishlistCount} sản phẩm trong danh sách yêu thích`
-              : "Chưa có sản phẩm yêu thích nào"}
+              : 'Chưa có sản phẩm yêu thích nào'}
           </p>
         </div>
 
@@ -102,18 +102,18 @@ export default function WishlistPage() {
                         {product.badge && (
                           <div
                             className={`absolute top-3 left-3 z-10 px-2 py-0.5 rounded-md text-[10px] font-bold ${
-                              product.badge === "new"
-                                ? "bg-blue-500 text-white"
-                                : product.badge === "sale"
-                                  ? "bg-red-500 text-white"
-                                  : "bg-amber-500 text-white"
+                              product.badge === 'new'
+                                ? 'bg-blue-500 text-white'
+                                : product.badge === 'sale'
+                                  ? 'bg-red-500 text-white'
+                                  : 'bg-amber-500 text-white'
                             }`}
                           >
-                            {product.badge === "new"
-                              ? "Mới"
-                              : product.badge === "sale"
-                                ? "Sale"
-                                : "Hot"}
+                            {product.badge === 'new'
+                              ? 'Mới'
+                              : product.badge === 'sale'
+                                ? 'Sale'
+                                : 'Hot'}
                           </div>
                         )}
                         {IllustrationComponent && <IllustrationComponent size={120} />}

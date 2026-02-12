@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "npx eslint src/",
+    "lint:fix": "npx eslint src/ --fix",
+    "typecheck": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\""
   },

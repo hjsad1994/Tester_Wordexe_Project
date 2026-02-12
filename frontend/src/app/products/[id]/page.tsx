@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import ProductCard, { Product } from "@/components/ProductCard";
+import { useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import ProductCard, { Product } from '@/components/ProductCard';
 import {
   HeartIcon,
   HeartOutlineIcon,
@@ -17,135 +17,135 @@ import {
   SparkleIcon,
   ArrowRightIcon,
   ChevronDownIcon,
-} from "@/components/icons";
-import { useCart } from "@/contexts/CartContext";
-import { useWishlist } from "@/contexts/WishlistContext";
-import { productIllustrations } from "@/components/icons/ProductIllustrations";
+} from '@/components/icons';
+import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext';
+import { productIllustrations } from '@/components/icons/ProductIllustrations';
 
 // All products data
 const allProducts: Product[] = [
   {
-    id: "1",
-    name: "Bộ quần áo Cotton Organic cho bé sơ sinh",
+    id: '1',
+    name: 'Bộ quần áo Cotton Organic cho bé sơ sinh',
     price: 299000,
     originalPrice: 399000,
-    illustration: "clothes",
+    illustration: 'clothes',
     rating: 4.9,
     reviews: 256,
-    badge: "bestseller",
-    category: "Quần áo",
+    badge: 'bestseller',
+    category: 'Quần áo',
   },
   {
-    id: "2",
-    name: "Bình sữa chống đầy hơi Pigeon",
+    id: '2',
+    name: 'Bình sữa chống đầy hơi Pigeon',
     price: 189000,
-    illustration: "bottle",
+    illustration: 'bottle',
     rating: 4.8,
     reviews: 189,
-    badge: "new",
-    category: "Bình sữa",
+    badge: 'new',
+    category: 'Bình sữa',
   },
   {
-    id: "3",
-    name: "Gấu bông Teddy Bear siêu mềm mại",
+    id: '3',
+    name: 'Gấu bông Teddy Bear siêu mềm mại',
     price: 159000,
     originalPrice: 219000,
-    illustration: "teddy",
+    illustration: 'teddy',
     rating: 4.7,
     reviews: 342,
-    badge: "sale",
-    category: "Đồ chơi",
+    badge: 'sale',
+    category: 'Đồ chơi',
   },
   {
-    id: "4",
-    name: "Tã dán cao cấp Bobby Extra Soft",
+    id: '4',
+    name: 'Tã dán cao cấp Bobby Extra Soft',
     price: 249000,
-    illustration: "diaper",
+    illustration: 'diaper',
     rating: 4.9,
     reviews: 521,
-    badge: "bestseller",
-    category: "Tã & Bỉm",
+    badge: 'bestseller',
+    category: 'Tã & Bỉm',
   },
   {
-    id: "5",
-    name: "Xe đẩy gấp gọn đa năng",
+    id: '5',
+    name: 'Xe đẩy gấp gọn đa năng',
     price: 2490000,
     originalPrice: 2990000,
-    illustration: "stroller",
+    illustration: 'stroller',
     rating: 4.8,
     reviews: 98,
-    badge: "sale",
-    category: "Xe đẩy",
+    badge: 'sale',
+    category: 'Xe đẩy',
   },
   {
-    id: "6",
-    name: "Nôi điện tự động ru ngủ",
+    id: '6',
+    name: 'Nôi điện tự động ru ngủ',
     price: 1890000,
-    illustration: "crib",
+    illustration: 'crib',
     rating: 4.6,
     reviews: 156,
-    badge: "new",
-    category: "Giường & Nôi",
+    badge: 'new',
+    category: 'Giường & Nôi',
   },
   {
-    id: "7",
-    name: "Bộ chăm sóc da cho bé Johnson",
+    id: '7',
+    name: 'Bộ chăm sóc da cho bé Johnson',
     price: 329000,
-    illustration: "skincare",
+    illustration: 'skincare',
     rating: 4.9,
     reviews: 412,
-    category: "Chăm sóc",
+    category: 'Chăm sóc',
   },
   {
-    id: "8",
-    name: "Giày tập đi mềm chống trơn",
+    id: '8',
+    name: 'Giày tập đi mềm chống trơn',
     price: 199000,
     originalPrice: 259000,
-    illustration: "shoes",
+    illustration: 'shoes',
     rating: 4.7,
     reviews: 287,
-    badge: "sale",
-    category: "Giày dép",
+    badge: 'sale',
+    category: 'Giày dép',
   },
   {
-    id: "9",
-    name: "Ti giả silicon mềm cho bé",
+    id: '9',
+    name: 'Ti giả silicon mềm cho bé',
     price: 89000,
-    illustration: "pacifier",
+    illustration: 'pacifier',
     rating: 4.5,
     reviews: 198,
-    category: "Phụ kiện",
+    category: 'Phụ kiện',
   },
   {
-    id: "10",
-    name: "Lục lạc đồ chơi phát triển giác quan",
+    id: '10',
+    name: 'Lục lạc đồ chơi phát triển giác quan',
     price: 129000,
-    illustration: "rattle",
+    illustration: 'rattle',
     rating: 4.6,
     reviews: 145,
-    badge: "new",
-    category: "Đồ chơi",
+    badge: 'new',
+    category: 'Đồ chơi',
   },
   {
-    id: "11",
-    name: "Bột ăn dặm Gerber organic",
+    id: '11',
+    name: 'Bột ăn dặm Gerber organic',
     price: 175000,
-    illustration: "food",
+    illustration: 'food',
     rating: 4.8,
     reviews: 320,
-    badge: "bestseller",
-    category: "Ăn dặm",
+    badge: 'bestseller',
+    category: 'Ăn dặm',
   },
   {
-    id: "12",
-    name: "Áo khoác giữ ấm lông cừu",
+    id: '12',
+    name: 'Áo khoác giữ ấm lông cừu',
     price: 450000,
     originalPrice: 590000,
-    illustration: "clothes",
+    illustration: 'clothes',
     rating: 4.7,
     reviews: 89,
-    badge: "sale",
-    category: "Quần áo",
+    badge: 'sale',
+    category: 'Quần áo',
   },
 ];
 
@@ -161,90 +161,90 @@ const productDetails: Record<
     sizes?: string[];
   }
 > = {
-  "1": {
-    description: "Bộ quần áo cotton organic cao cấp, được làm từ 100% cotton hữu cơ.",
+  '1': {
+    description: 'Bộ quần áo cotton organic cao cấp, được làm từ 100% cotton hữu cơ.',
     longDescription:
-      "Bộ quần áo được thiết kế đặc biệt cho làn da nhạy cảm của bé sơ sinh. Chất liệu cotton organic 100% mềm mại, thoáng khí, không gây kích ứng. Đường may tỉ mỉ, chắc chắn. Nút bấm tiện lợi giúp ba mẹ dễ dàng thay đồ cho bé. Phù hợp cho bé từ 0-12 tháng tuổi.",
+      'Bộ quần áo được thiết kế đặc biệt cho làn da nhạy cảm của bé sơ sinh. Chất liệu cotton organic 100% mềm mại, thoáng khí, không gây kích ứng. Đường may tỉ mỉ, chắc chắn. Nút bấm tiện lợi giúp ba mẹ dễ dàng thay đồ cho bé. Phù hợp cho bé từ 0-12 tháng tuổi.',
     features: [
-      "100% Cotton Organic được chứng nhận GOTS",
-      "Không chất tẩy độc hại",
-      "Nút bấm chống gỉ sét",
-      "Giặt máy được ở 40°C",
-      "Thiết kế thoáng mát cho mùa hè",
-      "Co giãn 4 chiều thoải mái",
+      '100% Cotton Organic được chứng nhận GOTS',
+      'Không chất tẩy độc hại',
+      'Nút bấm chống gỉ sét',
+      'Giặt máy được ở 40°C',
+      'Thiết kế thoáng mát cho mùa hè',
+      'Co giãn 4 chiều thoải mái',
     ],
     specifications: [
-      { label: "Chất liệu", value: "100% Cotton Organic" },
-      { label: "Xuất xứ", value: "Việt Nam" },
-      { label: "Độ tuổi", value: "0-12 tháng" },
-      { label: "Bảo hành", value: "30 ngày đổi trả" },
+      { label: 'Chất liệu', value: '100% Cotton Organic' },
+      { label: 'Xuất xứ', value: 'Việt Nam' },
+      { label: 'Độ tuổi', value: '0-12 tháng' },
+      { label: 'Bảo hành', value: '30 ngày đổi trả' },
     ],
     colors: [
-      { name: "Trắng", hex: "#FFFFFF" },
-      { name: "Hồng nhạt", hex: "#FFC0CB" },
-      { name: "Xanh mint", hex: "#98FF98" },
+      { name: 'Trắng', hex: '#FFFFFF' },
+      { name: 'Hồng nhạt', hex: '#FFC0CB' },
+      { name: 'Xanh mint', hex: '#98FF98' },
     ],
-    sizes: ["S (0-3M)", "M (3-6M)", "L (6-9M)", "XL (9-12M)"],
+    sizes: ['S (0-3M)', 'M (3-6M)', 'L (6-9M)', 'XL (9-12M)'],
   },
-  "2": {
-    description: "Bình sữa chống đầy hơi với công nghệ van khí tiên tiến.",
+  '2': {
+    description: 'Bình sữa chống đầy hơi với công nghệ van khí tiên tiến.',
     longDescription:
-      "Bình sữa Pigeon được thiết kế với công nghệ van khí độc quyền, giúp điều tiết lượng không khí vào bình, ngăn ngừa tình trạng bé nuốt phải khí khi bú. Núm ti silicon mềm mại, có hình dáng tương tự núm vú mẹ, giúp bé dễ dàng chuyển đổi giữa bú mẹ và bú bình.",
+      'Bình sữa Pigeon được thiết kế với công nghệ van khí độc quyền, giúp điều tiết lượng không khí vào bình, ngăn ngừa tình trạng bé nuốt phải khí khi bú. Núm ti silicon mềm mại, có hình dáng tương tự núm vú mẹ, giúp bé dễ dàng chuyển đổi giữa bú mẹ và bú bình.',
     features: [
-      "Công nghệ van khí chống đầy hơi",
-      "Núm ti Peristaltic Plus",
-      "Chất liệu PP an toàn, không BPA",
-      "Dễ vệ sinh, có thể tiệt trùng",
-      "Vạch chia ml rõ ràng",
-      "Nắp đậy kín chống tràn",
+      'Công nghệ van khí chống đầy hơi',
+      'Núm ti Peristaltic Plus',
+      'Chất liệu PP an toàn, không BPA',
+      'Dễ vệ sinh, có thể tiệt trùng',
+      'Vạch chia ml rõ ràng',
+      'Nắp đậy kín chống tràn',
     ],
     specifications: [
-      { label: "Dung tích", value: "240ml" },
-      { label: "Chất liệu", value: "Nhựa PP cao cấp" },
-      { label: "Xuất xứ", value: "Nhật Bản" },
-      { label: "Độ tuổi", value: "0+ tháng" },
+      { label: 'Dung tích', value: '240ml' },
+      { label: 'Chất liệu', value: 'Nhựa PP cao cấp' },
+      { label: 'Xuất xứ', value: 'Nhật Bản' },
+      { label: 'Độ tuổi', value: '0+ tháng' },
     ],
   },
-  "3": {
-    description: "Gấu bông Teddy Bear siêu mềm mại, người bạn đồng hành đáng yêu.",
+  '3': {
+    description: 'Gấu bông Teddy Bear siêu mềm mại, người bạn đồng hành đáng yêu.',
     longDescription:
-      "Gấu bông Teddy Bear được làm từ chất liệu plush cao cấp, siêu mềm mại và an toàn cho bé. Bông nhồi bên trong được xử lý kháng khuẩn, không gây dị ứng. Đường may chắc chắn, mắt và mũi được thêu trực tiếp thay vì dùng nút, đảm bảo an toàn tuyệt đối cho bé.",
+      'Gấu bông Teddy Bear được làm từ chất liệu plush cao cấp, siêu mềm mại và an toàn cho bé. Bông nhồi bên trong được xử lý kháng khuẩn, không gây dị ứng. Đường may chắc chắn, mắt và mũi được thêu trực tiếp thay vì dùng nút, đảm bảo an toàn tuyệt đối cho bé.',
     features: [
-      "Chất liệu plush siêu mềm",
-      "Bông nhồi kháng khuẩn",
-      "An toàn cho bé từ sơ sinh",
-      "Có thể giặt máy",
-      "Không rụng lông",
-      "Đạt tiêu chuẩn EN71",
+      'Chất liệu plush siêu mềm',
+      'Bông nhồi kháng khuẩn',
+      'An toàn cho bé từ sơ sinh',
+      'Có thể giặt máy',
+      'Không rụng lông',
+      'Đạt tiêu chuẩn EN71',
     ],
     specifications: [
-      { label: "Kích thước", value: "35cm" },
-      { label: "Chất liệu", value: "Plush + PP Cotton" },
-      { label: "Xuất xứ", value: "Việt Nam" },
-      { label: "Độ tuổi", value: "0+ tháng" },
+      { label: 'Kích thước', value: '35cm' },
+      { label: 'Chất liệu', value: 'Plush + PP Cotton' },
+      { label: 'Xuất xứ', value: 'Việt Nam' },
+      { label: 'Độ tuổi', value: '0+ tháng' },
     ],
     colors: [
-      { name: "Nâu", hex: "#8B4513" },
-      { name: "Kem", hex: "#FFFDD0" },
-      { name: "Hồng", hex: "#FFB6C1" },
+      { name: 'Nâu', hex: '#8B4513' },
+      { name: 'Kem', hex: '#FFFDD0' },
+      { name: 'Hồng', hex: '#FFB6C1' },
     ],
   },
   default: {
-    description: "Sản phẩm chất lượng cao, được thiết kế đặc biệt cho bé yêu của bạn.",
+    description: 'Sản phẩm chất lượng cao, được thiết kế đặc biệt cho bé yêu của bạn.',
     longDescription:
-      "Sản phẩm được sản xuất theo tiêu chuẩn an toàn quốc tế, đảm bảo chất lượng và an toàn tuyệt đối cho bé. Thiết kế tiện lợi, dễ sử dụng, phù hợp với nhu cầu chăm sóc bé hàng ngày của ba mẹ.",
+      'Sản phẩm được sản xuất theo tiêu chuẩn an toàn quốc tế, đảm bảo chất lượng và an toàn tuyệt đối cho bé. Thiết kế tiện lợi, dễ sử dụng, phù hợp với nhu cầu chăm sóc bé hàng ngày của ba mẹ.',
     features: [
-      "Chất lượng cao cấp",
-      "An toàn cho bé",
-      "Thiết kế tiện lợi",
-      "Đảm bảo chính hãng",
-      "Bảo hành đổi trả",
-      "Hỗ trợ 24/7",
+      'Chất lượng cao cấp',
+      'An toàn cho bé',
+      'Thiết kế tiện lợi',
+      'Đảm bảo chính hãng',
+      'Bảo hành đổi trả',
+      'Hỗ trợ 24/7',
     ],
     specifications: [
-      { label: "Chất lượng", value: "Cao cấp" },
-      { label: "Bảo hành", value: "30 ngày" },
-      { label: "Xuất xứ", value: "Chính hãng" },
+      { label: 'Chất lượng', value: 'Cao cấp' },
+      { label: 'Bảo hành', value: '30 ngày' },
+      { label: 'Xuất xứ', value: 'Chính hãng' },
     ],
   },
 };
@@ -253,41 +253,41 @@ const productDetails: Record<
 const sampleReviews = [
   {
     id: 1,
-    name: "Nguyễn Thị Minh",
-    avatar: "NM",
+    name: 'Nguyễn Thị Minh',
+    avatar: 'NM',
     rating: 5,
-    date: "15/01/2025",
+    date: '15/01/2025',
     comment:
-      "Sản phẩm rất tốt, bé nhà mình rất thích! Chất liệu mềm mại, an toàn. Sẽ ủng hộ shop dài dài.",
+      'Sản phẩm rất tốt, bé nhà mình rất thích! Chất liệu mềm mại, an toàn. Sẽ ủng hộ shop dài dài.',
     helpful: 24,
   },
   {
     id: 2,
-    name: "Trần Văn Hùng",
-    avatar: "TH",
+    name: 'Trần Văn Hùng',
+    avatar: 'TH',
     rating: 5,
-    date: "12/01/2025",
+    date: '12/01/2025',
     comment:
-      "Giao hàng nhanh, đóng gói cẩn thận. Chất lượng sản phẩm đúng như mô tả. Rất hài lòng!",
+      'Giao hàng nhanh, đóng gói cẩn thận. Chất lượng sản phẩm đúng như mô tả. Rất hài lòng!',
     helpful: 18,
   },
   {
     id: 3,
-    name: "Lê Thị Lan",
-    avatar: "LL",
+    name: 'Lê Thị Lan',
+    avatar: 'LL',
     rating: 4,
-    date: "10/01/2025",
-    comment: "Sản phẩm tốt, giá cả hợp lý. Bé dùng không bị kích ứng. Sẽ mua thêm cho bé.",
+    date: '10/01/2025',
+    comment: 'Sản phẩm tốt, giá cả hợp lý. Bé dùng không bị kích ứng. Sẽ mua thêm cho bé.',
     helpful: 12,
   },
   {
     id: 4,
-    name: "Phạm Văn Đức",
-    avatar: "PD",
+    name: 'Phạm Văn Đức',
+    avatar: 'PD',
     rating: 5,
-    date: "08/01/2025",
+    date: '08/01/2025',
     comment:
-      "Mua lần thứ 3 rồi, chất lượng luôn ổn định. Shop tư vấn nhiệt tình, giao hàng đúng hẹn.",
+      'Mua lần thứ 3 rồi, chất lượng luôn ổn định. Shop tư vấn nhiệt tình, giao hàng đúng hẹn.',
     helpful: 31,
   },
 ];
@@ -298,7 +298,7 @@ export default function ProductDetailPage() {
   const productId = params.id as string;
 
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState<"description" | "specs" | "reviews">("description");
+  const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description');
   const [selectedColor, setSelectedColor] = useState(0);
   const [selectedSize, setSelectedSize] = useState(0);
   const [showAllReviews, setShowAllReviews] = useState(false);
@@ -347,7 +347,7 @@ export default function ProductDetailPage() {
     : 0;
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN").format(price) + "đ";
+    return new Intl.NumberFormat('vi-VN').format(price) + 'đ';
   };
 
   return (
@@ -408,18 +408,18 @@ export default function ProductDetailPage() {
                   {product.badge && (
                     <div
                       className={`absolute top-6 left-6 z-10 px-4 py-1.5 rounded-full text-sm font-bold shadow-lg ${
-                        product.badge === "new"
-                          ? "bg-blue-500 text-white"
-                          : product.badge === "sale"
-                            ? "bg-red-500 text-white"
-                            : "bg-amber-500 text-white"
+                        product.badge === 'new'
+                          ? 'bg-blue-500 text-white'
+                          : product.badge === 'sale'
+                            ? 'bg-red-500 text-white'
+                            : 'bg-amber-500 text-white'
                       }`}
                     >
-                      {product.badge === "new"
-                        ? "Mới"
-                        : product.badge === "sale"
+                      {product.badge === 'new'
+                        ? 'Mới'
+                        : product.badge === 'sale'
                           ? `-${discount}%`
-                          : "Bán chạy"}
+                          : 'Bán chạy'}
                     </div>
                   )}
 
@@ -433,12 +433,12 @@ export default function ProductDetailPage() {
                       }
                     }}
                     aria-label={
-                      isInWishlist(product.id) ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"
+                      isInWishlist(product.id) ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'
                     }
                     className={`absolute top-6 right-6 z-10 p-3 rounded-full transition-all shadow-lg ${
                       isInWishlist(product.id)
-                        ? "bg-pink-500 text-white"
-                        : "bg-white text-pink-400 hover:bg-pink-500 hover:text-white"
+                        ? 'bg-pink-500 text-white'
+                        : 'bg-white text-pink-400 hover:bg-pink-500 hover:text-white'
                     }`}
                   >
                     {isInWishlist(product.id) ? (
@@ -462,7 +462,7 @@ export default function ProductDetailPage() {
                     <button
                       key={i}
                       className={`w-20 h-20 rounded-xl border-2 transition-all overflow-hidden ${
-                        i === 1 ? "border-pink-400" : "border-pink-100 hover:border-pink-300"
+                        i === 1 ? 'border-pink-400' : 'border-pink-100 hover:border-pink-300'
                       }`}
                     >
                       <div className="w-full h-full bg-gradient-to-br from-pink-50 to-purple-50 flex items-center justify-center">
@@ -497,7 +497,7 @@ export default function ProductDetailPage() {
                       key={i}
                       size={20}
                       className={
-                        i < Math.floor(product.rating) ? "text-amber-400" : "text-gray-200"
+                        i < Math.floor(product.rating) ? 'text-amber-400' : 'text-gray-200'
                       }
                     />
                   ))}
@@ -537,7 +537,7 @@ export default function ProductDetailPage() {
               {details.colors && (
                 <div className="mb-6">
                   <label className="block text-sm font-semibold text-[var(--text-primary)] mb-3">
-                    Màu sắc:{" "}
+                    Màu sắc:{' '}
                     <span className="font-normal text-[var(--text-secondary)]">
                       {details.colors[selectedColor].name}
                     </span>
@@ -549,8 +549,8 @@ export default function ProductDetailPage() {
                         onClick={() => setSelectedColor(i)}
                         className={`w-10 h-10 rounded-full border-2 transition-all ${
                           selectedColor === i
-                            ? "border-pink-500 ring-2 ring-pink-200"
-                            : "border-gray-200 hover:border-pink-300"
+                            ? 'border-pink-500 ring-2 ring-pink-200'
+                            : 'border-gray-200 hover:border-pink-300'
                         }`}
                         style={{ backgroundColor: color.hex }}
                         title={color.name}
@@ -573,8 +573,8 @@ export default function ProductDetailPage() {
                         onClick={() => setSelectedSize(i)}
                         className={`px-4 py-2 rounded-xl text-sm font-medium border-2 transition-all ${
                           selectedSize === i
-                            ? "border-pink-500 bg-pink-50 text-pink-600"
-                            : "border-gray-200 text-[var(--text-secondary)] hover:border-pink-300"
+                            ? 'border-pink-500 bg-pink-50 text-pink-600'
+                            : 'border-gray-200 text-[var(--text-secondary)] hover:border-pink-300'
                         }`}
                       >
                         {size}
@@ -640,7 +640,7 @@ export default function ProductDetailPage() {
                       image: product.illustration,
                       quantity,
                     });
-                    router.push("/checkout?buyNow=true");
+                    router.push('/checkout?buyNow=true');
                   }}
                   className="py-4 px-8 border-2 border-pink-400 text-pink-500 font-semibold rounded-2xl hover:bg-pink-50 transition-all"
                 >
@@ -691,17 +691,17 @@ export default function ProductDetailPage() {
           {/* Tab Headers */}
           <div className="flex gap-1 border-b border-pink-100 mb-8">
             {[
-              { id: "description", label: "Mô tả sản phẩm" },
-              { id: "specs", label: "Thông số" },
-              { id: "reviews", label: `Đánh giá (${product.reviews})` },
+              { id: 'description', label: 'Mô tả sản phẩm' },
+              { id: 'specs', label: 'Thông số' },
+              { id: 'reviews', label: `Đánh giá (${product.reviews})` },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as typeof activeTab)}
                 className={`px-6 py-4 text-sm font-semibold transition-colors relative ${
                   activeTab === tab.id
-                    ? "text-pink-500"
-                    : "text-[var(--text-muted)] hover:text-pink-400"
+                    ? 'text-pink-500'
+                    : 'text-[var(--text-muted)] hover:text-pink-400'
                 }`}
               >
                 {tab.label}
@@ -714,7 +714,7 @@ export default function ProductDetailPage() {
 
           {/* Tab Content */}
           <div className="max-w-4xl">
-            {activeTab === "description" && (
+            {activeTab === 'description' && (
               <div className="space-y-6 animate-fadeIn">
                 <p className="text-[var(--text-secondary)] leading-relaxed text-lg">
                   {details.longDescription}
@@ -747,11 +747,11 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            {activeTab === "specs" && (
+            {activeTab === 'specs' && (
               <div className="animate-fadeIn">
                 <div className="rounded-2xl border border-pink-100 overflow-hidden">
                   {details.specifications.map((spec, i) => (
-                    <div key={i} className={`flex ${i % 2 === 0 ? "bg-pink-50/50" : "bg-white"}`}>
+                    <div key={i} className={`flex ${i % 2 === 0 ? 'bg-pink-50/50' : 'bg-white'}`}>
                       <div className="w-1/3 px-6 py-4 font-medium text-[var(--text-primary)]">
                         {spec.label}
                       </div>
@@ -764,7 +764,7 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            {activeTab === "reviews" && (
+            {activeTab === 'reviews' && (
               <div className="animate-fadeIn">
                 {/* Rating Summary */}
                 <div className="flex items-center gap-8 p-6 rounded-2xl bg-pink-50/50 border border-pink-100 mb-8">
@@ -776,7 +776,7 @@ export default function ProductDetailPage() {
                           key={i}
                           size={16}
                           className={
-                            i < Math.floor(product.rating) ? "text-amber-400" : "text-gray-200"
+                            i < Math.floor(product.rating) ? 'text-amber-400' : 'text-gray-200'
                           }
                         />
                       ))}
@@ -798,7 +798,7 @@ export default function ProductDetailPage() {
                           />
                         </div>
                         <span className="text-sm text-[var(--text-muted)] w-10">
-                          {star === 5 ? "70%" : star === 4 ? "20%" : star === 3 ? "8%" : "2%"}
+                          {star === 5 ? '70%' : star === 4 ? '20%' : star === 3 ? '8%' : '2%'}
                         </span>
                       </div>
                     ))}
@@ -826,7 +826,7 @@ export default function ProductDetailPage() {
                                 <StarIcon
                                   key={i}
                                   size={14}
-                                  className={i < review.rating ? "text-amber-400" : "text-gray-200"}
+                                  className={i < review.rating ? 'text-amber-400' : 'text-gray-200'}
                                 />
                               ))}
                             </div>

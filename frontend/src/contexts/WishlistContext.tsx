@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   createContext,
@@ -7,33 +7,33 @@ import {
   useEffect,
   useCallback,
   type ReactNode,
-} from "react";
-import type { Product } from "@/components/ProductCard";
+} from 'react';
+import type { Product } from '@/components/ProductCard';
 
 interface WishlistState {
   items: Product[];
 }
 
 type WishlistAction =
-  | { type: "ADD_ITEM"; payload: Product }
-  | { type: "REMOVE_ITEM"; payload: { id: string } }
-  | { type: "CLEAR" }
-  | { type: "HYDRATE"; payload: Product[] };
+  | { type: 'ADD_ITEM'; payload: Product }
+  | { type: 'REMOVE_ITEM'; payload: { id: string } }
+  | { type: 'CLEAR' }
+  | { type: 'HYDRATE'; payload: Product[] };
 
 function wishlistReducer(state: WishlistState, action: WishlistAction): WishlistState {
   switch (action.type) {
-    case "ADD_ITEM": {
+    case 'ADD_ITEM': {
       // Idempotent — don't add duplicates
       if (state.items.some((item) => item.id === action.payload.id)) {
         return state;
       }
       return { ...state, items: [...state.items, action.payload] };
     }
-    case "REMOVE_ITEM":
+    case 'REMOVE_ITEM':
       return { ...state, items: state.items.filter((item) => item.id !== action.payload.id) };
-    case "CLEAR":
+    case 'CLEAR':
       return { ...state, items: [] };
-    case "HYDRATE":
+    case 'HYDRATE':
       return { ...state, items: action.payload };
     default:
       return state;
@@ -51,7 +51,7 @@ interface WishlistContextValue {
 
 const WishlistContext = createContext<WishlistContextValue | null>(null);
 
-const STORAGE_KEY = "baby-bliss-wishlist";
+const STORAGE_KEY = 'baby-bliss-wishlist';
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(wishlistReducer, { items: [] });
@@ -62,7 +62,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const items = JSON.parse(stored) as Product[];
-        dispatch({ type: "HYDRATE", payload: items });
+        dispatch({ type: 'HYDRATE', payload: items });
       }
     } catch {
       // Ignore parse errors
@@ -81,22 +81,22 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   const wishlistCount = state.items.length;
 
   const addToWishlist = useCallback((product: Product) => {
-    dispatch({ type: "ADD_ITEM", payload: product });
+    dispatch({ type: 'ADD_ITEM', payload: product });
   }, []);
 
   const removeFromWishlist = useCallback((id: string) => {
-    dispatch({ type: "REMOVE_ITEM", payload: { id } });
+    dispatch({ type: 'REMOVE_ITEM', payload: { id } });
   }, []);
 
   const isInWishlist = useCallback(
     (id: string) => {
       return state.items.some((item) => item.id === id);
     },
-    [state.items],
+    [state.items]
   );
 
   const clearWishlist = useCallback(() => {
-    dispatch({ type: "CLEAR" });
+    dispatch({ type: 'CLEAR' });
   }, []);
 
   const value = {
@@ -114,7 +114,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
 export function useWishlist(): WishlistContextValue {
   const context = useContext(WishlistContext);
   if (!context) {
-    throw new Error("useWishlist must be used within a WishlistProvider");
+    throw new Error('useWishlist must be used within a WishlistProvider');
   }
   return context;
 }
