@@ -37,17 +37,22 @@ function formatPrice(price: number): string {
 
 export default function CheckoutSuccessPage() {
   const router = useRouter();
-  const [order, setOrder] = useState<OrderData | null>(null);
 
-  useEffect(() => {
+  const [order] = useState<OrderData | null>(() => {
+    if (typeof window === 'undefined') return null;
     const data = sessionStorage.getItem('lastOrder');
     if (data) {
-      setOrder(JSON.parse(data));
       sessionStorage.removeItem('lastOrder');
-    } else {
+      return JSON.parse(data) as OrderData;
+    }
+    return null;
+  });
+
+  useEffect(() => {
+    if (!order) {
       router.push('/products');
     }
-  }, [router]);
+  }, [order, router]);
 
   if (!order) {
     return (

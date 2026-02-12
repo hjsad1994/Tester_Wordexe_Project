@@ -2,6 +2,7 @@
 
 import { Suspense, useState, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { useCart } from '@/contexts/CartContext';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -39,7 +40,7 @@ function formatPrice(price: number): string {
 }
 
 function CheckoutContent() {
-  const { cartItems, cartTotal, clearCart, buyNowItem, clearBuyNowItem } = useCart();
+  const { cartItems, clearCart, buyNowItem, clearBuyNowItem } = useCart();
   const router = useRouter();
   const searchParams = useSearchParams();
   const isBuyNow = searchParams.get('buyNow') === 'true';
@@ -153,13 +154,13 @@ function CheckoutContent() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-6">
-            <a href="/" className="hover:text-pink-500 transition-colors">
+            <Link href="/" className="hover:text-pink-500 transition-colors">
               Trang chủ
-            </a>
+            </Link>
             <span>/</span>
-            <a href="/products" className="hover:text-pink-500 transition-colors">
+            <Link href="/products" className="hover:text-pink-500 transition-colors">
               Sản phẩm
-            </a>
+            </Link>
             <span>/</span>
             <span className="text-[var(--text-primary)] font-medium">Thanh toán</span>
           </nav>
