@@ -1,0 +1,19 @@
+# Progress Log
+
+Bead: bd-15n
+Started: 2026-02-13
+
+## Codebase Patterns
+
+- Page layout: `<div min-h-screen>` + Header + main + Footer
+- Form validation: manual `validate()` with `errors` state object (see checkout page)
+- Password toggle: EyeIcon/EyeOffIcon (see profile page)
+- Context pattern: createContext + Provider + useContext hook (see CartContext)
+- Icons: custom SVG components with `size` prop
+- Header actions: rounded-full, hover:text-pink-500
+- Theme: pink pastel CSS variables (--pink-50 through --pink-600)
+- All UI text in Vietnamese
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
