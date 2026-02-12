@@ -1,0 +1,44 @@
+# Progress Log
+
+Bead: bd-3a7
+Started: 2026-02-12
+
+## Codebase Patterns
+
+- App Router pages at `frontend/src/app/**/page.tsx`
+- Home page composes: Header + sections + Footer
+- Hero.tsx uses `'use client'` for parallax; About hero may not need client
+- Design tokens: OKLCH CSS vars in globals.css (--pink-50 to --pink-600, --lavender, --mint, --peach)
+- Fonts: Nunito (body), Quicksand (display headings)
+- Icons available: HeartIcon, ShieldIcon, StarIcon, TruckIcon, GiftIcon, SparkleIcon, etc.
+- Brand: Baby Bliss, tagline "Yêu thương từng khoảnh khắc"
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
+
+## 2026-02-12: frontend-1 ✅
+
+Created `frontend/src/app/about/page.tsx` with 7 sections:
+1. Hero/Mission - gradient bg, sparkle icons, mission statement
+2. Brand Story - split layout (text + visual card), founding narrative
+3. Core Values - 4-card grid (Chất lượng, An toàn, Tận tâm, Sáng tạo)
+4. Stats - 4 stat counters (experience, customers, products, reviews)
+5. Team - 3 member cards with avatar placeholders, hover accent
+6. Commitments - 4 commitment cards (đổi trả, chính hãng, bảo hành, giao hàng)
+7. CTA - gradient section with "Mua sắm ngay" link to /products
+
+SEO: metadata export with title, description, openGraph.
+Pattern: RSC (no 'use client'), reuses Header/Footer, OKLCH tokens.
+
+## 2026-02-12: ci-1 ✅
+
+- `npm run lint` ✅
+- `npm run format:check` ✅ (after prettier --write)
+- `npm run build` ✅ (static page at /about)
+
+## 2026-02-12: Review
+
+- Review agent found 1 issue: Team card missing `relative` for hover accent bar
+- Fixed: added `relative` and `overflow-hidden` to team card container
+- Re-verified all CI gates pass after fix
