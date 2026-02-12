@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import {
   CartIcon,
   CloseIcon,
@@ -11,15 +11,15 @@ import {
   MenuIcon,
   SparkleIcon,
   UserIcon,
-} from "./icons";
-import { useCart } from "@/contexts/CartContext";
+} from './icons';
+import { useCart } from '@/contexts/CartContext';
 
 const navLinks = [
-  { name: "Trang chủ", href: "/" },
-  { name: "Sản phẩm", href: "/products" },
-  { name: "Khuyến mãi", href: "/sale" },
-  { name: "Danh mục", href: "/categories" },
-  { name: "Về chúng tôi", href: "/about" },
+  { name: 'Trang chủ', href: '/' },
+  { name: 'Sản phẩm', href: '/products' },
+  { name: 'Khuyến mãi', href: '/sale' },
+  { name: 'Danh mục', href: '/categories' },
+  { name: 'Về chúng tôi', href: '/about' },
 ];
 
 export default function Header() {
@@ -31,8 +31,8 @@ export default function Header() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
@@ -49,7 +49,7 @@ export default function Header() {
       {/* Main Header */}
       <header
         className={`sticky top-0 z-50 transition-all duration-500 ${
-          isScrolled ? "glass shadow-lg py-3" : "bg-white/80 backdrop-blur-sm py-4"
+          isScrolled ? 'glass shadow-lg py-3' : 'bg-white/80 backdrop-blur-sm py-4'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -119,7 +119,7 @@ export default function Header() {
                     aria-live="polite"
                     role="status"
                   >
-                    {cartCount > 99 ? "99+" : cartCount}
+                    {cartCount > 99 ? '99+' : cartCount}
                   </span>
                 )}
               </Link>
@@ -127,7 +127,7 @@ export default function Header() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                aria-label={isMobileMenuOpen ? "Đóng menu" : "Mở menu"}
+                aria-label={isMobileMenuOpen ? 'Đóng menu' : 'Mở menu'}
                 aria-expanded={isMobileMenuOpen}
                 className="lg:hidden p-2 rounded-full text-[var(--text-secondary)] hover:text-pink-500 hover:bg-pink-50 transition-all duration-300"
               >
@@ -140,7 +140,7 @@ export default function Header() {
         {/* Mobile Menu */}
         <div
           className={`lg:hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-md shadow-lg overflow-hidden transition-all duration-500 ${
-            isMobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+            isMobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
           <nav className="flex flex-col p-4">
