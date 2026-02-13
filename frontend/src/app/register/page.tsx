@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Header from '@/components/Header';
+import { useRouter } from 'next/navigation';
+import { type FormEvent, useState } from 'react';
 import Footer from '@/components/Footer';
-import { UserPlusIcon, EyeIcon, EyeOffIcon } from '@/components/icons';
+import Header from '@/components/Header';
+import { EyeIcon, EyeOffIcon, UserPlusIcon } from '@/components/icons';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface RegisterForm {
@@ -39,6 +39,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const validate = (): boolean => {
     const newErrors: RegisterErrors = {};
@@ -75,18 +76,29 @@ export default function RegisterPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsSubmitting(true);
-    // Mock register — always succeeds
-    register({
+    setFormError(null);
+
+    const result = await register({
       name: form.name,
       email: form.email,
       phone: form.phone,
       password: form.password,
     });
+
+    if (!result.ok) {
+      if (result.fieldErrors) {
+        setErrors((prev) => ({ ...prev, ...result.fieldErrors }));
+      }
+      setFormError(result.message);
+      setIsSubmitting(false);
+      return;
+    }
+
     router.push('/');
   };
 
@@ -95,6 +107,7 @@ export default function RegisterPage() {
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
+    if (formError) setFormError(null);
   };
 
   return (
@@ -277,6 +290,12 @@ export default function RegisterPage() {
                   </p>
                 )}
               </div>
+
+              {formError && (
+                <p className="text-red-500 text-sm" role="alert">
+                  {formError}
+                </p>
+              )}
 
               {/* Submit */}
               <button
