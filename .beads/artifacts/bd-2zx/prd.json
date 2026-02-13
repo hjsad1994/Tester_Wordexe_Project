@@ -1,0 +1,153 @@
+{
+	"beadId": "bd-2zx",
+	"prdName": "rbac-admin-product-category",
+	"tasks": [
+		{
+			"id": "backend-1",
+			"category": "backend",
+			"description": "User entities and auth identity payloads include a validated role (admin/user) so role is available consistently across authentication flows.",
+			"steps": [
+				"cd backend && npm run lint",
+				"Manual API check: register/login/me returns role field and valid defaults."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [],
+				"parallel": false,
+				"conflicts_with": [
+					"Enforce admin-only product/category writes [backend]"
+				],
+				"files": [
+					"backend/src/models/User.js",
+					"backend/src/services/authService.js",
+					"backend/src/controllers/authController.js"
+				]
+			}
+		},
+		{
+			"id": "backend-2",
+			"category": "backend",
+			"description": "Product and category create/update/delete endpoints reject non-admin users and allow admins through centralized authorization middleware.",
+			"steps": [
+				"cd backend && npm run lint",
+				"API verification: non-admin receives 403 on POST/PUT/DELETE for product/category.",
+				"API verification: admin succeeds on POST/PUT/DELETE for product/category."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["Persist role in auth domain [backend]"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"backend/src/middlewares/authMiddleware.js",
+					"backend/src/middlewares/requireRole.js",
+					"backend/src/routes/productRoutes.js",
+					"backend/src/routes/categoryRoutes.js",
+					"backend/src/errors/ClientError.js"
+				]
+			}
+		},
+		{
+			"id": "frontend-1",
+			"category": "frontend",
+			"description": "Frontend auth/session models include role and conditionally render write controls for product/category management only to admins.",
+			"steps": [
+				"cd frontend && npm run typecheck",
+				"cd frontend && npm run lint",
+				"Manual UI check for admin vs user control visibility."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["Persist role in auth domain [backend]"],
+				"parallel": true,
+				"conflicts_with": [
+					"Implement admin product/category CRUD flows [frontend]"
+				],
+				"files": [
+					"frontend/src/contexts/AuthContext.tsx",
+					"frontend/src/components/Header.tsx",
+					"frontend/src/app/products/page.tsx",
+					"frontend/src/components/Categories.tsx"
+				]
+			}
+		},
+		{
+			"id": "frontend-2",
+			"category": "frontend",
+			"description": "Frontend provides functional admin-only product/category create, edit, and delete interactions wired to backend APIs.",
+			"steps": [
+				"cd frontend && npm run typecheck",
+				"cd frontend && npm run lint",
+				"Manual admin workflow check: create/update/delete product and category from UI."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [
+					"Enforce admin-only product/category writes [backend]",
+					"Expose role in frontend session and gate controls [frontend]"
+				],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/lib/api.ts",
+					"frontend/src/app/products/page.tsx",
+					"frontend/src/components/Categories.tsx",
+					"frontend/src/components/ProductCard.tsx"
+				]
+			}
+		},
+		{
+			"id": "testing-1",
+			"category": "testing",
+			"description": "Automated tests validate both allowed admin actions and denied non-admin actions for product/category write paths.",
+			"steps": [
+				"cd playwright && npm test",
+				"Test report includes both success (admin) and denial (user) scenarios."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [
+					"Enforce admin-only product/category writes [backend]",
+					"Implement admin product/category CRUD flows [frontend]"
+				],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"playwright/tests/rbac/admin-product-category.spec.ts",
+					"playwright/fixtures/test-fixtures.ts"
+				]
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"Auth cookie + JWT identity: backend/src/middlewares/authMiddleware.js and backend/src/services/authService.js",
+			"Auth response mapping: backend/src/services/authService.js (toUserResponse)",
+			"Product/category route registration: backend/src/routes/productRoutes.js and backend/src/routes/categoryRoutes.js",
+			"Frontend auth session state: frontend/src/contexts/AuthContext.tsx",
+			"Frontend auth-aware header rendering: frontend/src/components/Header.tsx"
+		],
+		"keyFiles": [
+			"backend/src/models/User.js",
+			"backend/src/middlewares/authMiddleware.js",
+			"backend/src/errors/ClientError.js",
+			"backend/src/controllers/productController.js",
+			"backend/src/controllers/categoryController.js",
+			"frontend/src/app/products/page.tsx",
+			"frontend/src/components/Categories.tsx"
+		],
+		"nonGoals": [
+			"Multi-role/permission matrix beyond admin and user",
+			"Organization/team-level permissions",
+			"Full admin dashboard redesign unrelated to product/category RBAC",
+			"Changes to unrelated domains outside auth, product, and category boundaries"
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": false,
+		"conflicts_with": ["bd-15n"],
+		"blocks": [],
+		"estimated_hours": 10
+	}
+}

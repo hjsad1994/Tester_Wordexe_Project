@@ -1,0 +1,48 @@
+# Progress Log
+
+Bead: bd-2zx
+Started: 2026-02-14
+
+## Codebase Patterns
+
+<!-- Consolidate reusable patterns here -->
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
+
+## 2026-02-14 - backend-1
+
+- Added `role` to `backend/src/models/User.js` with enum `admin|user` and default `user`.
+- Extended auth token payload and auth responses in `backend/src/services/authService.js` to include role.
+- Verification: `cd backend && npm run lint` (pass), API checks for register/login/me role field (pass).
+
+## 2026-02-14 - backend-2
+
+- Added `backend/src/middlewares/requireRole.js` and updated `backend/src/middlewares/authMiddleware.js` to attach `req.userRole`.
+- Protected product/category write routes in `backend/src/routes/productRoutes.js` and `backend/src/routes/categoryRoutes.js` with `authMiddleware` + `requireRole('admin')`.
+- Verification: `cd backend && npm run lint` (pass), HTTP RBAC checks validated admin allow + non-admin deny + public reads (pass).
+
+## 2026-02-14 - frontend-1
+
+- Extended auth session model with `role` + `isAdmin` in `frontend/src/contexts/AuthContext.tsx`.
+- Added admin quick access in `frontend/src/components/Header.tsx` and role-aware admin actions in product/category UI.
+- Verification: `cd frontend && npm run typecheck` (pass), `cd frontend && npm run lint` (pass).
+
+## 2026-02-14 - frontend-2
+
+- Added product/category CRUD API helpers in `frontend/src/lib/api.ts`.
+- Implemented admin product CRUD panel in `frontend/src/app/products/page.tsx` and category CRUD panel in `frontend/src/components/Categories.tsx`.
+- Verification: `cd frontend && npm run typecheck` (pass), `cd frontend && npm run lint` (pass), `cd frontend && npm run build` (pass).
+
+## 2026-02-14 - testing-1 (partial)
+
+- Added RBAC regression spec at `playwright/tests/rbac/admin-product-category.spec.ts`.
+- Verification run: `npx playwright test tests/rbac/admin-product-category.spec.ts --project=chromium` (pass, 3/3).
+- Full `cd playwright && npm test` currently fails/times out due unrelated existing demo specs and was waived by user request not to run Playwright suite further.
+
+## 2026-02-14 - post-review hardening
+
+- Fixed role fallback for pre-existing users without stored role in `backend/src/services/authService.js` and `backend/src/middlewares/authMiddleware.js` (default to `user`, preserve `admin`).
+- Re-ran gates: `cd backend && npm run lint` (pass); `cd frontend && npm run typecheck && npm run lint && npm run build` (pass).
+- Code review re-run reports no critical/high issues and marks patch correct.
