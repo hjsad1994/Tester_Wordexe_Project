@@ -26,6 +26,11 @@ const userSchema = new mongoose.Schema(
       minlength: [8, 'Mật khẩu phải có ít nhất 8 ký tự'],
       select: false,
     },
+    role: {
+      type: String,
+      enum: ['admin', 'user'],
+      default: 'user',
+    },
   },
   { timestamps: true }
 );

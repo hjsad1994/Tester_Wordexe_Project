@@ -5,12 +5,16 @@ const { UnauthorizedError, ConflictError, InternalServerError } = require('../er
 
 const TOKEN_EXPIRES_IN = '7d';
 
-const signToken = (userId) => {
+const normalizeRole = (role) => (role === 'admin' ? 'admin' : 'user');
+
+const signToken = (userId, role) => {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
     throw new InternalServerError('JWT_SECRET is not configured');
   }
-  return jwt.sign({ userId }, secret, { expiresIn: TOKEN_EXPIRES_IN });
+  return jwt.sign({ userId, role: normalizeRole(role) }, secret, {
+    expiresIn: TOKEN_EXPIRES_IN,
+  });
 };
 
 const toUserResponse = (user) => ({
@@ -18,6 +22,7 @@ const toUserResponse = (user) => ({
   name: user.name,
   email: user.email,
   phone: user.phone,
+  role: normalizeRole(user.role),
 });
 
 const register = async ({ name, email, phone, password }) => {
@@ -32,7 +37,7 @@ const register = async ({ name, email, phone, password }) => {
       phone,
       password,
     });
-    const token = signToken(user._id.toString());
+    const token = signToken(user._id.toString(), normalizeRole(user.role));
     return { user: toUserResponse(user), token };
   } catch (error) {
     if (error.code === 11000) {
@@ -51,7 +56,7 @@ const login = async ({ email, password }) => {
   if (!isMatch) {
     throw new UnauthorizedError('Email hoặc mật khẩu không đúng');
   }
-  const token = signToken(user._id.toString());
+  const token = signToken(user._id.toString(), normalizeRole(user.role));
   return { user: toUserResponse(user), token };
 };
 

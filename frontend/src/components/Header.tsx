@@ -1,23 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext';
 import {
   CartIcon,
   CloseIcon,
   GiftIcon,
   HeartOutlineIcon,
   LoginIcon,
-  LogoutIcon,
   LogoIcon,
+  LogoutIcon,
   MenuIcon,
   SparkleIcon,
   UserIcon,
   UserPlusIcon,
 } from './icons';
-import { useCart } from '@/contexts/CartContext';
-import { useWishlist } from '@/contexts/WishlistContext';
-import { useAuth } from '@/contexts/AuthContext';
 
 const navLinks = [
   { name: 'Trang chủ', href: '/' },
@@ -32,7 +32,7 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { cartCount } = useCart();
   const { wishlistCount } = useWishlist();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, isAdmin, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -110,6 +110,16 @@ export default function Header() {
               {/* Auth Actions */}
               {isAuthenticated ? (
                 <>
+                  {isAdmin && (
+                    <Link
+                      href="/products#admin-panel"
+                      className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-pink-100 text-pink-600 hover:bg-pink-200 transition-all duration-300 text-sm font-medium"
+                      aria-label="Mở khu vực quản trị"
+                    >
+                      <SparkleIcon size={16} />
+                      <span className="hidden md:inline">Quản trị</span>
+                    </Link>
+                  )}
                   <Link
                     href="/profile"
                     className="hidden sm:flex p-2 rounded-full text-[var(--text-secondary)] hover:text-pink-500 hover:bg-pink-50 transition-all duration-300"
@@ -209,6 +219,16 @@ export default function Header() {
               </Link>
               {isAuthenticated ? (
                 <>
+                  {isAdmin && (
+                    <Link
+                      href="/products#admin-panel"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-pink-500 font-medium hover:text-pink-600 transition-colors"
+                    >
+                      <SparkleIcon size={20} />
+                      <span>Quản trị</span>
+                    </Link>
+                  )}
                   <Link
                     href="/profile"
                     onClick={() => setIsMobileMenuOpen(false)}
