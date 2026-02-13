@@ -1,0 +1,186 @@
+{
+	"beadId": "bd-1kq",
+	"prdName": "backend-auth-mongodb-fe-integration",
+	"tasks": [
+		{
+			"id": "backend-1",
+			"category": "backend",
+			"description": "Mongoose User schema with name, email (unique), phone, password (bcrypt hashed via pre-save hook, select: false), timestamps.",
+			"steps": [
+				"File exists at backend/src/models/User.js",
+				"Schema has email unique index, password select:false, pre-save bcrypt hook",
+				"cd backend && npm run lint"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": ["backend/src/models/User.js"]
+			}
+		},
+		{
+			"id": "backend-2",
+			"category": "backend",
+			"description": "Auth service with register() and login() methods following existing layered pattern; user repository with findByEmail(), createUser() queries.",
+			"steps": [
+				"authService.register() creates user, returns user without password",
+				"authService.login() verifies credentials, returns JWT + user",
+				"cd backend && npm run lint"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["backend-1"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"backend/src/services/authService.js",
+					"backend/src/repositories/userRepository.js"
+				]
+			}
+		},
+		{
+			"id": "backend-3",
+			"category": "backend",
+			"description": "Express routes for POST /api/auth/register, POST /api/auth/login, GET /api/auth/me, POST /api/auth/logout with express-validator input validation and auth middleware.",
+			"steps": [
+				"Routes respond to correct HTTP methods and paths",
+				"Validators check required fields, email format, password length",
+				"cd backend && npm run lint"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["backend-2"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"backend/src/controllers/authController.js",
+					"backend/src/routes/authRoutes.js",
+					"backend/src/validators/authValidator.js",
+					"backend/src/middlewares/authMiddleware.js"
+				]
+			}
+		},
+		{
+			"id": "backend-4",
+			"category": "backend",
+			"description": "Mount auth routes in central router, add cookie-parser middleware, update CORS to allow credentials, add JWT_SECRET and FRONTEND_URL to .env.example.",
+			"steps": [
+				"cd backend && npm run lint && npm run format:check",
+				"curl http://localhost:3001/api/auth/register returns 400 (not 404)"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["backend-3"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"backend/src/routes/index.js",
+					"backend/src/index.js",
+					"backend/.env.example"
+				]
+			}
+		},
+		{
+			"id": "backend-5",
+			"category": "backend",
+			"description": "Install bcrypt, jsonwebtoken, cookie-parser, express-validator as production dependencies.",
+			"steps": [
+				"cd backend && npm ls bcrypt jsonwebtoken cookie-parser express-validator"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": ["backend/package.json", "backend/package-lock.json"]
+			}
+		},
+		{
+			"id": "frontend-1",
+			"category": "frontend",
+			"description": "Replace mock login(), logout(), register() with fetch calls to backend API using credentials: 'include'. Add checkAuth() function that calls GET /api/auth/me on mount. Add loading and error states.",
+			"steps": [
+				"cd frontend && npm run typecheck && npm run build",
+				"AuthContext exposes login, logout, register, isAuthenticated, user, isLoading, error"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["backend-4"],
+				"parallel": false,
+				"conflicts_with": ["bd-15n"],
+				"files": ["frontend/src/contexts/AuthContext.tsx"]
+			}
+		},
+		{
+			"id": "frontend-2",
+			"category": "frontend",
+			"description": "Login and register pages display backend validation errors, show loading spinner during API call, handle network errors gracefully.",
+			"steps": [
+				"cd frontend && npm run typecheck && npm run build",
+				"cd frontend && npm run lint && npm run format:check"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["frontend-1"],
+				"parallel": false,
+				"conflicts_with": ["bd-15n"],
+				"files": [
+					"frontend/src/app/login/page.tsx",
+					"frontend/src/app/register/page.tsx"
+				]
+			}
+		},
+		{
+			"id": "ci-1",
+			"category": "ci",
+			"description": "Run complete CI checks for both backend and frontend to ensure everything passes.",
+			"steps": [
+				"cd backend && npm run lint && npm run format:check",
+				"cd frontend && npm run lint && npm run typecheck && npm run build && npm run format:check"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["frontend-2"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": []
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"Layered architecture: routes → controllers → services → repositories → models",
+			"asyncHandler middleware wraps all controller handlers",
+			"Centralized error handling via AppError/ClientError classes",
+			"Response helpers: sendSuccess(), sendCreated()",
+			"CommonJS modules throughout backend",
+			"Frontend uses fetch with NEXT_PUBLIC_API_URL env var"
+		],
+		"keyFiles": [
+			"backend/src/index.js",
+			"backend/src/routes/index.js",
+			"backend/src/errors/index.js",
+			"backend/src/middlewares/asyncHandler.js",
+			"backend/src/utils/responseHelper.js",
+			"frontend/src/contexts/AuthContext.tsx",
+			"frontend/src/lib/api.ts"
+		],
+		"nonGoals": [
+			"Refresh token rotation",
+			"OAuth/social login",
+			"Email verification / password reset",
+			"Role-based access control",
+			"Rate limiting",
+			"Profile page implementation",
+			"Backend unit tests"
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": false,
+		"conflicts_with": ["bd-15n"],
+		"blocks": [],
+		"estimated_hours": 4
+	}
+}

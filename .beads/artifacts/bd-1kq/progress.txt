@@ -1,0 +1,43 @@
+# Progress Log
+
+Bead: bd-1kq
+Started: 2026-02-13
+
+## Codebase Patterns
+
+- Backend: CommonJS, Express, Mongoose, layered arch (routes→controllers→services→repositories→models)
+- Error classes: AppError → ClientError (BadRequestError, UnauthorizedError, etc.)
+- asyncHandler wraps all controller methods
+- Response helpers: sendSuccess(), sendCreated()
+- Frontend: Next.js 16, React 19, TypeScript, fetch-based API client
+- Auth UI already built (mock) in bd-15n: AuthContext, login/register pages, Header
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
+
+## Tasks 2-11: Backend Auth Foundation ✅
+- Installed bcrypt, jsonwebtoken, cookie-parser, express-validator
+- Added ConflictError(409) to error classes
+- Created User model with bcrypt pre-save hook
+- Created userRepository (findByEmail, existsByEmail, createUser, findById)
+- Created authService (register, login, getMe) with JWT signing
+- Created authValidator (registerRules, loginRules, validate middleware)
+- Created authMiddleware (JWT cookie verification)
+- Created authController (register, login, me, logout with cookie management)
+- Created authRoutes + mounted at /api/auth
+- Wired cookie-parser, CORS with credentials, JWT_SECRET env var
+- Backend CI: 0 errors, 1 acceptable warning
+
+## Tasks 13-15: Frontend Integration ✅
+- Replaced mock AuthContext with real API (fetch + credentials:include)
+- Added parseErrorResponse for backend validation errors
+- Added isLoading state + checkAuth on mount
+- Login/register return AuthResult (ok/error pattern)
+- Updated login page: async handleSubmit, formError state, error banner
+- Updated register page: same pattern
+- Frontend CI: lint ✅ typecheck ✅ build ✅ format ✅
+
+## Review Fixes ✅
+- Sanitized .env.example (removed hardcoded MongoDB credentials)
+- Added try/catch for MongoDB E11000 duplicate key race condition in register

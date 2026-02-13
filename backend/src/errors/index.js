@@ -4,6 +4,7 @@ const {
   UnauthorizedError,
   ForbiddenError,
   NotFoundError,
+  ConflictError,
   ValidationError,
 } = require('./ClientError');
 const { InternalServerError, ServiceUnavailableError } = require('./ServerError');
@@ -16,6 +17,7 @@ module.exports = {
   UnauthorizedError,
   ForbiddenError,
   NotFoundError,
+  ConflictError,
   ValidationError,
   InternalServerError,
   ServiceUnavailableError,
