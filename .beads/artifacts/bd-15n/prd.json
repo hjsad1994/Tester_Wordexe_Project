@@ -1,140 +1,146 @@
 {
-  "beadId": "bd-15n",
-  "prdName": "auth-pages",
-  "tasks": [
-    {
-      "id": "context-1",
-      "category": "context",
-      "description": "Create AuthContext provider at frontend/src/contexts/AuthContext.tsx with isAuthenticated, user, login(), logout(), register() mock functions. Wrap in layout.tsx.",
-      "steps": [
-        "npm run typecheck passes",
-        "AuthContext exports useAuth hook with correct types (isAuthenticated, user, login, logout, register)"
-      ],
-      "passes": false,
-      "metadata": {
-        "depends_on": [],
-        "parallel": true,
-        "conflicts_with": ["ui-2"],
-        "files": ["frontend/src/contexts/AuthContext.tsx", "frontend/src/app/layout.tsx"]
-      }
-    },
-    {
-      "id": "page-1",
-      "category": "page",
-      "description": "Create Login page at /login with email + password fields, client-side validation, password show/hide toggle, mock submit handler calling authContext.login(), links to register. Pink pastel theme.",
-      "steps": [
-        "npm run typecheck passes",
-        "Page renders at http://localhost:3000/login",
-        "Form validation blocks empty/invalid submissions",
-        "Successful submit sets isAuthenticated = true"
-      ],
-      "passes": false,
-      "metadata": {
-        "depends_on": ["context-1"],
-        "parallel": false,
-        "conflicts_with": [],
-        "files": ["frontend/src/app/login/page.tsx"]
-      }
-    },
-    {
-      "id": "page-2",
-      "category": "page",
-      "description": "Create Register page at /register with name, email, phone, password, confirm password fields. Client-side validation (email format, phone format, password match, min length). Mock submit handler. Links to login. Pink pastel theme.",
-      "steps": [
-        "npm run typecheck passes",
-        "Page renders at http://localhost:3000/register",
-        "Validation catches: empty fields, invalid email, short password, password mismatch, invalid phone",
-        "Successful submit redirects appropriately"
-      ],
-      "passes": false,
-      "metadata": {
-        "depends_on": ["context-1"],
-        "parallel": true,
-        "conflicts_with": [],
-        "files": ["frontend/src/app/register/page.tsx"]
-      }
-    },
-    {
-      "id": "ui-1",
-      "category": "ui",
-      "description": "Add auth icons (LoginIcon, LogoutIcon) to custom icon set following existing pattern (size prop, SVG paths).",
-      "steps": ["npm run typecheck passes", "Icons render correctly when imported"],
-      "passes": false,
-      "metadata": {
-        "depends_on": [],
-        "parallel": true,
-        "conflicts_with": ["ui-2"],
-        "files": ["frontend/src/components/icons/index.tsx"]
-      }
-    },
-    {
-      "id": "ui-2",
-      "category": "ui",
-      "description": "Update Header with auth-conditional rendering. Show Login/Register links when logged out, profile icon + logout when logged in. Both desktop and mobile menu. No layout shift.",
-      "steps": [
-        "npm run typecheck passes",
-        "Header shows login/register when logged out",
-        "Header shows profile icon + logout when logged in",
-        "Mobile menu includes auth links in both states",
-        "No layout shift between states"
-      ],
-      "passes": false,
-      "metadata": {
-        "depends_on": ["context-1", "ui-1"],
-        "parallel": false,
-        "conflicts_with": [],
-        "files": ["frontend/src/components/Header.tsx"]
-      }
-    },
-    {
-      "id": "verification-1",
-      "category": "verification",
-      "description": "All pages and components pass TypeScript typecheck, linting, and formatting checks.",
-      "steps": [
-        "npm run typecheck passes with zero errors",
-        "npm run lint:fix passes",
-        "npx prettier --check 'frontend/src/**/*.tsx' passes"
-      ],
-      "passes": false,
-      "metadata": {
-        "depends_on": ["page-1", "page-2", "ui-2"],
-        "parallel": false,
-        "conflicts_with": [],
-        "files": []
-      }
-    }
-  ],
-  "context": {
-    "patterns": [
-      "Page layout: <div min-h-screen> + Header + main + Footer",
-      "Form validation: manual validate() with errors state object",
-      "Password toggle: EyeIcon/EyeOffIcon",
-      "Context: createContext + Provider + useContext hook",
-      "Icons: custom SVG components with size prop",
-      "Header actions: rounded-full, hover:text-pink-500"
-    ],
-    "keyFiles": [
-      "frontend/src/app/checkout/page.tsx",
-      "frontend/src/app/profile/page.tsx",
-      "frontend/src/contexts/CartContext.tsx",
-      "frontend/src/components/icons/index.tsx",
-      "frontend/src/components/Header.tsx",
-      "frontend/src/app/layout.tsx",
-      "frontend/src/app/globals.css"
-    ],
-    "nonGoals": [
-      "Backend API integration",
-      "Password reset flow",
-      "OAuth/social login",
-      "Email verification",
-      "Session persistence (localStorage/sessionStorage)"
-    ]
-  },
-  "beadMetadata": {
-    "depends_on": [],
-    "parallel": true,
-    "conflicts_with": [],
-    "blocks": [],
-    "estimated_hours": 4
-  }
+	"beadId": "bd-15n",
+	"prdName": "auth-pages",
+	"tasks": [
+		{
+			"id": "context-1",
+			"category": "context",
+			"description": "Create AuthContext provider at frontend/src/contexts/AuthContext.tsx with isAuthenticated, user, login(), logout(), register() mock functions. Wrap in layout.tsx.",
+			"steps": [
+				"npm run typecheck passes",
+				"AuthContext exports useAuth hook with correct types (isAuthenticated, user, login, logout, register)"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": ["ui-2"],
+				"files": [
+					"frontend/src/contexts/AuthContext.tsx",
+					"frontend/src/app/layout.tsx"
+				]
+			}
+		},
+		{
+			"id": "page-1",
+			"category": "page",
+			"description": "Create Login page at /login with email + password fields, client-side validation, password show/hide toggle, mock submit handler calling authContext.login(), links to register. Pink pastel theme.",
+			"steps": [
+				"npm run typecheck passes",
+				"Page renders at http://localhost:3000/login",
+				"Form validation blocks empty/invalid submissions",
+				"Successful submit sets isAuthenticated = true"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["context-1"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": ["frontend/src/app/login/page.tsx"]
+			}
+		},
+		{
+			"id": "page-2",
+			"category": "page",
+			"description": "Create Register page at /register with name, email, phone, password, confirm password fields. Client-side validation (email format, phone format, password match, min length). Mock submit handler. Links to login. Pink pastel theme.",
+			"steps": [
+				"npm run typecheck passes",
+				"Page renders at http://localhost:3000/register",
+				"Validation catches: empty fields, invalid email, short password, password mismatch, invalid phone",
+				"Successful submit redirects appropriately"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["context-1"],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": ["frontend/src/app/register/page.tsx"]
+			}
+		},
+		{
+			"id": "ui-1",
+			"category": "ui",
+			"description": "Add auth icons (LoginIcon, LogoutIcon) to custom icon set following existing pattern (size prop, SVG paths).",
+			"steps": [
+				"npm run typecheck passes",
+				"Icons render correctly when imported"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": ["ui-2"],
+				"files": ["frontend/src/components/icons/index.tsx"]
+			}
+		},
+		{
+			"id": "ui-2",
+			"category": "ui",
+			"description": "Update Header with auth-conditional rendering. Show Login/Register links when logged out, profile icon + logout when logged in. Both desktop and mobile menu. No layout shift.",
+			"steps": [
+				"npm run typecheck passes",
+				"Header shows login/register when logged out",
+				"Header shows profile icon + logout when logged in",
+				"Mobile menu includes auth links in both states",
+				"No layout shift between states"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["context-1", "ui-1"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": ["frontend/src/components/Header.tsx"]
+			}
+		},
+		{
+			"id": "verification-1",
+			"category": "verification",
+			"description": "All pages and components pass TypeScript typecheck, linting, and formatting checks.",
+			"steps": [
+				"npm run typecheck passes with zero errors",
+				"npm run lint:fix passes",
+				"npx prettier --check 'frontend/src/**/*.tsx' passes"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["page-1", "page-2", "ui-2"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": []
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"Page layout: <div min-h-screen> + Header + main + Footer",
+			"Form validation: manual validate() with errors state object",
+			"Password toggle: EyeIcon/EyeOffIcon",
+			"Context: createContext + Provider + useContext hook",
+			"Icons: custom SVG components with size prop",
+			"Header actions: rounded-full, hover:text-pink-500"
+		],
+		"keyFiles": [
+			"frontend/src/app/checkout/page.tsx",
+			"frontend/src/app/profile/page.tsx",
+			"frontend/src/contexts/CartContext.tsx",
+			"frontend/src/components/icons/index.tsx",
+			"frontend/src/components/Header.tsx",
+			"frontend/src/app/layout.tsx",
+			"frontend/src/app/globals.css"
+		],
+		"nonGoals": [
+			"Backend API integration",
+			"Password reset flow",
+			"OAuth/social login",
+			"Email verification",
+			"Session persistence (localStorage/sessionStorage)"
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": true,
+		"conflicts_with": [],
+		"blocks": [],
+		"estimated_hours": 4
+	}
 }
