@@ -10,23 +10,8 @@ router.get('/search', productController.searchProducts);
 router.get('/category/:categoryId', productController.getProductsByCategory);
 router.get('/:id', productController.getProductById);
 router.get('/slug/:slug', productController.getProductBySlug);
-router.post(
-	'/',
-	authMiddleware,
-	requireRole('admin'),
-	productController.createProduct,
-);
-router.put(
-	'/:id',
-	authMiddleware,
-	requireRole('admin'),
-	productController.updateProduct,
-);
-router.delete(
-	'/:id',
-	authMiddleware,
-	requireRole('admin'),
-	productController.deleteProduct,
-);
+router.post('/', authMiddleware, requireRole('admin'), productController.createProduct);
+router.put('/:id', authMiddleware, requireRole('admin'), productController.updateProduct);
+router.delete('/:id', authMiddleware, requireRole('admin'), productController.deleteProduct);
 
 module.exports = router;
