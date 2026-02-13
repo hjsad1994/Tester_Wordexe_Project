@@ -17,3 +17,23 @@ Started: 2026-02-13
 ---
 
 <!-- Task logs below - APPEND ONLY -->
+
+## 2026-02-14 Ship Run
+
+- [context-1] Completed: AuthContext kept required interface (`isAuthenticated`, `user`, `login`, `logout`, `register`) and was converted to frontend-only mock behavior in `frontend/src/contexts/AuthContext.tsx`.
+- [context-1] Verify: `npm run typecheck` passed.
+
+- [page-1] Completed: `/login` page validated for required/invalid-email errors and successful submit flow.
+- [page-1] Verify: Playwright run passed (empty submit blocked, invalid email blocked, valid login redirected to `/` and showed authenticated header state).
+
+- [page-2] Completed: `/register` page validated for empty fields, invalid email/phone, short password, password mismatch, and successful submit flow.
+- [page-2] Verify: Playwright run passed (validation errors shown; valid registration redirected to `/`).
+
+- [ui-1] Completed: Auth icons available in icon set (`LoginIcon`, `LogoutIcon`, `UserPlusIcon`) and used by auth UI.
+- [ui-1] Verify: `npm run typecheck` passed with icon imports in login/register/header.
+
+- [ui-2] Completed: Header auth conditional rendering verified for desktop and mobile states.
+- [ui-2] Verify: Playwright run passed (logged-out shows login/register, authenticated shows profile/logout, mobile menu supports both states).
+
+- [verification-1] Completed: CI/CD verification gates green.
+- [verification-1] Verify: `npm run typecheck`, `npm run lint:fix`, `npm run format:check`, and `npm run build` all passed.

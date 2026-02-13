@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useMemo,
-  useCallback,
-  useEffect,
-  type ReactNode,
-} from 'react';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { createContext, type ReactNode, useCallback, useContext, useMemo, useState } from 'react';
 
 export interface AuthUser {
   id: string;
@@ -39,82 +29,26 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const parseErrorResponse = async (
-  res: Response
-): Promise<{ message: string; fieldErrors?: Record<string, string> }> => {
-  const data = await res.json().catch(() => null);
-
-  if (data?.errors && Array.isArray(data.errors)) {
-    const fieldErrors: Record<string, string> = {};
-    for (const error of data.errors) {
-      const field = error.field || error.param;
-      if (field && !fieldErrors[field]) {
-        fieldErrors[field] = error.message || error.msg || 'Dữ liệu không hợp lệ';
-      }
-    }
-    return {
-      message: data.message || 'Dữ liệu không hợp lệ',
-      fieldErrors,
-    };
-  }
-
-  return {
-    message: data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.',
-  };
-};
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const checkAuth = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
-        credentials: 'include',
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data.data);
-        setIsAuthenticated(true);
-      } else {
-        setUser(null);
-        setIsAuthenticated(false);
-      }
-    } catch {
-      setUser(null);
-      setIsAuthenticated(false);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void checkAuth();
-  }, [checkAuth]);
+  const [isLoading] = useState(false);
 
   const login = useCallback(async (email: string, password: string): Promise<AuthResult> => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!res.ok) {
-        const error = await parseErrorResponse(res);
-        return { ok: false, ...error };
-      }
-
-      const data = await res.json();
-      setUser(data.data);
-      setIsAuthenticated(true);
-      return { ok: true };
-    } catch {
-      return { ok: false, message: 'Không thể kết nối đến máy chủ. Vui lòng thử lại.' };
+    if (!email || !password) {
+      return { ok: false, message: 'Email và mật khẩu là bắt buộc.' };
     }
+
+    const displayName = email.split('@')[0]?.trim() || 'Khách hàng';
+    setUser({
+      id: `mock-${Date.now()}`,
+      name: displayName,
+      email,
+      phone: '',
+    });
+    setIsAuthenticated(true);
+
+    return { ok: true };
   }, []);
 
   const register = useCallback(
@@ -124,40 +58,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       phone: string;
       password: string;
     }): Promise<AuthResult> => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-
-        if (!res.ok) {
-          const error = await parseErrorResponse(res);
-          return { ok: false, ...error };
-        }
-
-        const response = await res.json();
-        setUser(response.data);
-        setIsAuthenticated(true);
-        return { ok: true };
-      } catch {
-        return { ok: false, message: 'Không thể kết nối đến máy chủ. Vui lòng thử lại.' };
+      if (!data.name || !data.email || !data.phone || !data.password) {
+        return { ok: false, message: 'Vui lòng điền đầy đủ thông tin.' };
       }
+
+      setUser({
+        id: `mock-${Date.now()}`,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+      });
+      setIsAuthenticated(true);
+
+      return { ok: true };
     },
     []
   );
 
   const logout = useCallback(async () => {
-    try {
-      await fetch(`${API_BASE_URL}/api/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-    } finally {
-      setUser(null);
-      setIsAuthenticated(false);
-    }
+    setUser(null);
+    setIsAuthenticated(false);
   }, []);
 
   const value = useMemo(
@@ -165,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [isAuthenticated, user, isLoading, login, logout, register]
   );
 
-  return <AuthContext value={value}>{children}</AuthContext>;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth(): AuthContextValue {
