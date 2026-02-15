@@ -114,7 +114,7 @@ export default function Header() {
 								<>
 									{isAdmin && (
 										<Link
-											href="/products#admin-panel"
+											href="/admin"
 											className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-pink-100 text-pink-600 hover:bg-pink-200 transition-all duration-300 text-sm font-medium"
 											aria-label="Mở khu vực quản trị"
 										>
@@ -229,7 +229,7 @@ export default function Header() {
 								<>
 									{isAdmin && (
 										<Link
-											href="/products#admin-panel"
+											href="/admin"
 											onClick={() => setIsMobileMenuOpen(false)}
 											className="flex items-center gap-2 px-4 py-2 text-pink-500 font-medium hover:text-pink-600 transition-colors"
 										>
