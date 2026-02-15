@@ -1,0 +1,150 @@
+{
+	"beadId": "bd-2os",
+	"prdName": "admin-panel-route-sidebar",
+	"tasks": [
+		{
+			"id": "frontend-1",
+			"category": "frontend",
+			"description": "An admin route group exists with a reusable layout and left sidebar navigation that defines stable entry points for product and category management.",
+			"steps": [
+				"cd frontend && npm run typecheck",
+				"Manual check: /admin renders sidebar with Products and Categories navigation links."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/app/admin/layout.tsx",
+					"frontend/src/app/admin/page.tsx",
+					"frontend/src/components/admin/AdminSidebar.tsx",
+					"frontend/src/app/layout.tsx"
+				]
+			}
+		},
+		{
+			"id": "frontend-2",
+			"category": "frontend",
+			"description": "Product admin CRUD interactions are available from /admin/products and removed from the public /products page.",
+			"steps": [
+				"cd frontend && npm run lint",
+				"Manual check: /products has no #admin-panel section, /admin/products supports admin CRUD flows."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [
+					"Create dedicated admin route shell with sidebar [frontend]"
+				],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/app/products/page.tsx",
+					"frontend/src/app/admin/products/page.tsx",
+					"frontend/src/components/admin/AdminProductsPanel.tsx",
+					"frontend/src/lib/api.ts",
+					"frontend/src/contexts/AuthContext.tsx"
+				]
+			}
+		},
+		{
+			"id": "frontend-3",
+			"category": "frontend",
+			"description": "Category admin CRUD interactions are available from /admin/categories and no longer embedded in the storefront categories component.",
+			"steps": [
+				"cd frontend && npm run lint",
+				"Manual check: homepage categories section no longer exposes admin CRUD controls; /admin/categories supports admin CRUD flows."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [
+					"Create dedicated admin route shell with sidebar [frontend]"
+				],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/components/Categories.tsx",
+					"frontend/src/app/admin/categories/page.tsx",
+					"frontend/src/components/admin/AdminCategoriesPanel.tsx",
+					"frontend/src/lib/api.ts",
+					"frontend/src/contexts/AuthContext.tsx"
+				]
+			}
+		},
+		{
+			"id": "frontend-4",
+			"category": "frontend",
+			"description": "All admin entry links route to the new admin pages and sidebar active states are clear on desktop/mobile paths.",
+			"steps": [
+				"cd frontend && npm run typecheck",
+				"Manual check: header admin links no longer use /products#admin-panel; sidebar marks current section."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [
+					"Create dedicated admin route shell with sidebar [frontend]",
+					"Move product admin CRUD from /products to /admin/products [frontend]",
+					"Move category admin CRUD from homepage section to /admin/categories [frontend]"
+				],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/components/Header.tsx",
+					"frontend/src/components/admin/AdminSidebar.tsx"
+				]
+			}
+		},
+		{
+			"id": "testing-1",
+			"category": "testing",
+			"description": "Automated checks cover the new admin route navigation and existing critical behavior remains green in CI.",
+			"steps": [
+				"cd playwright && npm test",
+				"cd frontend && npm run lint",
+				"cd frontend && npm run typecheck"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [
+					"Update admin entry links and active navigation states [frontend]"
+				],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"playwright/tests/**/*.spec.ts",
+					"playwright/pages/*.ts",
+					"playwright/fixtures/*.ts"
+				]
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"Admin panel currently embedded in products page: frontend/src/app/products/page.tsx",
+			"Header admin links currently route to hash anchor: frontend/src/components/Header.tsx",
+			"Category admin CRUD currently embedded in categories component: frontend/src/components/Categories.tsx",
+			"Auth admin gating via context (isAdmin): frontend/src/contexts/AuthContext.tsx",
+			"Shared CRUD API client with cookie auth: frontend/src/lib/api.ts"
+		],
+		"keyFiles": [
+			"frontend/src/app/products/page.tsx",
+			"frontend/src/components/Categories.tsx",
+			"frontend/src/components/Header.tsx",
+			"frontend/src/contexts/AuthContext.tsx",
+			"frontend/src/lib/api.ts"
+		],
+		"nonGoals": [
+			"Redesigning the entire storefront visual identity",
+			"Introducing new backend APIs, role models, or permission systems",
+			"Adding unrelated admin domains beyond navigation placeholders",
+			"Migrating to a different state management or data fetching architecture"
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": false,
+		"conflicts_with": [],
+		"blocks": [],
+		"estimated_hours": 8
+	}
+}

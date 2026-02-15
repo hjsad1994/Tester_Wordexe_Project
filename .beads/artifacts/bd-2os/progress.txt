@@ -1,0 +1,43 @@
+# Progress Log
+
+Bead: bd-2os
+Started: 2026-02-15
+
+## Codebase Patterns
+
+<!-- Consolidate reusable patterns here -->
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
+
+## 2026-02-15 - /ship execution
+
+- [frontend-1] Completed: created admin route shell and sidebar
+  - Added: `frontend/src/app/admin/layout.tsx`
+  - Added: `frontend/src/app/admin/page.tsx` (redirects to `/admin/products`)
+  - Added: `frontend/src/components/admin/AdminSidebar.tsx`
+  - Added: `frontend/src/app/admin/products/page.tsx`
+  - Added: `frontend/src/app/admin/categories/page.tsx`
+
+- [frontend-2] Completed: moved product admin CRUD to admin page
+  - Added: `frontend/src/components/admin/AdminProductsPanel.tsx`
+  - Updated: `frontend/src/app/products/page.tsx` (removed embedded `#admin-panel`, admin state/handlers, and admin CTA)
+
+- [frontend-3] Completed: moved category admin CRUD to admin page
+  - Added: `frontend/src/components/admin/AdminCategoriesPanel.tsx`
+  - Updated: `frontend/src/components/Categories.tsx` (removed embedded admin CRUD and admin add button)
+
+- [frontend-4] Completed: updated admin entry navigation
+  - Updated: `frontend/src/components/Header.tsx` (`/products#admin-panel` -> `/admin` for desktop and mobile admin links)
+  - Sidebar active state handled via pathname + `aria-current`
+
+- [testing-1] Partial: added targeted regression coverage for admin route flow
+  - Added: `playwright/tests/rbac/admin-route-flow.spec.ts`
+  - Targeted test file passes across Chromium/Firefox/WebKit
+  - Full Playwright suite was not used for closure per user instruction ("không cân test playwright")
+
+- Verification run:
+  - `cd frontend && npm run typecheck` ✅
+  - `cd frontend && npm run lint` ✅
+  - `cd playwright && npm test -- tests/rbac/admin-route-flow.spec.ts` ✅
