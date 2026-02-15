@@ -40,7 +40,10 @@ export default function AdminLayout({
 	return (
 		<div className="min-h-screen bg-[var(--warm-white)]">
 			<Header />
-			<div className="mx-auto flex w-full max-w-7xl flex-col md:flex-row">
+			<div
+				data-testid="admin-layout-shell"
+				className="flex w-full flex-col md:flex-row"
+			>
 				<AdminSidebar />
 				<main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
 			</div>

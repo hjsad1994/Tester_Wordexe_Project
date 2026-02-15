@@ -1,0 +1,22 @@
+# Progress Log
+
+Bead: bd-3ub
+Started: 2026-02-15
+
+## Codebase Patterns
+
+- Admin layout frame and auth gating are centralized in `frontend/src/app/admin/layout.tsx`.
+- Admin navigation behavior is centralized in `frontend/src/components/admin/AdminSidebar.tsx`.
+- Global horizontal overflow is controlled in `frontend/src/app/globals.css`.
+
+---
+
+## 2026-02-15
+
+- Claimed bead and moved status to in_progress.
+- Created feature branch `feat/bd-3ub-admin-nav-full`.
+- Converted PRD markdown to executable `prd.json` with 4 tasks.
+- Implemented full-width admin shell in `frontend/src/app/admin/layout.tsx` by removing `max-w-7xl` and adding `data-testid="admin-layout-shell"`.
+- Added admin layout regression coverage in `playwright/tests/rbac/admin-route-flow.spec.ts` (full-width + mobile reachability).
+- Verified frontend gates (`npm run lint`, `npm run typecheck`, `npm run build`, `npm run lint:fix`, `npm run typecheck`) and admin route flow spec.
+- Marked all PRD tasks as passed in `prd.json`.
