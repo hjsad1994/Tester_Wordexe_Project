@@ -1,26 +1,40 @@
 'use client';
 
 import Link from 'next/link';
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { useWishlist } from '@/contexts/WishlistContext';
-import { useCart } from '@/contexts/CartContext';
+import Header from '@/components/Header';
 import {
+  ArrowRightIcon,
+  CartIcon,
   HeartIcon,
   HeartOutlineIcon,
-  TrashIcon,
-  CartIcon,
-  ArrowRightIcon,
   SparkleIcon,
+  TrashIcon,
 } from '@/components/icons';
 import {
-  productIllustrations,
   type ProductIllustrationType,
+  productIllustrations,
 } from '@/components/icons/ProductIllustrations';
+import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext';
 
 function formatPrice(price: number): string {
   return price.toLocaleString('vi-VN') + 'đ';
 }
+
+const toUrlSlug = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+const getProductPath = (product: { id: string; name: string; slug?: string }) => {
+  const slug = (product.slug && product.slug.trim()) || toUrlSlug(product.name) || product.id;
+  return `/products/${encodeURIComponent(slug)}`;
+};
 
 export default function WishlistPage() {
   const { wishlistItems, wishlistCount, removeFromWishlist, clearWishlist } = useWishlist();
@@ -90,6 +104,7 @@ export default function WishlistPage() {
               {wishlistItems.map((product) => {
                 const IllustrationComponent =
                   productIllustrations[product.illustration as ProductIllustrationType];
+                const productPath = getProductPath(product);
 
                 return (
                   <div
@@ -97,7 +112,7 @@ export default function WishlistPage() {
                     className="bg-white rounded-2xl shadow-md border border-pink-50 overflow-hidden transition-all hover:shadow-lg"
                   >
                     {/* Product Image */}
-                    <Link href={`/products/${product.id}`}>
+                    <Link href={productPath}>
                       <div className="relative aspect-square bg-gradient-to-br from-pink-50 to-purple-50 flex items-center justify-center p-4">
                         {product.badge && (
                           <div
@@ -122,7 +137,7 @@ export default function WishlistPage() {
 
                     {/* Product Info */}
                     <div className="p-4">
-                      <Link href={`/products/${product.id}`}>
+                      <Link href={productPath}>
                         <h3 className="font-medium text-[var(--text-primary)] text-sm mb-2 line-clamp-2 leading-tight hover:text-pink-500 transition-colors min-h-[2.5rem]">
                           {product.name}
                         </h3>

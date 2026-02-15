@@ -1,5 +1,23 @@
 const mongoose = require('mongoose');
 
+const toBaseSlug = (value = '') => {
+  const normalized = value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  return normalized || 'san-pham';
+};
+
+const createProductSlug = (name) => {
+  const baseSlug = toBaseSlug(name);
+  const suffix = Date.now().toString(36);
+  return `${baseSlug}-${suffix}`;
+};
+
 const productSchema = new mongoose.Schema(
   {
     name: {
@@ -57,28 +75,27 @@ const productSchema = new mongoose.Schema(
 
 productSchema.pre('save', function (next) {
   if (this.isModified('name')) {
-    this.slug =
-      this.name
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '') +
-      '-' +
-      Date.now();
+    this.slug = createProductSlug(this.name);
   }
   next();
 });
 
 productSchema.pre('findOneAndUpdate', function (next) {
-  const update = this.getUpdate();
-  if (update.name) {
-    update.slug =
-      update.name
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '') +
-      '-' +
-      Date.now();
+  const update = this.getUpdate() || {};
+  const updateName = update.name || update.$set?.name;
+
+  if (!updateName) {
+    next();
+    return;
   }
+
+  const slug = createProductSlug(updateName);
+  if (update.$set) {
+    update.$set.slug = slug;
+  } else {
+    update.slug = slug;
+  }
+
   next();
 });
 

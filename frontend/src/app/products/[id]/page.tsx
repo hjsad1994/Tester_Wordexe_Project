@@ -1,26 +1,70 @@
 'use client';
 
-import { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Header from '@/components/Header';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 import Footer from '@/components/Footer';
-import ProductCard, { Product } from '@/components/ProductCard';
+import Header from '@/components/Header';
 import {
+  ArrowRightIcon,
+  CartIcon,
+  ChevronDownIcon,
+  GiftIcon,
   HeartIcon,
   HeartOutlineIcon,
-  StarIcon,
-  CartIcon,
-  TruckIcon,
   ShieldIcon,
-  GiftIcon,
   SparkleIcon,
-  ArrowRightIcon,
-  ChevronDownIcon,
+  StarIcon,
+  TruckIcon,
 } from '@/components/icons';
+import { productIllustrations } from '@/components/icons/ProductIllustrations';
+import ProductCard, { type Product } from '@/components/ProductCard';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
-import { productIllustrations } from '@/components/icons/ProductIllustrations';
+import {
+  type Product as ApiProduct,
+  fetchProductById,
+  fetchProductBySlug,
+  fetchProducts,
+} from '@/lib/api';
+
+const categoryIllustrationMap: Record<string, Product['illustration']> = {
+  'Quần áo': 'clothes',
+  'Bình sữa': 'bottle',
+  'Đồ chơi': 'teddy',
+  'Tã & Bỉm': 'diaper',
+  'Xe đẩy': 'stroller',
+  'Giường & Nôi': 'crib',
+  'Chăm sóc': 'skincare',
+  'Giày dép': 'shoes',
+  'Phụ kiện': 'pacifier',
+  'Ăn dặm': 'food',
+};
+
+const toUrlSlug = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+const mapApiProductToCard = (product: ApiProduct): Product => {
+  const categoryName = typeof product.category === 'string' ? '' : product.category?.name || '';
+
+  return {
+    id: product._id,
+    slug: product.slug || toUrlSlug(product.name),
+    name: product.name,
+    price: product.price,
+    imageUrl: product.images?.[0],
+    illustration: categoryIllustrationMap[categoryName] || 'teddy',
+    rating: Number((4.5 + Math.random() * 0.5).toFixed(1)),
+    reviews: Math.floor(Math.random() * 300) + 50,
+    category: categoryName,
+  };
+};
 
 // All products data
 const allProducts: Product[] = [
@@ -295,24 +339,137 @@ const sampleReviews = [
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const productId = params.id as string;
+  const routeParam = decodeURIComponent((params.id as string) || '');
 
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description');
   const [selectedColor, setSelectedColor] = useState(0);
   const [selectedSize, setSelectedSize] = useState(0);
   const [showAllReviews, setShowAllReviews] = useState(false);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [catalogProducts, setCatalogProducts] = useState<Product[]>(allProducts);
+  const [isProductLoading, setIsProductLoading] = useState(true);
   const { addToCart, setBuyNowItem } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
-  // Find product
-  const product = allProducts.find((p) => p.id === productId);
-  const details = productDetails[productId] || productDetails.default;
+  useEffect(() => {
+    let cancelled = false;
 
-  // Related products (same category, different id)
-  const relatedProducts = allProducts
-    .filter((p) => p.category === product?.category && p.id !== productId)
-    .slice(0, 4);
+    const loadProduct = async () => {
+      setIsProductLoading(true);
+
+      const catalogPromise = fetchProducts({ limit: 100 })
+        .then((productData) => productData.products.map(mapApiProductToCard))
+        .catch(() => allProducts);
+
+      if (!routeParam) {
+        if (!cancelled) {
+          setCatalogProducts(allProducts);
+          setProduct(null);
+          setIsProductLoading(false);
+        }
+        return;
+      }
+
+      const normalizedRouteParam = routeParam.toLowerCase();
+      let products = allProducts;
+
+      let resolvedProduct: Product | null = null;
+
+      try {
+        const productBySlug = await fetchProductBySlug(routeParam);
+        resolvedProduct = mapApiProductToCard(productBySlug);
+      } catch {
+        resolvedProduct = null;
+      }
+
+      if (!resolvedProduct) {
+        try {
+          const productById = await fetchProductById(routeParam);
+          resolvedProduct = mapApiProductToCard(productById);
+        } catch {
+          resolvedProduct = null;
+        }
+      }
+
+      if (!resolvedProduct) {
+        const fallbackFromStatic =
+          allProducts.find(
+            (item) =>
+              item.id === routeParam ||
+              item.slug === routeParam ||
+              item.slug?.toLowerCase() === normalizedRouteParam
+          ) || null;
+        resolvedProduct = fallbackFromStatic;
+      }
+
+      if (!cancelled) {
+        setProduct(resolvedProduct);
+        if (resolvedProduct) {
+          setIsProductLoading(false);
+        }
+      }
+
+      products = await catalogPromise;
+      const matchedFromCatalog =
+        products.find(
+          (item) =>
+            item.id === routeParam ||
+            item.slug === routeParam ||
+            item.slug?.toLowerCase() === normalizedRouteParam
+        ) || null;
+
+      if (!cancelled) {
+        setCatalogProducts(products);
+        if (!resolvedProduct && matchedFromCatalog) {
+          setProduct(matchedFromCatalog);
+        }
+        setIsProductLoading(false);
+      }
+    };
+
+    void loadProduct();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [routeParam]);
+
+  const details = product
+    ? productDetails[product.id] || productDetails.default
+    : productDetails.default;
+  const colorOptions = details.colors || [];
+  const sizeOptions = details.sizes || [];
+  const selectedColorIndex =
+    colorOptions.length > 0 ? Math.min(selectedColor, colorOptions.length - 1) : 0;
+  const selectedSizeIndex =
+    sizeOptions.length > 0 ? Math.min(selectedSize, sizeOptions.length - 1) : 0;
+
+  const relatedProducts = useMemo(() => {
+    if (!product) {
+      return [];
+    }
+
+    return catalogProducts
+      .filter((item) => item.category === product.category && item.id !== product.id)
+      .slice(0, 4);
+  }, [catalogProducts, product]);
+
+  if (isProductLoading) {
+    return (
+      <div className="min-h-screen bg-[var(--warm-white)]">
+        <Header />
+        <div className="max-w-7xl mx-auto px-4 py-20">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 w-60 rounded-lg bg-pink-100" />
+            <div className="h-[420px] rounded-3xl bg-pink-100" />
+            <div className="h-6 w-2/3 rounded-lg bg-pink-100" />
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -534,21 +691,21 @@ export default function ProductDetailPage() {
               </p>
 
               {/* Colors */}
-              {details.colors && (
+              {colorOptions.length > 0 && (
                 <div className="mb-6">
                   <label className="block text-sm font-semibold text-[var(--text-primary)] mb-3">
                     Màu sắc:{' '}
                     <span className="font-normal text-[var(--text-secondary)]">
-                      {details.colors[selectedColor].name}
+                      {colorOptions[selectedColorIndex].name}
                     </span>
                   </label>
                   <div className="flex gap-3">
-                    {details.colors.map((color, i) => (
+                    {colorOptions.map((color, i) => (
                       <button
                         key={i}
                         onClick={() => setSelectedColor(i)}
                         className={`w-10 h-10 rounded-full border-2 transition-all ${
-                          selectedColor === i
+                          selectedColorIndex === i
                             ? 'border-pink-500 ring-2 ring-pink-200'
                             : 'border-gray-200 hover:border-pink-300'
                         }`}
@@ -561,18 +718,18 @@ export default function ProductDetailPage() {
               )}
 
               {/* Sizes */}
-              {details.sizes && (
+              {sizeOptions.length > 0 && (
                 <div className="mb-6">
                   <label className="block text-sm font-semibold text-[var(--text-primary)] mb-3">
                     Kích thước:
                   </label>
                   <div className="flex flex-wrap gap-2">
-                    {details.sizes.map((size, i) => (
+                    {sizeOptions.map((size, i) => (
                       <button
                         key={i}
                         onClick={() => setSelectedSize(i)}
                         className={`px-4 py-2 rounded-xl text-sm font-medium border-2 transition-all ${
-                          selectedSize === i
+                          selectedSizeIndex === i
                             ? 'border-pink-500 bg-pink-50 text-pink-600'
                             : 'border-gray-200 text-[var(--text-secondary)] hover:border-pink-300'
                         }`}

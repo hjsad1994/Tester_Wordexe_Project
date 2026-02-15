@@ -120,6 +120,34 @@ export async function fetchProducts(params?: {
   return body.data;
 }
 
+export async function fetchProductById(id: string): Promise<Product> {
+  const res = await fetch(`${API_BASE_URL}/api/products/${encodeURIComponent(id)}`, {
+    credentials: 'include',
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể tải sản phẩm'));
+  }
+
+  const body = (await res.json()) as ApiResponse<Product>;
+  return body.data;
+}
+
+export async function fetchProductBySlug(slug: string): Promise<Product> {
+  const res = await fetch(`${API_BASE_URL}/api/products/slug/${encodeURIComponent(slug)}`, {
+    credentials: 'include',
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể tải sản phẩm theo slug'));
+  }
+
+  const body = (await res.json()) as ApiResponse<Product>;
+  return body.data;
+}
+
 export async function createProduct(payload: ProductPayload): Promise<Product> {
   const res = await fetch(`${API_BASE_URL}/api/products`, {
     method: 'POST',

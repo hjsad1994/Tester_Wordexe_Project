@@ -10,6 +10,7 @@ import { type ProductIllustrationType, productIllustrations } from './icons/Prod
 
 export interface Product {
   id: string;
+  slug?: string;
   name: string;
   price: number;
   originalPrice?: number;
@@ -25,6 +26,15 @@ interface ProductCardProps {
   product: Product;
   index?: number;
 }
+
+const toUrlSlug = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
@@ -71,6 +81,9 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   };
 
   const IllustrationComponent = productIllustrations[product.illustration];
+  const resolvedSlug =
+    (product.slug && product.slug.trim()) || toUrlSlug(product.name) || product.id;
+  const productPath = `/products/${encodeURIComponent(resolvedSlug)}`;
 
   return (
     <div
@@ -86,10 +99,10 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     >
       {/* Image Container - Clickable Link */}
       <Link
-        href={`/products/${product.id}`}
+        href={productPath}
         className="block focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none rounded-t-2xl"
       >
-        <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-pink-50 to-purple-50 p-2">
+        <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-pink-50 to-purple-50">
           {/* Badge */}
           {product.badge && (
             <div
@@ -121,32 +134,31 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           </button>
 
           {/* Product Image or Illustration */}
-          <div className="w-full h-full flex items-center justify-center">
-            <div
-              className={`transition-transform duration-300 ${
-                isHovered ? 'scale-110' : 'scale-100'
-              }`}
-            >
-              {product.imageUrl ? (
-                <Image
-                  src={product.imageUrl}
-                  alt={product.name}
-                  width={200}
-                  height={200}
-                  className="object-contain w-full h-full rounded-lg"
-                  sizes="(max-width: 640px) 50vw, 200px"
-                />
-              ) : (
-                <IllustrationComponent size={100} />
-              )}
-            </div>
+          <div
+            className={`relative w-full h-full transition-transform duration-300 ${
+              isHovered ? 'scale-105' : 'scale-100'
+            }`}
+          >
+            {product.imageUrl ? (
+              <Image
+                src={product.imageUrl}
+                alt={product.name}
+                fill
+                className="object-cover"
+                sizes="(max-width: 640px) 50vw, (max-width: 1280px) 25vw, 20vw"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center p-4">
+                <IllustrationComponent size={120} />
+              </div>
+            )}
           </div>
         </div>
       </Link>
 
       {/* Product Info */}
       <Link
-        href={`/products/${product.id}`}
+        href={productPath}
         className="block p-3 pb-2 focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none"
       >
         {/* Name */}
@@ -191,7 +203,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           <span>Thêm giỏ</span>
         </button>
         <Link
-          href={`/products/${product.id}`}
+          href={productPath}
           className="flex-1 py-2.5 min-h-[44px] bg-white border-2 border-pink-300 text-pink-500 text-xs font-semibold rounded-xl flex items-center justify-center hover:bg-pink-50 hover:border-pink-400 hover:shadow-md active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:ring-offset-1 focus-visible:outline-none transition-all duration-200"
         >
           Chi tiết

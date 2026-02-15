@@ -9,8 +9,8 @@ router.get('/', productController.getAllProducts);
 router.get('/active', productController.getActiveProducts);
 router.get('/search', productController.searchProducts);
 router.get('/category/:categoryId', productController.getProductsByCategory);
-router.get('/:id', productController.getProductById);
 router.get('/slug/:slug', productController.getProductBySlug);
+router.get('/:id', productController.getProductById);
 router.post('/', authMiddleware, requireRole('admin'), productController.createProduct);
 router.post(
   '/:id/images',
