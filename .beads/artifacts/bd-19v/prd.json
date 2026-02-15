@@ -1,0 +1,130 @@
+{
+	"beadId": "bd-19v",
+	"prdName": "profile-db-data-cloudinary-avatar",
+	"tasks": [
+		{
+			"id": "backend-1",
+			"category": "backend",
+			"title": "Implement authenticated profile read/update API",
+			"description": "Backend exposes DB-backed authenticated profile retrieval and update endpoints for the current user with stable response shape used by frontend.",
+			"steps": [
+				"cd backend && npm run lint",
+				"Manual API check: authenticated GET /api/users/me and PATCH /api/users/me return updated DB-backed data."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"backend/src/routes/index.js",
+					"backend/src/routes/userRoutes.js",
+					"backend/src/controllers/userController.js",
+					"backend/src/services/userService.js",
+					"backend/src/repositories/userRepository.js",
+					"backend/src/models/User.js"
+				]
+			}
+		},
+		{
+			"id": "backend-upload-1",
+			"category": "backend-upload",
+			"title": "Implement Cloudinary avatar upload endpoint",
+			"description": "Backend accepts authenticated avatar image upload, validates file, uploads to Cloudinary, and persists returned avatar URL to user record.",
+			"steps": [
+				"cd backend && npm run lint",
+				"Manual API check: authenticated multipart upload to POST /api/users/me/avatar returns Cloudinary secure_url persisted on user."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["Implement authenticated profile read/update API"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"backend/src/routes/userRoutes.js",
+					"backend/src/controllers/userController.js",
+					"backend/src/services/userService.js",
+					"backend/src/config/cloudinary.js",
+					"backend/src/middlewares/uploadMiddleware.js",
+					"backend/src/models/User.js"
+				]
+			}
+		},
+		{
+			"id": "frontend-1",
+			"category": "frontend",
+			"title": "Integrate /profile with DB data and avatar upload",
+			"description": "Profile page renders server-backed profile values and updates UI state through real API calls for both profile edits and avatar upload.",
+			"steps": [
+				"cd frontend && npm run lint",
+				"cd frontend && npm run typecheck",
+				"Manual check: edit profile and upload avatar at http://localhost:3000/profile, then refresh and confirm persisted values."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [
+					"Implement authenticated profile read/update API",
+					"Implement Cloudinary avatar upload endpoint"
+				],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/app/profile/page.tsx",
+					"frontend/src/lib/api.ts",
+					"frontend/src/contexts/AuthContext.tsx"
+				]
+			}
+		},
+		{
+			"id": "test-1",
+			"category": "test",
+			"title": "Add Playwright coverage for profile + avatar flows",
+			"description": "Playwright specs validate DB-backed profile loading, profile update persistence, avatar upload validation, and successful avatar persistence behavior.",
+			"steps": [
+				"cd playwright && npm test -- tests/demo-user-11/test-cases.spec.ts",
+				"cd playwright && npm test -- tests/demo-user-12/test-cases.spec.ts"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["Integrate /profile with DB data and avatar upload"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"playwright/tests/demo-user-11/test-cases.spec.ts",
+					"playwright/tests/demo-user-12/test-cases.spec.ts",
+					"playwright/tests/rbac/admin-route-flow.spec.ts"
+				]
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"Frontend authenticated user bootstrap via /api/auth/me in frontend/src/contexts/AuthContext.tsx",
+			"Profile page state currently local-only in frontend/src/app/profile/page.tsx",
+			"Backend user retrieval pattern in backend/src/services/authService.js and backend/src/repositories/userRepository.js",
+			"Cloudinary upload flow pattern in backend/src/services/productService.js with backend/src/config/cloudinary.js",
+			"Backend route mounting pattern in backend/src/routes/index.js"
+		],
+		"keyFiles": [
+			"frontend/src/app/profile/page.tsx",
+			"frontend/src/contexts/AuthContext.tsx",
+			"frontend/src/lib/api.ts",
+			"backend/src/routes/authRoutes.js",
+			"backend/src/models/User.js",
+			"backend/src/services/productService.js",
+			"playwright/tests/rbac/admin-route-flow.spec.ts"
+		],
+		"nonGoals": [
+			"Rebuilding profile page visual design",
+			"Replacing mock orders history with DB-backed orders",
+			"Social login, account deletion, or full media management features"
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": true,
+		"conflicts_with": [],
+		"blocks": [],
+		"estimated_hours": 8
+	}
+}
