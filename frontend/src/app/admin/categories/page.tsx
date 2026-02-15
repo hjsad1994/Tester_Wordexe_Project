@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import AdminCategoriesPanel from "@/components/admin/AdminCategoriesPanel";
+import AdminCategoriesPanel from '@/components/admin/AdminCategoriesPanel';
 
 export default function AdminCategoriesPage() {
-	return <AdminCategoriesPanel />;
+  return <AdminCategoriesPanel />;
 }
