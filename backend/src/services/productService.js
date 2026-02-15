@@ -4,6 +4,22 @@ const cloudinary = require('../config/cloudinary');
 const { NotFoundError, ValidationError } = require('../errors');
 
 class ProductService {
+  normalizeQuantity(value, { required = false } = {}) {
+    if (value === undefined || value === null || value === '') {
+      if (required) {
+        throw new ValidationError('Quantity is required');
+      }
+      return undefined;
+    }
+
+    const parsedQuantity = Number(value);
+    if (!Number.isInteger(parsedQuantity) || parsedQuantity < 0) {
+      throw new ValidationError('Quantity must be a non-negative integer');
+    }
+
+    return parsedQuantity;
+  }
+
   async getAllProducts(options = {}) {
     return productRepository.findAll(options);
   }
@@ -50,11 +66,13 @@ class ProductService {
     if (data.price === undefined || data.price === null) {
       throw new ValidationError('Price is required');
     }
+    const normalizedData = { ...data };
+
     const createPriceValue = Number.parseFloat(data.price);
     if (!Number.isFinite(createPriceValue) || createPriceValue < 0) {
       throw new ValidationError('Price must be a non-negative number');
     }
-    data.price = createPriceValue;
+    normalizedData.price = createPriceValue;
     if (!data.category) {
       throw new ValidationError('Category is required');
     }
@@ -64,25 +82,27 @@ class ProductService {
       throw new NotFoundError(`Category with id ${data.category} not found`);
     }
 
-    if (data.sku) {
-      const exists = await productRepository.existsBySku(data.sku);
+    if (normalizedData.sku) {
+      const exists = await productRepository.existsBySku(normalizedData.sku);
       if (exists) {
-        throw new ValidationError(`Product with SKU '${data.sku}' already exists`);
+        throw new ValidationError(`Product with SKU '${normalizedData.sku}' already exists`);
       }
     }
+    const normalizedQuantity = this.normalizeQuantity(data.quantity);
+    normalizedData.quantity = normalizedQuantity ?? 0;
 
-    if (data.quantity !== undefined && data.quantity !== null) {
-      const quantityValue = Number.parseFloat(data.quantity);
-      if (!Number.isInteger(quantityValue) || quantityValue < 0) {
-        throw new ValidationError('Quantity must be a non-negative integer');
-      }
-      data.quantity = quantityValue;
-    }
-
-    return productRepository.create(data);
+    return productRepository.create(normalizedData);
   }
 
   async updateProduct(id, data) {
+    const normalizedData = { ...data };
+
+    if (Object.hasOwn(data, 'quantity')) {
+      normalizedData.quantity = this.normalizeQuantity(data.quantity, {
+        required: true,
+      });
+    }
+
     if (data.category) {
       const category = await categoryRepository.findById(data.category);
       if (!category) {
@@ -97,23 +117,15 @@ class ProductService {
       }
     }
 
-    if (data.price !== undefined && data.price !== null) {
+    if (Object.hasOwn(data, 'price')) {
       const updatePriceValue = Number.parseFloat(data.price);
       if (!Number.isFinite(updatePriceValue) || updatePriceValue < 0) {
         throw new ValidationError('Price must be a non-negative number');
       }
-      data.price = updatePriceValue;
+      normalizedData.price = updatePriceValue;
     }
 
-    if (data.quantity !== undefined && data.quantity !== null) {
-      const quantityValue = Number.parseFloat(data.quantity);
-      if (!Number.isInteger(quantityValue) || quantityValue < 0) {
-        throw new ValidationError('Quantity must be a non-negative integer');
-      }
-      data.quantity = quantityValue;
-    }
-
-    const product = await productRepository.update(id, data);
+    const product = await productRepository.update(id, normalizedData);
     if (!product) {
       throw new NotFoundError(`Product with id ${id} not found`);
     }

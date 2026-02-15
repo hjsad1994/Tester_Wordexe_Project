@@ -16,9 +16,9 @@ import {
 type ProductFormState = {
   name: string;
   price: string;
+  quantity: string;
   category: string;
   description: string;
-  quantity: string;
 };
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
@@ -27,9 +27,9 @@ const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 const createEmptyProductForm = (categoryId = ''): ProductFormState => ({
   name: '',
   price: '',
+  quantity: '0',
   category: categoryId,
   description: '',
-  quantity: '0',
 });
 
 export default function AdminProductsPanel() {
@@ -209,15 +209,15 @@ export default function AdminProductsPanel() {
       return;
     }
 
-    const priceValue = Number.parseFloat(productForm.price);
-    if (!Number.isFinite(priceValue) || priceValue < 0) {
-      setAdminError('Giá bán phải là số không âm');
+    const parsedPrice = Number(productForm.price);
+    if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
+      setAdminError('Giá sản phẩm phải là số không âm');
       return;
     }
 
-    const quantityValue =
-      productForm.quantity.trim() === '' ? 0 : Number.parseFloat(productForm.quantity);
-    if (!Number.isInteger(quantityValue) || quantityValue < 0) {
+    const quantityInput = productForm.quantity.trim();
+    const parsedQuantity = quantityInput === '' ? 0 : Number(quantityInput);
+    if (!Number.isInteger(parsedQuantity) || parsedQuantity < 0) {
       setAdminError('Tồn kho phải là số nguyên không âm');
       return;
     }
@@ -229,16 +229,16 @@ export default function AdminProductsPanel() {
       const payload: {
         name: string;
         price: number;
+        quantity: number;
         category: string;
         description?: string;
-        quantity: number;
         images?: string[];
       } = {
         name: productForm.name.trim(),
-        price: priceValue,
+        price: parsedPrice,
+        quantity: parsedQuantity,
         category: productForm.category,
         description: productForm.description.trim() || undefined,
-        quantity: quantityValue,
       };
 
       if (removeExistingImage && !selectedImageFile) {
@@ -290,9 +290,9 @@ export default function AdminProductsPanel() {
     setProductForm({
       name: product.name,
       price: String(product.price),
+      quantity: String(product.quantity ?? 0),
       category: typeof product.category === 'string' ? product.category : product.category._id,
       description: product.description || '',
-      quantity: String(product.quantity ?? 0),
     });
     setRemoveExistingImage(false);
     clearSelectedImage();
@@ -480,7 +480,9 @@ export default function AdminProductsPanel() {
                     {product.name}
                   </td>
                   <td className="py-3 pr-2">{Number(product.price).toLocaleString('vi-VN')}đ</td>
-                  <td className="py-3 pr-2">{product.quantity ?? 0}</td>
+                  <td className="py-3 pr-2">
+                    {product.quantity > 0 ? `${product.quantity} sản phẩm` : 'Hết hàng'}
+                  </td>
                   <td className="py-3 pr-2">{getCategoryName(product)}</td>
                   <td className="py-3 pr-2">{product.isActive ? 'Hiển thị' : 'Ẩn'}</td>
                   <td className="py-3">
@@ -588,6 +590,7 @@ export default function AdminProductsPanel() {
                     type="number"
                     min={0}
                     step={1}
+                    inputMode="numeric"
                     value={productForm.quantity}
                     onChange={(event) =>
                       setProductForm((prev) => ({
