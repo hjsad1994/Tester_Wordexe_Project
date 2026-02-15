@@ -7,6 +7,7 @@
     "dev": "nodemon src/index.js",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
+    "seed": "node src/seed.js",
     "format": "prettier --write \"src/**/*.{js,json,md}\"",
     "format:check": "prettier --check \"src/**/*.{js,json,md}\"",
     "test": "echo \"Add tests with Jest or Mocha\" && exit 0",
@@ -14,6 +15,7 @@
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cloudinary": "^2.9.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
@@ -21,7 +23,8 @@
     "express-validator": "^7.3.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.0.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "multer": "^2.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",

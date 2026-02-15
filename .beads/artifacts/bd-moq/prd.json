@@ -1,0 +1,140 @@
+{
+	"beadId": "bd-moq",
+	"prdName": "product-detail-slug-image-fixes",
+	"tasks": [
+		{
+			"id": "routing-1",
+			"category": "routing",
+			"title": "Align product detail lookup with storefront links",
+			"description": "Product detail pages resolve valid links from product cards without rendering false not-found states.",
+			"steps": [
+				"Manual: open /products and click multiple cards to confirm detail pages render product data",
+				"cd frontend && npm run typecheck"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/app/products/[id]/page.tsx",
+					"frontend/src/lib/api.ts"
+				]
+			}
+		},
+		{
+			"id": "frontend-1",
+			"category": "frontend",
+			"title": "Switch product links to Vietnamese-friendly slug URLs",
+			"description": "All storefront product entry points navigate using readable slug paths instead of long IDs.",
+			"steps": [
+				"Manual: inspect rendered href values and confirm /products/<slug> format",
+				"cd frontend && npm run lint"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["Align product detail lookup with storefront links"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/components/ProductCard.tsx",
+					"frontend/src/app/products/page.tsx",
+					"frontend/src/components/FeaturedProducts.tsx"
+				]
+			}
+		},
+		{
+			"id": "backend-1",
+			"category": "backend",
+			"title": "Ensure backend slug resolution supports Vietnamese names reliably",
+			"description": "Backend product slug generation and slug lookup support Vietnamese product names with stable routable output.",
+			"steps": [
+				"cd backend && npm run lint",
+				"Manual: request product by slug endpoint and confirm non-404 for known Vietnamese-named product"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": [
+					"backend/src/models/Product.js",
+					"backend/src/routes/productRoutes.js",
+					"backend/src/services/productService.js",
+					"backend/src/repositories/productRepository.js"
+				]
+			}
+		},
+		{
+			"id": "ui-1",
+			"category": "ui",
+			"title": "Make product card images fill the intended media frame",
+			"description": "Product card images visually fill card media containers consistently across product list surfaces.",
+			"steps": [
+				"Manual: verify image fill on /products and featured products sections at mobile and desktop widths",
+				"cd frontend && npm run build"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": ["frontend/src/components/ProductCard.tsx"]
+			}
+		},
+		{
+			"id": "verification-1",
+			"category": "verification",
+			"title": "Run CI-aligned quality checks without Playwright",
+			"description": "All required lint, typecheck, and build checks pass for touched frontend/backend code without Playwright execution.",
+			"steps": [
+				"cd frontend && npm run lint",
+				"cd frontend && npm run typecheck",
+				"cd frontend && npm run build",
+				"cd backend && npm run lint"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [
+					"Align product detail lookup with storefront links",
+					"Switch product links to Vietnamese-friendly slug URLs",
+					"Ensure backend slug resolution supports Vietnamese names reliably",
+					"Make product card images fill the intended media frame"
+				],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": ["frontend/package.json", "backend/package.json"]
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"Product cards are rendered by frontend/src/components/ProductCard.tsx from API-mapped models",
+			"Product detail route currently uses frontend/src/app/products/[id]/page.tsx and local fallback behavior",
+			"Backend exposes id and slug lookups through backend/src/routes/productRoutes.js and service/repository layers"
+		],
+		"keyFiles": [
+			"frontend/src/components/ProductCard.tsx",
+			"frontend/src/app/products/page.tsx",
+			"frontend/src/components/FeaturedProducts.tsx",
+			"frontend/src/app/products/[id]/page.tsx",
+			"frontend/src/lib/api.ts",
+			"backend/src/routes/productRoutes.js",
+			"backend/src/services/productService.js",
+			"backend/src/repositories/productRepository.js",
+			"backend/src/models/Product.js"
+		],
+		"nonGoals": [
+			"No full product detail page redesign",
+			"No new i18n framework introduction",
+			"No broad SEO metadata overhaul"
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": true,
+		"conflicts_with": [],
+		"blocks": [],
+		"estimated_hours": 4
+	}
+}

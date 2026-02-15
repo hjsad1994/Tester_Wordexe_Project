@@ -113,14 +113,22 @@ class ProductRepository {
   }
 
   async update(id, data) {
-    return Product.findByIdAndUpdate(id, data, { new: true, runValidators: true }).populate(
-      'category',
-      'name slug'
-    );
+    return Product.findByIdAndUpdate(id, data, {
+      new: true,
+      runValidators: true,
+    }).populate('category', 'name slug');
   }
 
   async delete(id) {
     return Product.findByIdAndDelete(id);
+  }
+
+  async addImage(id, imageUrl) {
+    return Product.findByIdAndUpdate(
+      id,
+      { $push: { images: imageUrl } },
+      { new: true, runValidators: true }
+    ).populate('category', 'name slug');
   }
 
   async existsBySku(sku, excludeId = null) {
