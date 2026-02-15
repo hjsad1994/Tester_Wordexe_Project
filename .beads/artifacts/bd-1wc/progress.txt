@@ -1,0 +1,33 @@
+# Progress Log
+
+Bead: bd-1wc
+Started: 2026-02-15
+
+## Codebase Patterns
+
+<!-- Consolidate reusable patterns here -->
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
+
+## 2026-02-15 - /ship execution
+
+- Updated plan/prd scope to remove Playwright verification per user request.
+- Backend: added Cloudinary config + multer upload middleware + `POST /api/products/:id/images` route/controller/service/repo integration.
+- Backend: added deterministic `npm run seed` workflow creating categories/products and attempting Cloudinary URL uploads.
+- Frontend: migrated homepage featured products + categories + `/products` page to API-driven data.
+- Frontend: updated `ProductCard` to render `imageUrl` via `next/image` with illustration fallback.
+- Verification run: frontend typecheck/lint/build pass; backend lint pass; backend seed idempotent pass.
+- Blocker observed: Cloudinary credentials missing in local env (`Must supply api_key`) so seeded products currently have empty `images` arrays.
+
+## 2026-02-15 - post-review fixes
+
+- Improved seed idempotency: existing products with empty `images` now attempt Cloudinary backfill on subsequent seed runs.
+- Fixed products page sorting: `Mới nhất` no longer reverses backend newest-first ordering.
+
+## 2026-02-15 - Cloudinary backfill run
+
+- After user updated `.env`, re-ran `npm run seed` to upload missing product images.
+- Replaced 2 broken Unsplash source URLs in `backend/src/seed.js` with valid baby-related Pexels URLs.
+- Backfill completed and all seeded products now have at least one Cloudinary image URL.

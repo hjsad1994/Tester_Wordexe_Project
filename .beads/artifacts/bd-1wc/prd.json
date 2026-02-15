@@ -1,0 +1,131 @@
+{
+	"beadId": "bd-1wc",
+	"prdName": "cloudinary-product-image-upload-and-db-catalog-migration",
+	"tasks": [
+		{
+			"id": "backend-1",
+			"category": "backend",
+			"title": "Build Cloudinary product image upload flow",
+			"description": "Product create/update flows accept image uploads, push assets to Cloudinary, and persist canonical product image URL metadata in MongoDB.",
+			"steps": [
+				"cd backend && npm run start",
+				"curl -X POST -b \"token=<admin_cookie>\" -F \"image=@./fixtures/baby-product.jpg\" http://localhost:3001/api/products/<productId>/images",
+				"curl http://localhost:3001/api/products/<productId>"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"backend/src/routes/productRoutes.js",
+					"backend/src/controllers/productController.js",
+					"backend/src/services/productService.js",
+					"backend/src/repositories/productRepository.js",
+					"backend/src/models/Product.js",
+					"backend/.env.example"
+				]
+			}
+		},
+		{
+			"id": "data-2",
+			"category": "data",
+			"title": "Create deterministic catalog + image seed workflow",
+			"description": "Seed execution produces repeatable categories/products and attaches baby-themed Cloudinary image URLs suitable for local/staging bootstrap.",
+			"steps": [
+				"cd backend && npm run seed",
+				"curl http://localhost:3001/api/categories",
+				"curl http://localhost:3001/api/products"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["backend-1"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"backend/package.json",
+					"backend/src/models/Category.js",
+					"backend/src/models/Product.js",
+					"backend/src/repositories/categoryRepository.js",
+					"backend/src/repositories/productRepository.js"
+				]
+			}
+		},
+		{
+			"id": "frontend-3",
+			"category": "frontend",
+			"title": "Migrate customer-facing catalog/category UI from mock to API",
+			"description": "Homepage and products listing surfaces fetch categories/products from backend APIs and no longer use inline mock arrays as primary data source.",
+			"steps": [
+				"cd frontend && npm run typecheck",
+				"cd frontend && npm run lint",
+				"cd frontend && npm run dev"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["data-2"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/lib/api.ts",
+					"frontend/src/components/FeaturedProducts.tsx",
+					"frontend/src/components/Categories.tsx",
+					"frontend/src/app/products/page.tsx"
+				]
+			}
+		},
+		{
+			"id": "frontend-4",
+			"category": "frontend",
+			"title": "Update product visual rendering to DB image URLs",
+			"description": "Product card/detail rendering consumes image URLs from DB-backed payloads with robust fallback behavior when images are absent.",
+			"steps": [
+				"cd frontend && npm run typecheck",
+				"cd frontend && npm run dev",
+				"Manual check: open / and /products and confirm Cloudinary image rendering + placeholder fallback"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["frontend-3"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/components/ProductCard.tsx",
+					"frontend/src/app/products/page.tsx",
+					"frontend/src/lib/api.ts"
+				]
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"Express routing aggregation via backend/src/routes/index.js",
+			"Controller-service-repository layering for products",
+			"Frontend category/product API wrappers in frontend/src/lib/api.ts",
+			"Customer-facing components currently mock-driven before migration"
+		],
+		"keyFiles": [
+			"backend/src/index.js",
+			"backend/src/routes/productRoutes.js",
+			"backend/src/controllers/productController.js",
+			"backend/src/services/productService.js",
+			"backend/src/repositories/productRepository.js",
+			"backend/src/models/Product.js",
+			"frontend/src/lib/api.ts",
+			"frontend/src/components/ProductCard.tsx"
+		],
+		"nonGoals": [
+			"Authentication or authorization redesign",
+			"Admin UI redesign beyond image-upload enablement",
+			"Unrelated search or recommendation rework",
+			"Advanced media library and editing pipeline"
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": true,
+		"conflicts_with": [],
+		"blocks": [],
+		"estimated_hours": 16
+	}
+}
