@@ -20,15 +20,15 @@ const upload = multer({
   },
 });
 
-const uploadProductImage = (req, res, next) => {
-  upload.single('image')(req, res, (error) => {
+const createImageUploadMiddleware = (fieldName, tooLargeMessage) => (req, res, next) => {
+  upload.single(fieldName)(req, res, (error) => {
     if (!error) {
       next();
       return;
     }
 
     if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
-      next(new ValidationError('Image file size must be 5MB or less'));
+      next(new ValidationError(tooLargeMessage));
       return;
     }
 
@@ -36,4 +36,14 @@ const uploadProductImage = (req, res, next) => {
   });
 };
 
+const uploadProductImage = createImageUploadMiddleware(
+  'image',
+  'Image file size must be 5MB or less'
+);
+const uploadAvatarImage = createImageUploadMiddleware(
+  'avatar',
+  'Avatar file size must be 5MB or less'
+);
+
 module.exports = uploadProductImage;
+module.exports.uploadAvatarImage = uploadAvatarImage;

@@ -20,4 +20,16 @@ const createUser = (data) =>
 
 const findById = (id) => User.findById(id).exec();
 
-module.exports = { findByEmail, existsByEmail, createUser, findById };
+const updateById = (id, data) =>
+  User.findByIdAndUpdate(id, data, {
+    new: true,
+    runValidators: true,
+  }).exec();
+
+module.exports = {
+  findByEmail,
+  existsByEmail,
+  createUser,
+  findById,
+  updateById,
+};

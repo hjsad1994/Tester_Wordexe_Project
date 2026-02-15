@@ -17,6 +17,9 @@ export interface AuthUser {
   name: string;
   email: string;
   phone: string;
+  address?: string;
+  bio?: string;
+  avatar?: string | null;
   role: 'admin' | 'user';
 }
 
@@ -35,6 +38,7 @@ interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
   isAdmin: boolean;
+  syncUser: (nextUser: AuthUser) => void;
   login: (email: string, password: string) => Promise<AuthResult>;
   logout: () => Promise<void>;
   register: (data: {
@@ -184,6 +188,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const syncUser = useCallback((nextUser: AuthUser) => {
+    setUser(nextUser);
+    setIsAuthenticated(true);
+  }, []);
+
   const isAdmin = isAuthenticated && user?.role === 'admin';
 
   const value = useMemo(
@@ -192,11 +201,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       isLoading,
       isAdmin,
+      syncUser,
       login,
       logout,
       register,
     }),
-    [isAuthenticated, user, isLoading, isAdmin, login, logout, register]
+    [isAuthenticated, user, isLoading, isAdmin, syncUser, login, logout, register]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,40 +1,23 @@
 'use client';
 
-import { useState, useRef, type FormEvent, type ChangeEvent } from 'react';
 import Image from 'next/image';
-import Header from '@/components/Header';
+import { useRouter } from 'next/navigation';
+import { type ChangeEvent, type FormEvent, useEffect, useRef, useState } from 'react';
 import Footer from '@/components/Footer';
+import Header from '@/components/Header';
 import {
-  UserIcon,
   CameraIcon,
-  EditIcon,
-  LockIcon,
-  PackageIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  EditIcon,
   EyeIcon,
   EyeOffIcon,
+  LockIcon,
+  PackageIcon,
+  UserIcon,
 } from '@/components/icons';
-
-// ─── Mock Data ───────────────────────────────────────────────
-
-interface UserProfile {
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  bio: string;
-  avatar: string | null;
-}
-
-const initialUser: UserProfile = {
-  name: 'Nguyễn Thị Bảo Ngọc',
-  email: 'baongoc@example.com',
-  phone: '0901234567',
-  address: '123 Nguyễn Huệ, Quận 1, TP.HCM',
-  bio: 'Mẹ bỉm sữa yêu thương con',
-  avatar: null,
-};
+import { useAuth } from '@/contexts/AuthContext';
+import { fetchMyProfile, type UserProfile, updateMyProfile, uploadAvatar } from '@/lib/api';
 
 interface OrderItem {
   name: string;
@@ -51,7 +34,7 @@ interface Order {
   items: OrderItem[];
 }
 
-const mockOrders: Order[] = [
+const orderHistorySamples: Order[] = [
   {
     id: 'DH001',
     date: '2026-02-10',
@@ -76,12 +59,15 @@ const mockOrders: Order[] = [
     total: 450000,
     items: [
       { name: 'Gấu bông nhồi bông', quantity: 1, price: 200000, image: '🧸' },
-      { name: 'Tã bỉm Huggies size M', quantity: 1, price: 250000, image: '👶' },
+      {
+        name: 'Tã bỉm Huggies size M',
+        quantity: 1,
+        price: 250000,
+        image: '👶',
+      },
     ],
   },
 ];
-
-// ─── Tab Types ───────────────────────────────────────────────
 
 type Tab = 'profile' | 'password' | 'orders';
 
@@ -91,7 +77,19 @@ const tabs: { key: Tab; label: string; icon: typeof EditIcon }[] = [
   { key: 'orders', label: 'Lịch sử đơn hàng', icon: PackageIcon },
 ];
 
-// ─── Toast Component ─────────────────────────────────────────
+interface ProfileFormState {
+  name: string;
+  phone: string;
+  address: string;
+  bio: string;
+}
+
+const emptyProfileForm: ProfileFormState = {
+  name: '',
+  phone: '',
+  address: '',
+  bio: '',
+};
 
 function Toast({ message, onClose }: { message: string; onClose: () => void }) {
   return (
@@ -113,8 +111,6 @@ function Toast({ message, onClose }: { message: string; onClose: () => void }) {
   );
 }
 
-// ─── Status Badge ────────────────────────────────────────────
-
 function StatusBadge({ status }: { status: Order['status'] }) {
   const styles: Record<Order['status'], string> = {
     'Đang xử lý': 'bg-yellow-100 text-yellow-700 border-yellow-200',
@@ -132,24 +128,27 @@ function StatusBadge({ status }: { status: Order['status'] }) {
   );
 }
 
-// ─── Main Page Component ─────────────────────────────────────
+const toProfileForm = (user: UserProfile): ProfileFormState => ({
+  name: user.name || '',
+  phone: user.phone || '',
+  address: user.address || '',
+  bio: user.bio || '',
+});
 
 export default function ProfilePage() {
-  // State
-  const [user, setUser] = useState<UserProfile>(initialUser);
+  const router = useRouter();
+  const { isAuthenticated, isLoading: isAuthLoading, syncUser } = useAuth();
+
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>('profile');
   const [toast, setToast] = useState<string | null>(null);
 
-  // Profile form state
-  const [profileForm, setProfileForm] = useState({
-    name: user.name,
-    phone: user.phone,
-    address: user.address,
-    bio: user.bio,
-  });
+  const [profileForm, setProfileForm] = useState<ProfileFormState>(emptyProfileForm);
   const [profileErrors, setProfileErrors] = useState<Record<string, string>>({});
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [profileRequestError, setProfileRequestError] = useState<string | null>(null);
 
-  // Password form state
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
@@ -160,31 +159,71 @@ export default function ProfilePage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Avatar state
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarError, setAvatarError] = useState<string | null>(null);
-
-  // Order expand state
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
-  // ─── Toast helper ────────────────────────────────────────
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadProfile = async () => {
+      if (isAuthLoading) {
+        return;
+      }
+
+      if (!isAuthenticated) {
+        router.replace('/login');
+        return;
+      }
+
+      setIsProfileLoading(true);
+      setProfileRequestError(null);
+
+      try {
+        const profile = await fetchMyProfile();
+        if (!cancelled) {
+          setUser(profile);
+          setProfileForm(toProfileForm(profile));
+          syncUser(profile);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          const message =
+            error instanceof Error ? error.message : 'Không thể tải thông tin tài khoản';
+          setProfileRequestError(message);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsProfileLoading(false);
+        }
+      }
+    };
+
+    void loadProfile();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthLoading, isAuthenticated, router, syncUser]);
+
   const showToast = (message: string) => {
     setToast(message);
     setTimeout(() => setToast(null), 3000);
   };
 
-  // ─── Avatar Upload ───────────────────────────────────────
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !user) {
+      return;
+    }
 
     setAvatarError(null);
 
-    // Validate file type
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
       setAvatarError('Chỉ chấp nhận file ảnh (JPG, PNG, WebP)');
@@ -192,55 +231,74 @@ export default function ProfilePage() {
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       setAvatarError('Ảnh không được vượt quá 5MB');
       e.target.value = '';
       return;
     }
 
-    // Read and set avatar preview
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setUser((prev) => ({ ...prev, avatar: event.target?.result as string }));
+    setIsUploadingAvatar(true);
+
+    try {
+      const updatedUser = await uploadAvatar(file);
+      setUser(updatedUser);
+      setProfileForm(toProfileForm(updatedUser));
+      syncUser(updatedUser);
       showToast('Đã cập nhật ảnh đại diện');
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Không thể tải ảnh đại diện';
+      setAvatarError(message);
+    } finally {
+      setIsUploadingAvatar(false);
+      e.target.value = '';
+    }
   };
 
-  // ─── Profile Form ────────────────────────────────────────
-  const validateProfileForm = (): boolean => {
+  const validateProfileForm = () => {
     const errors: Record<string, string> = {};
 
     if (!profileForm.name.trim()) {
       errors.name = 'Vui lòng nhập họ tên';
     }
 
-    if (profileForm.phone && !/^(0|\+84)\d{9,10}$/.test(profileForm.phone.replace(/\s/g, ''))) {
+    if (!profileForm.phone.trim()) {
+      errors.phone = 'Vui lòng nhập số điện thoại';
+    } else if (!/^(0|\+84)\d{9,10}$/.test(profileForm.phone.replace(/\s/g, ''))) {
       errors.phone = 'Số điện thoại không hợp lệ';
+    }
+
+    if (profileForm.bio.length > 300) {
+      errors.bio = 'Giới thiệu không được vượt quá 300 ký tự';
     }
 
     setProfileErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handleProfileSubmit = (e: FormEvent) => {
+  const handleProfileSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!validateProfileForm()) return;
+    if (!user || !validateProfileForm()) {
+      return;
+    }
 
-    setUser((prev) => ({
-      ...prev,
-      name: profileForm.name,
-      phone: profileForm.phone,
-      address: profileForm.address,
-      bio: profileForm.bio,
-    }));
-    showToast('Cập nhật thành công');
+    setIsSavingProfile(true);
+    setProfileErrors((prev) => ({ ...prev, submit: '' }));
+
+    try {
+      const updatedUser = await updateMyProfile(profileForm);
+      setUser(updatedUser);
+      setProfileForm(toProfileForm(updatedUser));
+      syncUser(updatedUser);
+      showToast('Cập nhật thành công');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Không thể cập nhật hồ sơ';
+      setProfileErrors((prev) => ({ ...prev, submit: message }));
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
-  // ─── Password Form ───────────────────────────────────────
-  const validatePasswordForm = (): boolean => {
+  const validatePasswordForm = () => {
     const errors: Record<string, string> = {};
 
     if (!passwordForm.currentPassword) {
@@ -261,37 +319,88 @@ export default function ProfilePage() {
 
   const handlePasswordSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!validatePasswordForm()) return;
+    if (!validatePasswordForm()) {
+      return;
+    }
 
-    setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    setPasswordForm({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    });
     setShowCurrentPassword(false);
     setShowNewPassword(false);
     setShowConfirmPassword(false);
     showToast('Đổi mật khẩu thành công');
   };
 
-  // ─── Format helpers ──────────────────────────────────────
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-  };
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+    }).format(price);
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('vi-VN', {
+  const formatDate = (dateStr: string) =>
+    new Date(dateStr).toLocaleDateString('vi-VN', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     });
-  };
+
+  if (isAuthLoading || isProfileLoading) {
+    return (
+      <>
+        <Header />
+        <main className="min-h-screen bg-[var(--background)] flex items-center justify-center px-4">
+          <p className="text-[var(--text-secondary)]">Đang tải thông tin tài khoản...</p>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <>
+        <Header />
+        <main className="min-h-screen bg-[var(--background)] flex items-center justify-center px-4">
+          <p className="text-[var(--text-secondary)]">Đang chuyển hướng tới trang đăng nhập...</p>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  if (!user) {
+    return (
+      <>
+        <Header />
+        <main className="min-h-screen bg-[var(--background)] flex items-center justify-center px-4">
+          <div className="max-w-md w-full rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
+            <p className="text-red-700 font-medium">
+              {profileRequestError || 'Không thể tải thông tin tài khoản'}
+            </p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="mt-4 btn-primary text-sm"
+            >
+              Thử lại
+            </button>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
       <Header />
       <main className="min-h-screen bg-[var(--background)]">
-        {/* Hero Section */}
         <div className="gradient-pink py-12 sm:py-16">
           <div className="max-w-5xl mx-auto px-4 sm:px-6">
             <div className="flex flex-col sm:flex-row items-center gap-6">
-              {/* Avatar */}
               <div className="relative group">
                 <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white shadow-lg bg-pink-100 flex items-center justify-center">
                   {user.avatar ? (
@@ -309,7 +418,8 @@ export default function ProfilePage() {
                 </div>
                 <button
                   onClick={handleAvatarClick}
-                  className="absolute bottom-1 right-1 w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center text-pink-500 hover:bg-pink-50 transition-colors border border-pink-200 group-hover:scale-110"
+                  disabled={isUploadingAvatar}
+                  className="absolute bottom-1 right-1 w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center text-pink-500 hover:bg-pink-50 transition-colors border border-pink-200 group-hover:scale-110 disabled:opacity-60 disabled:cursor-not-allowed"
                   aria-label="Đổi ảnh đại diện"
                 >
                   <CameraIcon size={18} />
@@ -324,12 +434,14 @@ export default function ProfilePage() {
                 />
               </div>
 
-              {/* User Info */}
               <div className="text-center sm:text-left">
                 <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] font-display">
                   {user.name}
                 </h1>
                 <p className="text-[var(--text-secondary)] mt-1">{user.email}</p>
+                {isUploadingAvatar && (
+                  <p className="text-[var(--text-muted)] text-sm mt-2">Đang tải ảnh lên...</p>
+                )}
                 {avatarError && (
                   <p className="text-red-500 text-sm mt-2 animate-fade-in-up">{avatarError}</p>
                 )}
@@ -338,10 +450,14 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Content Area */}
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+          {profileRequestError && (
+            <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {profileRequestError}
+            </div>
+          )}
+
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Sidebar Navigation */}
             <aside className="lg:w-64 shrink-0">
               <nav className="bg-white rounded-2xl shadow-sm border border-pink-100 overflow-hidden">
                 {tabs.map((tab) => {
@@ -365,16 +481,13 @@ export default function ProfilePage() {
               </nav>
             </aside>
 
-            {/* Main Content */}
             <div className="flex-1 min-w-0">
-              {/* ─── Edit Profile Tab ─────────────────── */}
               {activeTab === 'profile' && (
                 <div className="bg-white rounded-2xl shadow-sm border border-pink-100 p-6 sm:p-8 animate-fade-in-up">
                   <h2 className="text-xl font-bold text-[var(--text-primary)] font-display mb-6">
                     Thông tin cá nhân
                   </h2>
                   <form onSubmit={handleProfileSubmit} className="space-y-5">
-                    {/* Name */}
                     <div>
                       <label
                         htmlFor="profile-name"
@@ -387,9 +500,13 @@ export default function ProfilePage() {
                         type="text"
                         value={profileForm.name}
                         onChange={(e) => {
-                          setProfileForm((prev) => ({ ...prev, name: e.target.value }));
-                          if (profileErrors.name)
+                          setProfileForm((prev) => ({
+                            ...prev,
+                            name: e.target.value,
+                          }));
+                          if (profileErrors.name) {
                             setProfileErrors((prev) => ({ ...prev, name: '' }));
+                          }
                         }}
                         className={`w-full px-4 py-3 rounded-xl border-2 bg-white transition-colors focus:outline-none ${
                           profileErrors.name
@@ -403,7 +520,6 @@ export default function ProfilePage() {
                       )}
                     </div>
 
-                    {/* Email (readonly) */}
                     <div>
                       <label
                         htmlFor="profile-email"
@@ -423,22 +539,28 @@ export default function ProfilePage() {
                       </p>
                     </div>
 
-                    {/* Phone */}
                     <div>
                       <label
                         htmlFor="profile-phone"
                         className="block text-sm font-semibold text-[var(--text-primary)] mb-1.5"
                       >
-                        Số điện thoại
+                        Số điện thoại <span className="text-red-400">*</span>
                       </label>
                       <input
                         id="profile-phone"
                         type="tel"
                         value={profileForm.phone}
                         onChange={(e) => {
-                          setProfileForm((prev) => ({ ...prev, phone: e.target.value }));
-                          if (profileErrors.phone)
-                            setProfileErrors((prev) => ({ ...prev, phone: '' }));
+                          setProfileForm((prev) => ({
+                            ...prev,
+                            phone: e.target.value,
+                          }));
+                          if (profileErrors.phone) {
+                            setProfileErrors((prev) => ({
+                              ...prev,
+                              phone: '',
+                            }));
+                          }
                         }}
                         className={`w-full px-4 py-3 rounded-xl border-2 bg-white transition-colors focus:outline-none ${
                           profileErrors.phone
@@ -452,7 +574,6 @@ export default function ProfilePage() {
                       )}
                     </div>
 
-                    {/* Address */}
                     <div>
                       <label
                         htmlFor="profile-address"
@@ -465,14 +586,16 @@ export default function ProfilePage() {
                         type="text"
                         value={profileForm.address}
                         onChange={(e) =>
-                          setProfileForm((prev) => ({ ...prev, address: e.target.value }))
+                          setProfileForm((prev) => ({
+                            ...prev,
+                            address: e.target.value,
+                          }))
                         }
                         className="w-full px-4 py-3 rounded-xl border-2 border-pink-200 focus:border-pink-400 bg-white transition-colors focus:outline-none"
                         placeholder="Nhập địa chỉ"
                       />
                     </div>
 
-                    {/* Bio */}
                     <div>
                       <label
                         htmlFor="profile-bio"
@@ -483,30 +606,45 @@ export default function ProfilePage() {
                       <textarea
                         id="profile-bio"
                         value={profileForm.bio}
-                        onChange={(e) =>
-                          setProfileForm((prev) => ({ ...prev, bio: e.target.value }))
-                        }
+                        onChange={(e) => {
+                          setProfileForm((prev) => ({
+                            ...prev,
+                            bio: e.target.value,
+                          }));
+                          if (profileErrors.bio) {
+                            setProfileErrors((prev) => ({ ...prev, bio: '' }));
+                          }
+                        }}
                         rows={3}
                         className="w-full px-4 py-3 rounded-xl border-2 border-pink-200 focus:border-pink-400 bg-white transition-colors focus:outline-none resize-none"
                         placeholder="Viết vài dòng về bạn..."
                       />
+                      {profileErrors.bio && (
+                        <p className="text-red-500 text-sm mt-1">{profileErrors.bio}</p>
+                      )}
                     </div>
 
-                    <button type="submit" className="btn-primary text-sm">
-                      Lưu thay đổi
+                    {profileErrors.submit && (
+                      <p className="text-red-500 text-sm">{profileErrors.submit}</p>
+                    )}
+
+                    <button
+                      type="submit"
+                      className="btn-primary text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                      disabled={isSavingProfile}
+                    >
+                      {isSavingProfile ? 'Đang lưu...' : 'Lưu thay đổi'}
                     </button>
                   </form>
                 </div>
               )}
 
-              {/* ─── Change Password Tab ──────────────── */}
               {activeTab === 'password' && (
                 <div className="bg-white rounded-2xl shadow-sm border border-pink-100 p-6 sm:p-8 animate-fade-in-up">
                   <h2 className="text-xl font-bold text-[var(--text-primary)] font-display mb-6">
                     Đổi mật khẩu
                   </h2>
                   <form onSubmit={handlePasswordSubmit} className="space-y-5 max-w-md">
-                    {/* Current Password */}
                     <div>
                       <label
                         htmlFor="current-password"
@@ -524,8 +662,12 @@ export default function ProfilePage() {
                               ...prev,
                               currentPassword: e.target.value,
                             }));
-                            if (passwordErrors.currentPassword)
-                              setPasswordErrors((prev) => ({ ...prev, currentPassword: '' }));
+                            if (passwordErrors.currentPassword) {
+                              setPasswordErrors((prev) => ({
+                                ...prev,
+                                currentPassword: '',
+                              }));
+                            }
                           }}
                           className={`w-full px-4 py-3 pr-12 rounded-xl border-2 bg-white transition-colors focus:outline-none ${
                             passwordErrors.currentPassword
@@ -550,7 +692,6 @@ export default function ProfilePage() {
                       )}
                     </div>
 
-                    {/* New Password */}
                     <div>
                       <label
                         htmlFor="new-password"
@@ -564,9 +705,16 @@ export default function ProfilePage() {
                           type={showNewPassword ? 'text' : 'password'}
                           value={passwordForm.newPassword}
                           onChange={(e) => {
-                            setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }));
-                            if (passwordErrors.newPassword)
-                              setPasswordErrors((prev) => ({ ...prev, newPassword: '' }));
+                            setPasswordForm((prev) => ({
+                              ...prev,
+                              newPassword: e.target.value,
+                            }));
+                            if (passwordErrors.newPassword) {
+                              setPasswordErrors((prev) => ({
+                                ...prev,
+                                newPassword: '',
+                              }));
+                            }
                           }}
                           className={`w-full px-4 py-3 pr-12 rounded-xl border-2 bg-white transition-colors focus:outline-none ${
                             passwordErrors.newPassword
@@ -589,7 +737,6 @@ export default function ProfilePage() {
                       )}
                     </div>
 
-                    {/* Confirm Password */}
                     <div>
                       <label
                         htmlFor="confirm-password"
@@ -607,8 +754,12 @@ export default function ProfilePage() {
                               ...prev,
                               confirmPassword: e.target.value,
                             }));
-                            if (passwordErrors.confirmPassword)
-                              setPasswordErrors((prev) => ({ ...prev, confirmPassword: '' }));
+                            if (passwordErrors.confirmPassword) {
+                              setPasswordErrors((prev) => ({
+                                ...prev,
+                                confirmPassword: '',
+                              }));
+                            }
                           }}
                           className={`w-full px-4 py-3 pr-12 rounded-xl border-2 bg-white transition-colors focus:outline-none ${
                             passwordErrors.confirmPassword
@@ -640,14 +791,13 @@ export default function ProfilePage() {
                 </div>
               )}
 
-              {/* ─── Order History Tab ────────────────── */}
               {activeTab === 'orders' && (
                 <div className="space-y-4 animate-fade-in-up">
                   <h2 className="text-xl font-bold text-[var(--text-primary)] font-display mb-4">
                     Lịch sử đơn hàng
                   </h2>
 
-                  {mockOrders.length === 0 ? (
+                  {orderHistorySamples.length === 0 ? (
                     <div className="bg-white rounded-2xl shadow-sm border border-pink-100 p-12 text-center">
                       <PackageIcon size={48} className="text-pink-300 mx-auto mb-4" />
                       <p className="text-lg font-semibold text-[var(--text-primary)]">
@@ -658,12 +808,11 @@ export default function ProfilePage() {
                       </p>
                     </div>
                   ) : (
-                    mockOrders.map((order) => (
+                    orderHistorySamples.map((order) => (
                       <div
                         key={order.id}
                         className="bg-white rounded-2xl shadow-sm border border-pink-100 overflow-hidden transition-shadow hover:shadow-md"
                       >
-                        {/* Order Header */}
                         <button
                           onClick={() =>
                             setExpandedOrder(expandedOrder === order.id ? null : order.id)
@@ -693,7 +842,6 @@ export default function ProfilePage() {
                           </div>
                         </button>
 
-                        {/* Order Details (Expandable) */}
                         {expandedOrder === order.id && (
                           <div
                             id={`order-details-${order.id}`}
@@ -740,7 +888,6 @@ export default function ProfilePage() {
       </main>
       <Footer />
 
-      {/* Toast Notification */}
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
     </>
   );

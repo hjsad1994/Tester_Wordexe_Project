@@ -20,6 +20,22 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Vui lòng nhập số điện thoại'],
       trim: true,
     },
+    address: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    bio: {
+      type: String,
+      default: '',
+      trim: true,
+      maxlength: [300, 'Giới thiệu không được vượt quá 300 ký tự'],
+    },
+    avatar: {
+      type: String,
+      default: null,
+      trim: true,
+    },
     password: {
       type: String,
       required: [true, 'Vui lòng nhập mật khẩu'],

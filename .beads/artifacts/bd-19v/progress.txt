@@ -1,0 +1,19 @@
+# Progress Log
+
+Bead: bd-19v
+Started: 2026-02-16
+
+## Codebase Patterns
+
+- Frontend profile currently uses local mock state in `frontend/src/app/profile/page.tsx`.
+- Authenticated user bootstrap uses `/api/auth/me` in `frontend/src/contexts/AuthContext.tsx`.
+- Cloudinary upload implementation pattern exists in backend product service.
+
+---
+
+## Session Log
+
+- `/start` initialized bead, branch, and task artifacts (`prd.json`, `progress.txt`).
+- Implemented backend profile API (`GET/PATCH /api/users/me`) and avatar upload (`POST /api/users/me/avatar`) with MongoDB persistence + Cloudinary upload.
+- Integrated `frontend/src/app/profile/page.tsx` with DB-backed profile loading/updating and avatar upload via API.
+- Added Playwright specs for profile and avatar flows, but user requested not to run Playwright as final verification for `/ship`.
