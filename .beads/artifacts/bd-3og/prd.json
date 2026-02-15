@@ -1,0 +1,140 @@
+{
+	"beadId": "bd-3og",
+	"prdName": "admin-product-modals-and-image-upload",
+	"tasks": [
+		{
+			"id": "ui-1",
+			"title": "Build product add/edit modal flow",
+			"category": "ui",
+			"description": "Admin can add or edit products inside a modal with correct prefilled data, replacing the current inline form flow.",
+			"steps": [
+				"npm --prefix frontend run typecheck",
+				"Manual: Open /admin/products, click Add/Edit, and verify modal open/close and field prefill behavior."
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": [],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/components/admin/AdminProductsPanel.tsx",
+					"frontend/src/app/admin/products/page.tsx"
+				]
+			}
+		},
+		{
+			"id": "upload-1",
+			"title": "Integrate image upload inside add/edit modal",
+			"category": "upload",
+			"description": "The add/edit modal supports valid image selection, preview, replace/remove, and image data binding into submit payloads.",
+			"steps": [
+				"npm --prefix frontend run lint:fix",
+				"npm --prefix frontend run typecheck",
+				"Manual: Upload valid and invalid image files and verify preview and validation errors."
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["Build product add/edit modal flow"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/components/admin/AdminProductsPanel.tsx",
+					"frontend/src/lib/api.ts",
+					"backend/src/controllers/productController.js",
+					"backend/src/services/productService.js"
+				]
+			}
+		},
+		{
+			"id": "ui-2",
+			"title": "Add destructive delete confirmation modal",
+			"category": "ui",
+			"description": "Product deletion requires a confirmation modal with product context and only proceeds after explicit user confirmation.",
+			"steps": [
+				"Manual: Click Delete, verify confirmation modal appears with product details, cancel does not delete, confirm does delete.",
+				"npm --prefix frontend run typecheck"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["Build product add/edit modal flow"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": ["frontend/src/components/admin/AdminProductsPanel.tsx"]
+			}
+		},
+		{
+			"id": "test-1",
+			"title": "Add regression coverage for admin product modal flows",
+			"category": "test",
+			"description": "Regression tests cover add/edit/delete modal behavior and image upload paths without breaking existing admin route and role protections.",
+			"steps": [
+				"npm --prefix playwright run test -- tests/rbac/admin-product-category.spec.ts",
+				"npm --prefix playwright run test -- tests/rbac/admin-route-flow.spec.ts"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": [
+					"Integrate image upload inside add/edit modal",
+					"Add destructive delete confirmation modal"
+				],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"playwright/tests/rbac/admin-product-category.spec.ts",
+					"playwright/tests/rbac/admin-route-flow.spec.ts"
+				]
+			}
+		},
+		{
+			"id": "ux-1",
+			"title": "Final cross-check for style consistency and responsive behavior",
+			"category": "ux",
+			"description": "Add/edit/delete modals match the website visual language and remain usable across desktop/mobile before shipping.",
+			"steps": [
+				"Manual: Validate desktop/mobile viewports, keyboard navigation, focus trap, and button target size.",
+				"npm --prefix frontend run build"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": [
+					"Build product add/edit modal flow",
+					"Integrate image upload inside add/edit modal",
+					"Add destructive delete confirmation modal"
+				],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": ["frontend/src/components/admin/AdminProductsPanel.tsx"]
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"Admin product CRUD is currently implemented in frontend/src/components/admin/AdminProductsPanel.tsx with local form state and API helpers.",
+			"Admin UI visual language uses pink gradient actions, rounded corners, and focus ring patterns consistent with frontend/src/components/admin/AdminCategoriesPanel.tsx.",
+			"Product API payloads and slug helpers are centralized in frontend/src/lib/api.ts.",
+			"Backend already exposes admin-protected product CRUD and image upload endpoints in backend/src/routes/productRoutes.js and backend/src/services/productService.js."
+		],
+		"keyFiles": [
+			"frontend/src/components/admin/AdminProductsPanel.tsx",
+			"frontend/src/app/admin/products/page.tsx",
+			"frontend/src/lib/api.ts",
+			"backend/src/routes/productRoutes.js",
+			"backend/src/controllers/productController.js",
+			"backend/src/services/productService.js",
+			"playwright/tests/rbac/admin-product-category.spec.ts",
+			"playwright/tests/rbac/admin-route-flow.spec.ts"
+		],
+		"nonGoals": [
+			"Do not redesign the entire admin area.",
+			"Do not overhaul backend upload architecture beyond required integration.",
+			"Do not change public product routing/slug behavior outside admin-flow necessities."
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": false,
+		"conflicts_with": [],
+		"blocks": [],
+		"estimated_hours": 8
+	}
+}

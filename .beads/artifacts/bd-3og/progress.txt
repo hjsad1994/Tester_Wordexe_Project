@@ -1,0 +1,39 @@
+# Progress Log
+
+Bead: bd-3og
+Started: 2026-02-15
+
+## Codebase Patterns
+
+- Admin product CRUD currently lives in `frontend/src/components/admin/AdminProductsPanel.tsx`.
+- Existing admin visual language uses pink gradients, rounded corners, and focus-ring conventions.
+- Product CRUD and slug helpers are centralized in `frontend/src/lib/api.ts`.
+- Backend already supports admin-protected image upload through product routes/services.
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
+
+## 2026-02-15 - Ship attempt
+
+- Implemented UI scope in `frontend/src/components/admin/AdminProductsPanel.tsx`:
+  - Added add/edit product modal flow (replacing inline CRUD form interactions).
+  - Added delete confirmation modal before destructive delete.
+  - Added image upload, validation, preview, replace/remove behavior in modal.
+  - Added focus trap + initial focus handling for both modals.
+  - Addressed image-loss edge case when replacing image during edit.
+- Added API helper in `frontend/src/lib/api.ts`:
+  - `uploadProductImage(id, file)` for `/api/products/:id/images`.
+
+Verification run (non-Playwright):
+- `npm --prefix frontend run typecheck` (pass)
+- `npm --prefix frontend run lint:fix` (pass)
+- `npm --prefix frontend run build` (pass)
+
+Review status:
+- Initial review found two issues (image-loss path + missing focus trap), both fixed.
+- Follow-up review returned no findings.
+
+Pending:
+- Manual verification steps from PRD tasks are still pending.
+- Playwright verification steps were skipped per user instruction ("khong test playwright").
