@@ -1,4 +1,5 @@
 const productService = require('../services/productService');
+const { ValidationError } = require('../errors');
 const { sendSuccess, sendCreated } = require('../utils/responseHelper');
 const asyncHandler = require('../middlewares/asyncHandler');
 
@@ -68,4 +69,13 @@ exports.updateProduct = asyncHandler(async (req, res) => {
 exports.deleteProduct = asyncHandler(async (req, res) => {
   await productService.deleteProduct(req.params.id);
   sendSuccess(res, null, 'Product deleted successfully');
+});
+
+exports.uploadImage = asyncHandler(async (req, res) => {
+  if (!req.file) {
+    throw new ValidationError('Image file is required');
+  }
+
+  const product = await productService.uploadImage(req.params.id, req.file.buffer);
+  sendSuccess(res, product, 'Image uploaded successfully');
 });

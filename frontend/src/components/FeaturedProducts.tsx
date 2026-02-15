@@ -1,106 +1,66 @@
 'use client';
 
-import { useRef } from 'react';
-import ProductCard, { Product } from './ProductCard';
+import { useEffect, useRef, useState } from 'react';
+import { type Product as ApiProduct, fetchProducts } from '@/lib/api';
 import { ArrowRightIcon, SparkleIcon } from './icons';
+import ProductCard, { type Product as CardProduct } from './ProductCard';
 
-const featuredProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Bộ quần áo Cotton Organic cho bé sơ sinh',
-    price: 299000,
-    originalPrice: 399000,
-    illustration: 'clothes',
-    rating: 4.9,
-    reviews: 256,
-    badge: 'bestseller',
-    category: 'Quần áo',
-  },
-  {
-    id: '2',
-    name: 'Bình sữa chống đầy hơi Pigeon',
-    price: 189000,
-    illustration: 'bottle',
-    rating: 4.8,
-    reviews: 189,
-    badge: 'new',
-    category: 'Bình sữa',
-  },
-  {
-    id: '3',
-    name: 'Gấu bông Teddy Bear siêu mềm mại',
-    price: 159000,
-    originalPrice: 219000,
-    illustration: 'teddy',
-    rating: 4.7,
-    reviews: 342,
-    badge: 'sale',
-    category: 'Đồ chơi',
-  },
-  {
-    id: '4',
-    name: 'Tã dán cao cấp Bobby Extra Soft',
-    price: 249000,
-    illustration: 'diaper',
-    rating: 4.9,
-    reviews: 521,
-    badge: 'bestseller',
-    category: 'Tã & Bỉm',
-  },
-  {
-    id: '5',
-    name: 'Xe đẩy gấp gọn đa năng',
-    price: 2490000,
-    originalPrice: 2990000,
-    illustration: 'stroller',
-    rating: 4.8,
-    reviews: 98,
-    badge: 'sale',
-    category: 'Xe đẩy',
-  },
-  {
-    id: '6',
-    name: 'Nôi điện tự động ru ngủ',
-    price: 1890000,
-    illustration: 'crib',
-    rating: 4.6,
-    reviews: 156,
-    badge: 'new',
-    category: 'Giường & Nôi',
-  },
-  {
-    id: '7',
-    name: 'Bộ chăm sóc da cho bé Johnson',
-    price: 329000,
-    illustration: 'skincare',
-    rating: 4.9,
-    reviews: 412,
-    category: 'Chăm sóc',
-  },
-  {
-    id: '8',
-    name: 'Giày tập đi mềm chống trơn',
-    price: 199000,
-    originalPrice: 259000,
-    illustration: 'shoes',
-    rating: 4.7,
-    reviews: 287,
-    badge: 'sale',
-    category: 'Giày dép',
-  },
-];
+const categoryIllustrationMap: Record<string, CardProduct['illustration']> = {
+  'Quần áo': 'clothes',
+  'Bình sữa': 'bottle',
+  'Đồ chơi': 'teddy',
+  'Tã & Bỉm': 'diaper',
+  'Xe đẩy': 'stroller',
+  'Giường & Nôi': 'crib',
+  'Chăm sóc': 'skincare',
+  'Giày dép': 'shoes',
+  'Phụ kiện': 'pacifier',
+  'Ăn dặm': 'food',
+};
+
+const mapApiProductToCard = (product: ApiProduct): CardProduct => {
+  const categoryName = typeof product.category === 'string' ? '' : product.category?.name || '';
+
+  return {
+    id: product._id,
+    name: product.name,
+    price: product.price,
+    imageUrl: product.images?.[0],
+    illustration: categoryIllustrationMap[categoryName] || 'teddy',
+    rating: Number((4.5 + Math.random() * 0.5).toFixed(1)),
+    reviews: Math.floor(Math.random() * 300) + 50,
+    category: categoryName,
+  };
+};
 
 export default function FeaturedProducts() {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [products, setProducts] = useState<CardProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchProducts({ limit: 8 })
+      .then((data) => {
+        setProducts(data.products.map(mapApiProductToCard));
+      })
+      .catch((err: unknown) => {
+        console.error('Failed to fetch featured products:', err);
+        setError('Không thể tải sản phẩm nổi bật');
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   const scroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const scrollAmount = 320;
-      scrollRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth',
-      });
+    if (!scrollRef.current) {
+      return;
     }
+
+    const scrollAmount = 320;
+    scrollRef.current.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth',
+    });
   };
 
   return (
@@ -153,12 +113,27 @@ export default function FeaturedProducts() {
             msOverflowStyle: 'none',
           }}
         >
-          {featuredProducts.map((product, index) => (
-            <div key={product.id} className="flex-shrink-0 w-[280px] sm:w-[300px]">
-              <ProductCard product={product} index={index} />
-            </div>
-          ))}
+          {loading
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex-shrink-0 w-[280px] sm:w-[300px]">
+                  <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-pink-100 animate-pulse">
+                    <div className="aspect-square bg-pink-50" />
+                    <div className="p-3 space-y-2">
+                      <div className="h-4 bg-pink-50 rounded w-3/4" />
+                      <div className="h-3 bg-pink-50 rounded w-1/2" />
+                      <div className="h-5 bg-pink-50 rounded w-1/3" />
+                    </div>
+                  </div>
+                </div>
+              ))
+            : products.map((product, index) => (
+                <div key={product.id} className="flex-shrink-0 w-[280px] sm:w-[300px]">
+                  <ProductCard product={product} index={index} />
+                </div>
+              ))}
         </div>
+
+        {error && <p className="mt-4 text-sm text-red-500">{error}</p>}
 
         {/* View All Button */}
         <div className="text-center mt-12">

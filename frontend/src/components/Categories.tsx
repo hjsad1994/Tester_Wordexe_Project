@@ -1,4 +1,7 @@
 'use client';
+
+import { useEffect, useState } from 'react';
+import { type Category as ApiCategory, fetchCategories } from '@/lib/api';
 import { SparkleIcon } from './icons';
 import {
   BottleIllustration,
@@ -9,58 +12,63 @@ import {
   TeddyIllustration,
 } from './icons/ProductIllustrations';
 
-const categories = [
-  {
-    id: '1',
-    name: 'Quần áo',
-    Icon: ClothesIllustration,
-    count: 256,
+const categoryIconMap: Record<
+  string,
+  React.ComponentType<{ size?: number; className?: string }>
+> = {
+  'Quần áo': ClothesIllustration,
+  'Bình sữa': BottleIllustration,
+  'Đồ chơi': TeddyIllustration,
+  'Xe đẩy': StrollerIllustration,
+  'Tã & Bỉm': DiaperIllustration,
+  'Phụ kiện': PacifierIllustration,
+};
+
+const categoryColorMap: Record<string, { color: string; hoverColor: string }> = {
+  'Quần áo': {
     color: 'from-pink-100 to-pink-200',
     hoverColor: 'group-hover:from-pink-200 group-hover:to-pink-300',
   },
-  {
-    id: '2',
-    name: 'Bình sữa',
-    Icon: BottleIllustration,
-    count: 128,
+  'Bình sữa': {
     color: 'from-blue-100 to-blue-200',
     hoverColor: 'group-hover:from-blue-200 group-hover:to-blue-300',
   },
-  {
-    id: '3',
-    name: 'Đồ chơi',
-    Icon: TeddyIllustration,
-    count: 342,
+  'Đồ chơi': {
     color: 'from-amber-100 to-amber-200',
     hoverColor: 'group-hover:from-amber-200 group-hover:to-amber-300',
   },
-  {
-    id: '4',
-    name: 'Xe đẩy',
-    Icon: StrollerIllustration,
-    count: 89,
+  'Xe đẩy': {
     color: 'from-purple-100 to-purple-200',
     hoverColor: 'group-hover:from-purple-200 group-hover:to-purple-300',
   },
-  {
-    id: '5',
-    name: 'Tã & Bỉm',
-    Icon: DiaperIllustration,
-    count: 167,
+  'Tã & Bỉm': {
     color: 'from-cyan-100 to-cyan-200',
     hoverColor: 'group-hover:from-cyan-200 group-hover:to-cyan-300',
   },
-  {
-    id: '6',
-    name: 'Ti giả',
-    Icon: PacifierIllustration,
-    count: 94,
+  'Phụ kiện': {
     color: 'from-rose-100 to-rose-200',
     hoverColor: 'group-hover:from-rose-200 group-hover:to-rose-300',
   },
-];
+};
+
+const defaultColor = {
+  color: 'from-gray-100 to-gray-200',
+  hoverColor: 'group-hover:from-gray-200 group-hover:to-gray-300',
+};
 
 export default function Categories() {
+  const [categories, setCategories] = useState<ApiCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCategories()
+      .then((data) => setCategories(data))
+      .catch((err) => {
+        console.error('Failed to fetch categories:', err);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <section className="py-20 bg-gradient-to-b from-[var(--warm-white)] to-pink-50/30 relative overflow-hidden">
       {/* Background Pattern */}
@@ -83,49 +91,58 @@ export default function Categories() {
 
         {/* Categories Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
-          {categories.map((category, index) => {
-            const IconComponent = category.Icon;
-            return (
-              <button
-                key={category.id}
-                className="group animate-fade-in-up"
-                style={{
-                  animationDelay: `${index * 0.1}s`,
-                  opacity: 0,
-                  animationFillMode: 'forwards',
-                }}
-              >
-                <div className="relative p-6 sm:p-8 rounded-3xl bg-white shadow-md transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden">
-                  {/* Background Gradient */}
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${category.color} ${category.hoverColor} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
-                  ></div>
-
-                  {/* Icon */}
-                  <div className="relative z-10 flex justify-center mb-4">
-                    <div
-                      className={`transition-all duration-500 group-hover:scale-110 group-hover:rotate-6`}
-                    >
-                      <IconComponent size={70} />
-                    </div>
+          {loading
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="p-6 sm:p-8 rounded-3xl bg-white shadow-md animate-pulse">
+                  <div className="flex justify-center mb-4">
+                    <div className="w-[70px] h-[70px] bg-pink-50 rounded-full" />
                   </div>
-
-                  {/* Name */}
-                  <h3 className="relative z-10 font-semibold text-[var(--text-primary)] text-lg mb-1 transition-colors duration-300">
-                    {category.name}
-                  </h3>
-
-                  {/* Count */}
-                  <p className="relative z-10 text-sm text-[var(--text-muted)] transition-colors duration-300">
-                    {category.count} sản phẩm
-                  </p>
-
-                  {/* Hover Ring */}
-                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-pink-300/50 rounded-3xl transition-all duration-500"></div>
+                  <div className="h-5 bg-pink-50 rounded w-3/4 mx-auto mb-1" />
+                  <div className="h-4 bg-pink-50 rounded w-1/2 mx-auto" />
                 </div>
-              </button>
-            );
-          })}
+              ))
+            : categories.map((category, index) => {
+                const IconComponent = categoryIconMap[category.name] || TeddyIllustration;
+                const colors = categoryColorMap[category.name] || defaultColor;
+                return (
+                  <button
+                    key={category._id}
+                    className="group animate-fade-in-up"
+                    style={{
+                      animationDelay: `${index * 0.1}s`,
+                      opacity: 0,
+                      animationFillMode: 'forwards',
+                    }}
+                  >
+                    <div className="relative p-6 sm:p-8 rounded-3xl bg-white shadow-md transition-all duration-500 hover:shadow-xl hover:-translate-y-2 overflow-hidden">
+                      {/* Background Gradient */}
+                      <div
+                        className={`absolute inset-0 bg-gradient-to-br ${colors.color} ${colors.hoverColor} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+                      ></div>
+
+                      {/* Icon */}
+                      <div className="relative z-10 flex justify-center mb-4">
+                        <div className="transition-all duration-500 group-hover:scale-110 group-hover:rotate-6">
+                          <IconComponent size={70} />
+                        </div>
+                      </div>
+
+                      {/* Name */}
+                      <h3 className="relative z-10 font-semibold text-[var(--text-primary)] text-lg mb-1 transition-colors duration-300">
+                        {category.name}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="relative z-10 text-sm text-[var(--text-muted)] transition-colors duration-300">
+                        {category.description || 'Khám phá ngay'}
+                      </p>
+
+                      {/* Hover Ring */}
+                      <div className="absolute inset-0 border-2 border-transparent group-hover:border-pink-300/50 rounded-3xl transition-all duration-500"></div>
+                    </div>
+                  </button>
+                );
+              })}
         </div>
 
         {/* Promo Banner */}

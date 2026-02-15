@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import {
@@ -19,214 +19,53 @@ import {
   StrollerIllustration,
   TeddyIllustration,
 } from '@/components/icons/ProductIllustrations';
-import ProductCard, { type Product } from '@/components/ProductCard';
+import ProductCard, { type Product as CardProduct } from '@/components/ProductCard';
+import {
+  type Category as ApiCategory,
+  type Product as ApiProduct,
+  fetchCategories,
+  fetchProducts,
+} from '@/lib/api';
 
-// Extended product data
-const allProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Bộ quần áo Cotton Organic cho bé sơ sinh',
-    price: 299000,
-    originalPrice: 399000,
-    illustration: 'clothes',
-    rating: 4.9,
-    reviews: 256,
-    badge: 'bestseller',
-    category: 'Quần áo',
-  },
-  {
-    id: '2',
-    name: 'Bình sữa chống đầy hơi Pigeon',
-    price: 189000,
-    illustration: 'bottle',
-    rating: 4.8,
-    reviews: 189,
-    badge: 'new',
-    category: 'Bình sữa',
-  },
-  {
-    id: '3',
-    name: 'Gấu bông Teddy Bear siêu mềm mại',
-    price: 159000,
-    originalPrice: 219000,
-    illustration: 'teddy',
-    rating: 4.7,
-    reviews: 342,
-    badge: 'sale',
-    category: 'Đồ chơi',
-  },
-  {
-    id: '4',
-    name: 'Tã dán cao cấp Bobby Extra Soft',
-    price: 249000,
-    illustration: 'diaper',
-    rating: 4.9,
-    reviews: 521,
-    badge: 'bestseller',
-    category: 'Tã & Bỉm',
-  },
-  {
-    id: '5',
-    name: 'Xe đẩy gấp gọn đa năng',
-    price: 2490000,
-    originalPrice: 2990000,
-    illustration: 'stroller',
-    rating: 4.8,
-    reviews: 98,
-    badge: 'sale',
-    category: 'Xe đẩy',
-  },
-  {
-    id: '6',
-    name: 'Nôi điện tự động ru ngủ',
-    price: 1890000,
-    illustration: 'crib',
-    rating: 4.6,
-    reviews: 156,
-    badge: 'new',
-    category: 'Giường & Nôi',
-  },
-  {
-    id: '7',
-    name: 'Bộ chăm sóc da cho bé Johnson',
-    price: 329000,
-    illustration: 'skincare',
-    rating: 4.9,
-    reviews: 412,
-    category: 'Chăm sóc',
-  },
-  {
-    id: '8',
-    name: 'Giày tập đi mềm chống trơn',
-    price: 199000,
-    originalPrice: 259000,
-    illustration: 'shoes',
-    rating: 4.7,
-    reviews: 287,
-    badge: 'sale',
-    category: 'Giày dép',
-  },
-  {
-    id: '9',
-    name: 'Ti giả silicon mềm cho bé',
-    price: 89000,
-    illustration: 'pacifier',
-    rating: 4.5,
-    reviews: 198,
-    category: 'Phụ kiện',
-  },
-  {
-    id: '10',
-    name: 'Lục lạc đồ chơi phát triển giác quan',
-    price: 129000,
-    illustration: 'rattle',
-    rating: 4.6,
-    reviews: 145,
-    badge: 'new',
-    category: 'Đồ chơi',
-  },
-  {
-    id: '11',
-    name: 'Bột ăn dặm Gerber organic',
-    price: 175000,
-    illustration: 'food',
-    rating: 4.8,
-    reviews: 320,
-    badge: 'bestseller',
-    category: 'Ăn dặm',
-  },
-  {
-    id: '12',
-    name: 'Áo khoác giữ ấm lông cừu',
-    price: 450000,
-    originalPrice: 590000,
-    illustration: 'clothes',
-    rating: 4.7,
-    reviews: 89,
-    badge: 'sale',
-    category: 'Quần áo',
-  },
-  {
-    id: '13',
-    name: 'Bình sữa thủy tinh cao cấp Comotomo',
-    price: 320000,
-    illustration: 'bottle',
-    rating: 4.9,
-    reviews: 267,
-    badge: 'bestseller',
-    category: 'Bình sữa',
-  },
-  {
-    id: '14',
-    name: 'Thú nhồi bông hình thỏ dễ thương',
-    price: 189000,
-    illustration: 'teddy',
-    rating: 4.6,
-    reviews: 178,
-    category: 'Đồ chơi',
-  },
-  {
-    id: '15',
-    name: 'Tã quần Huggies Dry Pants',
-    price: 289000,
-    illustration: 'diaper',
-    rating: 4.8,
-    reviews: 445,
-    badge: 'bestseller',
-    category: 'Tã & Bỉm',
-  },
-  {
-    id: '16',
-    name: 'Xe đẩy siêu nhẹ travel system',
-    price: 3200000,
-    originalPrice: 3800000,
-    illustration: 'stroller',
-    rating: 4.9,
-    reviews: 67,
-    badge: 'sale',
-    category: 'Xe đẩy',
-  },
-];
+const categoryIllustrationMap: Record<string, CardProduct['illustration']> = {
+  'Quần áo': 'clothes',
+  'Bình sữa': 'bottle',
+  'Đồ chơi': 'teddy',
+  'Tã & Bỉm': 'diaper',
+  'Xe đẩy': 'stroller',
+  'Giường & Nôi': 'crib',
+  'Chăm sóc': 'skincare',
+  'Giày dép': 'shoes',
+  'Phụ kiện': 'pacifier',
+  'Ăn dặm': 'food',
+};
 
-const categories = [
-  { id: 'all', name: 'Tất cả', Icon: SparkleIcon, count: allProducts.length },
-  {
-    id: 'clothes',
-    name: 'Quần áo',
-    Icon: ClothesIllustration,
-    count: allProducts.filter((p) => p.category === 'Quần áo').length,
-  },
-  {
-    id: 'bottle',
-    name: 'Bình sữa',
-    Icon: BottleIllustration,
-    count: allProducts.filter((p) => p.category === 'Bình sữa').length,
-  },
-  {
-    id: 'toy',
-    name: 'Đồ chơi',
-    Icon: TeddyIllustration,
-    count: allProducts.filter((p) => p.category === 'Đồ chơi').length,
-  },
-  {
-    id: 'diaper',
-    name: 'Tã & Bỉm',
-    Icon: DiaperIllustration,
-    count: allProducts.filter((p) => p.category === 'Tã & Bỉm').length,
-  },
-  {
-    id: 'stroller',
-    name: 'Xe đẩy',
-    Icon: StrollerIllustration,
-    count: allProducts.filter((p) => p.category === 'Xe đẩy').length,
-  },
-  {
-    id: 'pacifier',
-    name: 'Phụ kiện',
-    Icon: PacifierIllustration,
-    count: allProducts.filter((p) => p.category === 'Phụ kiện').length,
-  },
-];
+const categoryIconMap: Record<
+  string,
+  React.ComponentType<{ size?: number; className?: string }>
+> = {
+  'Quần áo': ClothesIllustration,
+  'Bình sữa': BottleIllustration,
+  'Đồ chơi': TeddyIllustration,
+  'Tã & Bỉm': DiaperIllustration,
+  'Xe đẩy': StrollerIllustration,
+  'Phụ kiện': PacifierIllustration,
+};
+
+const mapApiProductToCard = (product: ApiProduct): CardProduct => {
+  const categoryName = typeof product.category === 'string' ? '' : product.category?.name || '';
+
+  return {
+    id: product._id,
+    name: product.name,
+    price: product.price,
+    imageUrl: product.images?.[0],
+    illustration: categoryIllustrationMap[categoryName] || 'teddy',
+    rating: Number((4.5 + Math.random() * 0.5).toFixed(1)),
+    reviews: Math.floor(Math.random() * 300) + 50,
+    category: categoryName,
+  };
+};
 
 const sortOptions = [
   { id: 'popular', name: 'Phổ biến nhất' },
@@ -245,12 +84,58 @@ const priceRanges = [
 ];
 
 export default function ProductsPage() {
+  const [allProducts, setAllProducts] = useState<CardProduct[]>([]);
+  const [apiCategories, setApiCategories] = useState<ApiCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedSort, setSelectedSort] = useState('popular');
   const [selectedPriceRange, setSelectedPriceRange] = useState('all');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  useEffect(() => {
+    Promise.all([fetchProducts({ limit: 100 }), fetchCategories()])
+      .then(([productData, categoryData]) => {
+        setAllProducts(productData.products.map(mapApiProductToCard));
+        setApiCategories(categoryData);
+      })
+      .catch((error: unknown) => {
+        console.error('Failed to load products/categories:', error);
+        setLoadError('Không thể tải dữ liệu sản phẩm');
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const categories = useMemo(() => {
+    const tabs: Array<{
+      id: string;
+      name: string;
+      Icon: React.ComponentType<{ size?: number; className?: string }>;
+      count: number;
+    }> = [
+      {
+        id: 'all',
+        name: 'Tất cả',
+        Icon: SparkleIcon,
+        count: allProducts.length,
+      },
+    ];
+
+    for (const category of apiCategories) {
+      const count = allProducts.filter((p) => p.category === category.name).length;
+      tabs.push({
+        id: category._id,
+        name: category.name,
+        Icon: categoryIconMap[category.name] || TeddyIllustration,
+        count,
+      });
+    }
+
+    return tabs;
+  }, [apiCategories, allProducts]);
 
   const filteredProducts = useMemo(() => {
     let result = [...allProducts];
@@ -263,15 +148,10 @@ export default function ProductsPage() {
     }
 
     if (selectedCategory !== 'all') {
-      const categoryMap: Record<string, string> = {
-        clothes: 'Quần áo',
-        bottle: 'Bình sữa',
-        toy: 'Đồ chơi',
-        diaper: 'Tã & Bỉm',
-        stroller: 'Xe đẩy',
-        pacifier: 'Phụ kiện',
-      };
-      result = result.filter((p) => p.category === categoryMap[selectedCategory]);
+      const selectedCat = apiCategories.find((c) => c._id === selectedCategory);
+      if (selectedCat) {
+        result = result.filter((p) => p.category === selectedCat.name);
+      }
     }
 
     const priceRange = priceRanges.find((r) => r.id === selectedPriceRange);
@@ -281,7 +161,6 @@ export default function ProductsPage() {
 
     switch (selectedSort) {
       case 'newest':
-        result = result.reverse();
         break;
       case 'price-asc':
         result.sort((a, b) => a.price - b.price);
@@ -297,7 +176,7 @@ export default function ProductsPage() {
     }
 
     return result;
-  }, [searchQuery, selectedCategory, selectedSort, selectedPriceRange]);
+  }, [allProducts, apiCategories, searchQuery, selectedCategory, selectedSort, selectedPriceRange]);
 
   const clearFilters = () => {
     setSearchQuery('');
@@ -313,21 +192,18 @@ export default function ProductsPage() {
     <div className="min-h-screen bg-[var(--warm-white)]">
       <Header />
 
-      {/* Compact Header Section */}
       <section className="bg-gradient-to-r from-pink-50 via-white to-purple-50 pt-6 pb-4 border-b border-pink-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Title Row */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
                 Sản phẩm cho <span className="text-gradient">Bé yêu</span>
               </h1>
               <p className="text-sm text-[var(--text-muted)] mt-1">
-                {filteredProducts.length} sản phẩm
+                {loading ? '...' : `${filteredProducts.length} sản phẩm`}
               </p>
             </div>
 
-            {/* Search Bar - Compact */}
             <div className="relative w-full sm:w-80">
               <input
                 type="text"
@@ -353,7 +229,6 @@ export default function ProductsPage() {
             </div>
           </div>
 
-          {/* Category Tabs - Horizontal Scrollable */}
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
             {categories.map((category) => {
               const IconComponent = category.Icon;
@@ -368,7 +243,7 @@ export default function ProductsPage() {
                       : 'bg-white border border-pink-100 text-[var(--text-secondary)] hover:border-pink-300 hover:bg-pink-50'
                   }`}
                 >
-                  <div className={`w-6 h-6 flex items-center justify-center`}>
+                  <div className="w-6 h-6 flex items-center justify-center">
                     {category.id === 'all' ? (
                       <IconComponent
                         size={16}
@@ -393,13 +268,10 @@ export default function ProductsPage() {
         </div>
       </section>
 
-      {/* Toolbar */}
       <section className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-pink-100 py-3">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-3">
-            {/* Left Side - Filters */}
             <div className="flex items-center gap-2">
-              {/* Mobile Filter Button */}
               <button
                 onClick={() => setIsFilterOpen(true)}
                 className="lg:hidden flex items-center gap-1.5 px-3 py-2.5 min-h-[44px] rounded-lg bg-pink-50 text-pink-600 text-sm font-medium hover:bg-pink-100 transition-colors focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none"
@@ -408,7 +280,6 @@ export default function ProductsPage() {
                 <span>Lọc</span>
               </button>
 
-              {/* Price Filter Select */}
               <div className="hidden sm:block">
                 <select
                   value={selectedPriceRange}
@@ -428,7 +299,6 @@ export default function ProductsPage() {
                 </select>
               </div>
 
-              {/* Active Filters */}
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
@@ -441,9 +311,7 @@ export default function ProductsPage() {
               )}
             </div>
 
-            {/* Right Side - Sort & View */}
             <div className="flex items-center gap-2">
-              {/* Sort Select */}
               <div>
                 <select
                   value={selectedSort}
@@ -459,7 +327,6 @@ export default function ProductsPage() {
                 </select>
               </div>
 
-              {/* View Mode Toggle */}
               <div className="hidden sm:flex items-center border border-pink-200 rounded-lg overflow-hidden">
                 <button
                   onClick={() => setViewMode('grid')}
@@ -493,7 +360,25 @@ export default function ProductsPage() {
 
       <section className="py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {filteredProducts.length > 0 ? (
+          {loadError && <p className="text-sm text-red-500 mb-4">{loadError}</p>}
+
+          {loading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-2xl overflow-hidden shadow-sm border border-pink-100 animate-pulse"
+                >
+                  <div className="aspect-square bg-pink-50" />
+                  <div className="p-3 space-y-2">
+                    <div className="h-4 bg-pink-50 rounded w-3/4" />
+                    <div className="h-3 bg-pink-50 rounded w-1/2" />
+                    <div className="h-5 bg-pink-50 rounded w-1/3" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredProducts.length > 0 ? (
             <div
               className={`grid gap-4 ${
                 viewMode === 'grid'
@@ -525,8 +410,7 @@ export default function ProductsPage() {
             </div>
           )}
 
-          {/* Load More */}
-          {filteredProducts.length > 0 && (
+          {!loading && filteredProducts.length > 0 && (
             <div className="text-center mt-8">
               <button className="px-6 py-2.5 min-h-[44px] rounded-xl border-2 border-pink-300 text-pink-500 text-sm font-medium hover:bg-pink-50 transition-colors focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none">
                 Xem thêm sản phẩm
@@ -536,7 +420,6 @@ export default function ProductsPage() {
         </div>
       </section>
 
-      {/* Mobile Filter Modal */}
       {isFilterOpen && (
         <div
           role="dialog"
@@ -563,7 +446,6 @@ export default function ProductsPage() {
             </div>
 
             <div className="p-4 space-y-5">
-              {/* Categories */}
               <div>
                 <h3 className="font-semibold text-[var(--text-primary)] mb-3 text-sm">Danh mục</h3>
                 <div className="grid grid-cols-3 gap-2">
@@ -597,7 +479,6 @@ export default function ProductsPage() {
                 </div>
               </div>
 
-              {/* Price Range */}
               <div>
                 <h3 className="font-semibold text-[var(--text-primary)] mb-3 text-sm">
                   Khoảng giá
@@ -620,7 +501,6 @@ export default function ProductsPage() {
               </div>
             </div>
 
-            {/* Apply Button */}
             <div className="sticky bottom-0 bg-white border-t border-pink-100 p-4 flex gap-3">
               <button
                 onClick={clearFilters}

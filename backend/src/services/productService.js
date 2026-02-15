@@ -1,5 +1,6 @@
 const productRepository = require('../repositories/productRepository');
 const categoryRepository = require('../repositories/categoryRepository');
+const cloudinary = require('../config/cloudinary');
 const { NotFoundError, ValidationError } = require('../errors');
 
 class ProductService {
@@ -88,6 +89,35 @@ class ProductService {
       throw new NotFoundError(`Product with id ${id} not found`);
     }
     return product;
+  }
+
+  async uploadImage(productId, fileBuffer) {
+    const product = await productRepository.findById(productId);
+    if (!product) {
+      throw new NotFoundError(`Product with id ${productId} not found`);
+    }
+
+    const result = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'products',
+          resource_type: 'image',
+          allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+        },
+        (error, uploadResult) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+
+          resolve(uploadResult);
+        }
+      );
+
+      uploadStream.end(fileBuffer);
+    });
+
+    return productRepository.addImage(productId, result.secure_url);
   }
 
   async deleteProduct(id) {

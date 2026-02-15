@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { HeartIcon, HeartOutlineIcon, StarIcon, CartIcon } from './icons';
-import { productIllustrations, ProductIllustrationType } from './icons/ProductIllustrations';
+import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
+import { CartIcon, HeartIcon, HeartOutlineIcon, StarIcon } from './icons';
+import { type ProductIllustrationType, productIllustrations } from './icons/ProductIllustrations';
 
 export interface Product {
   id: string;
@@ -13,6 +14,7 @@ export interface Product {
   price: number;
   originalPrice?: number;
   illustration: ProductIllustrationType;
+  imageUrl?: string;
   rating: number;
   reviews: number;
   badge?: 'new' | 'sale' | 'bestseller';
@@ -118,14 +120,25 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             {liked ? <HeartIcon size={18} /> : <HeartOutlineIcon size={18} />}
           </button>
 
-          {/* Product Illustration */}
+          {/* Product Image or Illustration */}
           <div className="w-full h-full flex items-center justify-center">
             <div
               className={`transition-transform duration-300 ${
                 isHovered ? 'scale-110' : 'scale-100'
               }`}
             >
-              <IllustrationComponent size={100} />
+              {product.imageUrl ? (
+                <Image
+                  src={product.imageUrl}
+                  alt={product.name}
+                  width={200}
+                  height={200}
+                  className="object-contain w-full h-full rounded-lg"
+                  sizes="(max-width: 640px) 50vw, 200px"
+                />
+              ) : (
+                <IllustrationComponent size={100} />
+              )}
             </div>
           </div>
         </div>
