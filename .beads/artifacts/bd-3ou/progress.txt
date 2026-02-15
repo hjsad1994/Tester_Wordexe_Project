@@ -1,0 +1,55 @@
+# Progress Log
+
+Bead: bd-3ou
+Started: 2026-02-15
+
+## Codebase Patterns
+
+- Product slug generation source of truth: `backend/src/models/Product.js`.
+- Product slug lookup endpoint: `backend/src/routes/productRoutes.js` (`/slug/:slug`).
+- Frontend has duplicated slug fallback logic in product list/card/wishlist/detail mapping paths.
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
+
+## 2026-02-15 - Task backend-1 completed
+
+- Updated product slug normalization in `backend/src/models/Product.js` to use `normalize('NFKD')` + Unicode mark stripping (`/\p{M}+/gu`) + Vietnamese `đ -> d` mapping.
+- Verification:
+  - `cd backend && npm run lint` (passes; warnings only)
+  - Manual equivalent check command output: `thu-nhoi-bong-hinh-tho-de-thuong` for input `Thú nhồi bông hình thỏ dễ thương`
+
+## 2026-02-15 - Task frontend-1 completed
+
+- Added shared `toProductSlug` helper in `frontend/src/lib/api.ts` and replaced duplicated slug fallback logic in product card/list/wishlist/detail mapping files.
+- Verification:
+  - `cd frontend && npm run typecheck` (pass)
+  - `cd frontend && npm run lint` (pass)
+  - `cd frontend && npm run build` (pass)
+
+## 2026-02-15 - Task qa-1 completed
+
+- Added regression test `Vietnamese product slugs retain base letters and resolve by slug route` in `playwright/tests/rbac/admin-product-category.spec.ts`.
+- Verification:
+  - `cd playwright && npx playwright test --list` (new case listed)
+  - `cd playwright && npx playwright test tests/rbac/admin-product-category.spec.ts -g "Vietnamese product slugs retain base letters and resolve by slug route" --project=chromium` (1 passed)
+
+## 2026-02-15 - User feedback after closure prompt
+
+- User reported: slug values in existing DB documents still have old malformed format.
+- Decision: keep bead open and treat backend task as incomplete pending backfill/migration approach for existing records.
+
+## 2026-02-15 - Backfill executed per user request
+
+- Added one-time script: `backend/src/scripts/backfillProductSlugs.js`.
+- Executed command: `cd backend && node src/scripts/backfillProductSlugs.js`.
+- Result: scanned=16, updated=16, skipped=0.
+- Spot check query for sample name `Thú nhồi bông hình thỏ dễ thương` now returns slug `thu-nhoi-bong-hinh-tho-de-thuong-1771157019174`.
+
+## 2026-02-15 - Backfill safety hardening
+
+- Improved suffix detection in `backend/src/scripts/backfillProductSlugs.js` to reuse suffix only when it matches generated suffix pattern (`[a-z0-9]{6,}` with at least one digit); otherwise fallback to stable `_id`-derived suffix.
+- Re-ran script for idempotency check:
+  - `cd backend && node src/scripts/backfillProductSlugs.js`
+  - Result: scanned=16, updated=0, skipped=16.

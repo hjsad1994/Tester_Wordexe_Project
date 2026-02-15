@@ -234,6 +234,81 @@ test.describe("RBAC: product/category permissions", () => {
 		expect(deleteCategoryResponse.status()).toBe(200);
 	});
 
+	test("Vietnamese product slugs retain base letters and resolve by slug route", async ({
+		request,
+	}) => {
+		const secret = resolveJwtSecret();
+		expect(secret).toBeTruthy();
+
+		const token = signJwt(
+			{
+				userId: "000000000000000000000001",
+				role: "admin",
+				exp: Math.floor(Date.now() / 1000) + 3600,
+			},
+			secret as string,
+		);
+		const adminCookie = `accessToken=${token}`;
+
+		const categoryResponse = await request.post(`${API_URL}/api/categories`, {
+			headers: { Cookie: adminCookie },
+			data: {
+				name: `Slug VN Category ${Date.now()}`,
+				description: "Slug VN category description",
+			},
+		});
+		expect(categoryResponse.status()).toBe(201);
+		const categoryBody = await categoryResponse.json();
+		const categoryId = categoryBody.data._id as string;
+
+		const vietnameseName = "Thú nhồi bông hình thỏ dễ thương";
+		const malformedSlug = "th-nh-i-b-ng-h-nh-th-d-th-ng";
+		const expectedSlugFragment = "thu-nhoi-bong-hinh-tho-de-thuong";
+
+		const createProductResponse = await request.post(
+			`${API_URL}/api/products`,
+			{
+				headers: { Cookie: adminCookie },
+				data: {
+					name: vietnameseName,
+					price: 150000,
+					category: categoryId,
+					description: "Vietnamese slug regression",
+				},
+			},
+		);
+		expect(createProductResponse.status()).toBe(201);
+		const createProductBody = await createProductResponse.json();
+		const createdProductId = createProductBody.data._id as string;
+		const createdProductSlug = createProductBody.data.slug as string;
+
+		expect(createdProductSlug).toContain(expectedSlugFragment);
+		expect(createdProductSlug).not.toContain(malformedSlug);
+
+		const bySlugResponse = await request.get(
+			`${API_URL}/api/products/slug/${encodeURIComponent(createdProductSlug)}`,
+		);
+		expect(bySlugResponse.status()).toBe(200);
+		const bySlugBody = await bySlugResponse.json();
+		expect(bySlugBody.data._id).toBe(createdProductId);
+
+		const deleteProductResponse = await request.delete(
+			`${API_URL}/api/products/${createdProductId}`,
+			{
+				headers: { Cookie: adminCookie },
+			},
+		);
+		expect(deleteProductResponse.status()).toBe(200);
+
+		const deleteCategoryResponse = await request.delete(
+			`${API_URL}/api/categories/${categoryId}`,
+			{
+				headers: { Cookie: adminCookie },
+			},
+		);
+		expect(deleteCategoryResponse.status()).toBe(200);
+	});
+
 	test("read routes remain publicly accessible", async ({ request }) => {
 		const productsResponse = await request.get(`${API_URL}/api/products`);
 		expect(productsResponse.status()).toBe(200);
