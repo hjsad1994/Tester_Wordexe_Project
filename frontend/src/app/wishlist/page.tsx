@@ -17,22 +17,14 @@ import {
 } from '@/components/icons/ProductIllustrations';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
+import { toProductSlug } from '@/lib/api';
 
 function formatPrice(price: number): string {
   return price.toLocaleString('vi-VN') + 'đ';
 }
 
-const toUrlSlug = (value: string) =>
-  value
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/đ/g, 'd')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-
 const getProductPath = (product: { id: string; name: string; slug?: string }) => {
-  const slug = (product.slug && product.slug.trim()) || toUrlSlug(product.name) || product.id;
+  const slug = (product.slug && product.slug.trim()) || toProductSlug(product.name) || product.id;
   return `/products/${encodeURIComponent(slug)}`;
 };
 

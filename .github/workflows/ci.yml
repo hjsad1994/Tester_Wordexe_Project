@@ -73,6 +73,9 @@ jobs:
       - name: Check code formatting
         run: npm run format:check
 
+      - name: Run type checking
+        run: npm run typecheck
+
       - name: Build application
         run: npm run build
 

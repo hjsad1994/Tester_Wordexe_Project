@@ -96,6 +96,18 @@ const parseError = async (res: Response, fallback: string) => {
   }
 };
 
+export const toProductSlug = (value: string) => {
+  const normalized = String(value)
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/\p{M}+/gu, '')
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  return normalized || 'san-pham';
+};
+
 export async function fetchProducts(params?: {
   page?: number;
   limit?: number;

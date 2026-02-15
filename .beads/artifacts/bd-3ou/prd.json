@@ -1,0 +1,103 @@
+{
+	"beadId": "bd-3ou",
+	"prdName": "fix-vietnamese-slug-conversion",
+	"tasks": [
+		{
+			"id": "backend-1",
+			"category": "backend",
+			"title": "Define canonical product slug normalization",
+			"description": "Backend product create/update flows produce deterministic, URL-safe slugs for Vietnamese names without dropped-letter artifacts.",
+			"steps": [
+				"cd backend && npm run lint",
+				"Manual: create/update a product named 'Thú nhồi bông hình thỏ dễ thương' and confirm slug does not match 'th-nh-i-b-ng-h-nh-th-d-th-ng'."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"backend/src/models/Product.js",
+					"backend/src/scripts/backfillProductSlugs.js"
+				]
+			}
+		},
+		{
+			"id": "frontend-1",
+			"category": "frontend",
+			"title": "Align frontend slug fallback behavior",
+			"description": "All frontend product link builders use one canonical slug behavior and prioritize backend-provided slug values.",
+			"steps": [
+				"cd frontend && npm run typecheck",
+				"cd frontend && npm run lint",
+				"Manual: click product links from listing and wishlist for a Vietnamese-named product and verify detail page resolves."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["Define canonical product slug normalization"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/components/ProductCard.tsx",
+					"frontend/src/components/FeaturedProducts.tsx",
+					"frontend/src/app/products/page.tsx",
+					"frontend/src/app/wishlist/page.tsx",
+					"frontend/src/app/products/[id]/page.tsx",
+					"frontend/src/lib/api.ts"
+				]
+			}
+		},
+		{
+			"id": "qa-1",
+			"category": "qa",
+			"title": "Add regression coverage for Vietnamese slug routes",
+			"description": "Automated or scripted regression checks exist for Vietnamese slug generation and slug-based product detail retrieval.",
+			"steps": [
+				"cd playwright && npx playwright test --list",
+				"Run or update an E2E case that visits /products/<vietnamese-slug> and validates product detail content is rendered."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [
+					"Define canonical product slug normalization",
+					"Align frontend slug fallback behavior"
+				],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": ["playwright/tests/rbac/admin-product-category.spec.ts"]
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"Product slug generation currently lives in backend/src/models/Product.js with normalization and suffix logic.",
+			"Frontend duplicates toUrlSlug logic in multiple locations rather than sharing one utility.",
+			"Product detail route frontend/src/app/products/[id]/page.tsx accepts slug-or-id and tries slug lookup first."
+		],
+		"keyFiles": [
+			"backend/src/models/Product.js",
+			"backend/src/routes/productRoutes.js",
+			"backend/src/controllers/productController.js",
+			"backend/src/services/productService.js",
+			"backend/src/repositories/productRepository.js",
+			"frontend/src/lib/api.ts",
+			"frontend/src/components/ProductCard.tsx",
+			"frontend/src/components/FeaturedProducts.tsx",
+			"frontend/src/app/products/page.tsx",
+			"frontend/src/app/wishlist/page.tsx",
+			"frontend/src/app/products/[id]/page.tsx"
+		],
+		"nonGoals": [
+			"Reworking category slug behavior unless it directly blocks this product-slug bug fix.",
+			"Introducing a full slug-history/redirect system for old product slugs.",
+			"Broad URL strategy redesign for all entities."
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": true,
+		"conflicts_with": ["bd-moq"],
+		"blocks": [],
+		"estimated_hours": 3
+	}
+}

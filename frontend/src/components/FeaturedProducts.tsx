@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { type Product as ApiProduct, fetchProducts } from '@/lib/api';
+import { type Product as ApiProduct, fetchProducts, toProductSlug } from '@/lib/api';
 import { ArrowRightIcon, SparkleIcon } from './icons';
 import ProductCard, { type Product as CardProduct } from './ProductCard';
 
@@ -18,21 +18,12 @@ const categoryIllustrationMap: Record<string, CardProduct['illustration']> = {
   'Ăn dặm': 'food',
 };
 
-const toUrlSlug = (value: string) =>
-  value
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/đ/g, 'd')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-
 const mapApiProductToCard = (product: ApiProduct): CardProduct => {
   const categoryName = typeof product.category === 'string' ? '' : product.category?.name || '';
 
   return {
     id: product._id,
-    slug: product.slug || toUrlSlug(product.name),
+    slug: product.slug || toProductSlug(product.name),
     name: product.name,
     price: product.price,
     imageUrl: product.images?.[0],

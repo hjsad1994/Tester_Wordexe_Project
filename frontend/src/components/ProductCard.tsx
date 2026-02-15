@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
+import { toProductSlug } from '@/lib/api';
 import { CartIcon, HeartIcon, HeartOutlineIcon, StarIcon } from './icons';
 import { type ProductIllustrationType, productIllustrations } from './icons/ProductIllustrations';
 
@@ -26,15 +27,6 @@ interface ProductCardProps {
   product: Product;
   index?: number;
 }
-
-const toUrlSlug = (value: string) =>
-  value
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/đ/g, 'd')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
 
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
@@ -82,7 +74,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
   const IllustrationComponent = productIllustrations[product.illustration];
   const resolvedSlug =
-    (product.slug && product.slug.trim()) || toUrlSlug(product.name) || product.id;
+    (product.slug && product.slug.trim()) || toProductSlug(product.name) || product.id;
   const productPath = `/products/${encodeURIComponent(resolvedSlug)}`;
 
   return (

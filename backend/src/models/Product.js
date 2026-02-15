@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 const toBaseSlug = (value = '') => {
-  const normalized = value
+  const normalized = String(value)
     .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
+    .normalize('NFKD')
+    .replace(/\p{M}+/gu, '')
     .replace(/đ/g, 'd')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');

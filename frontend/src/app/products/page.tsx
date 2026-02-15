@@ -25,6 +25,7 @@ import {
   type Product as ApiProduct,
   fetchCategories,
   fetchProducts,
+  toProductSlug,
 } from '@/lib/api';
 
 const categoryIllustrationMap: Record<string, CardProduct['illustration']> = {
@@ -52,21 +53,12 @@ const categoryIconMap: Record<
   'Phụ kiện': PacifierIllustration,
 };
 
-const toUrlSlug = (value: string) =>
-  value
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/đ/g, 'd')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-
 const mapApiProductToCard = (product: ApiProduct): CardProduct => {
   const categoryName = typeof product.category === 'string' ? '' : product.category?.name || '';
 
   return {
     id: product._id,
-    slug: product.slug || toUrlSlug(product.name),
+    slug: product.slug || toProductSlug(product.name),
     name: product.name,
     price: product.price,
     imageUrl: product.images?.[0],
