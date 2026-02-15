@@ -143,6 +143,8 @@ test.describe("RBAC: product/category permissions", () => {
 				{ name: `Denied Category Updated ${Date.now()}` },
 			],
 			["DELETE", `/api/categories/${fakeId}`, undefined],
+			["PATCH", `/api/orders/${fakeId}/status`, { status: "processing" }],
+			["DELETE", `/api/orders/${fakeId}`, { reason: "Denied archive request" }],
 		] as const;
 
 		for (const [method, route, payload] of deniedRequests) {
@@ -216,6 +218,156 @@ test.describe("RBAC: product/category permissions", () => {
 			},
 		);
 		expect(updateCategoryResponse.status()).toBe(200);
+
+		const deleteProductResponse = await request.delete(
+			`${API_URL}/api/products/${productId}`,
+			{
+				headers: { Cookie: adminCookie },
+			},
+		);
+		expect(deleteProductResponse.status()).toBe(200);
+
+		const deleteCategoryResponse = await request.delete(
+			`${API_URL}/api/categories/${categoryId}`,
+			{
+				headers: { Cookie: adminCookie },
+			},
+		);
+		expect(deleteCategoryResponse.status()).toBe(200);
+	});
+
+	test("admin can manage order lifecycle and delivered orders are locked", async ({
+		request,
+	}) => {
+		const secret = resolveJwtSecret();
+		expect(secret).toBeTruthy();
+
+		const token = signJwt(
+			{
+				userId: "000000000000000000000001",
+				role: "admin",
+				exp: Math.floor(Date.now() / 1000) + 3600,
+			},
+			secret as string,
+		);
+		const adminCookie = `accessToken=${token}`;
+
+		const categoryResponse = await request.post(`${API_URL}/api/categories`, {
+			headers: { Cookie: adminCookie },
+			data: {
+				name: `Order Lifecycle Category ${Date.now()}`,
+				description: "Order lifecycle category",
+			},
+		});
+		expect(categoryResponse.status()).toBe(201);
+		const categoryBody = await categoryResponse.json();
+		const categoryId = categoryBody.data._id as string;
+
+		const productResponse = await request.post(`${API_URL}/api/products`, {
+			headers: { Cookie: adminCookie },
+			data: {
+				name: `Order Lifecycle Product ${Date.now()}`,
+				price: 180000,
+				category: categoryId,
+				description: "Order lifecycle product",
+			},
+		});
+		expect(productResponse.status()).toBe(201);
+		const productBody = await productResponse.json();
+		const productId = productBody.data._id as string;
+
+		const createOrderResponse = await request.post(`${API_URL}/api/orders`, {
+			data: {
+				items: [{ productId, quantity: 1 }],
+				paymentMethod: "cod",
+				customerInfo: {
+					fullName: "Order Test User",
+					phone: "0912345678",
+					province: "TP. Ho Chi Minh",
+					district: "Quan 1",
+					ward: "Ben Nghe",
+					address: "123 Nguyen Hue",
+					notes: "Playwright lifecycle test",
+				},
+			},
+		});
+		expect(createOrderResponse.status()).toBe(201);
+		const createdOrderBody = await createOrderResponse.json();
+		const orderId = createdOrderBody.data._id as string;
+
+		const toProcessingResponse = await request.patch(
+			`${API_URL}/api/orders/${orderId}/status`,
+			{
+				headers: { Cookie: adminCookie },
+				data: { status: "processing" },
+			},
+		);
+		expect(toProcessingResponse.status()).toBe(200);
+
+		const toShippedResponse = await request.patch(
+			`${API_URL}/api/orders/${orderId}/status`,
+			{
+				headers: { Cookie: adminCookie },
+				data: { status: "shipped" },
+			},
+		);
+		expect(toShippedResponse.status()).toBe(200);
+
+		const toDeliveredResponse = await request.patch(
+			`${API_URL}/api/orders/${orderId}/status`,
+			{
+				headers: { Cookie: adminCookie },
+				data: { status: "delivered" },
+			},
+		);
+		expect(toDeliveredResponse.status()).toBe(200);
+
+		const lockDeliveredResponse = await request.patch(
+			`${API_URL}/api/orders/${orderId}/status`,
+			{
+				headers: { Cookie: adminCookie },
+				data: { status: "cancelled" },
+			},
+		);
+		expect(lockDeliveredResponse.status()).toBe(400);
+
+		const archiveOrderResponse = await request.delete(
+			`${API_URL}/api/orders/${orderId}`,
+			{
+				headers: {
+					Cookie: adminCookie,
+					"Content-Type": "application/json",
+				},
+				data: { reason: "Audit archive verification" },
+			},
+		);
+		expect(archiveOrderResponse.status()).toBe(200);
+
+		const defaultListResponse = await request.get(`${API_URL}/api/orders`, {
+			headers: { Cookie: adminCookie },
+		});
+		expect(defaultListResponse.status()).toBe(200);
+		const defaultListBody = await defaultListResponse.json();
+		expect(
+			defaultListBody.data.orders.some(
+				(order: { _id: string }) => order._id === orderId,
+			),
+		).toBe(false);
+
+		const includeDeletedResponse = await request.get(
+			`${API_URL}/api/orders?includeDeleted=true`,
+			{
+				headers: { Cookie: adminCookie },
+			},
+		);
+		expect(includeDeletedResponse.status()).toBe(200);
+		const includeDeletedBody = await includeDeletedResponse.json();
+		expect(
+			includeDeletedBody.data.orders.some(
+				(order: { _id: string; deletedAt: string | null }) =>
+					order._id === orderId && order.deletedAt,
+			),
+		).toBe(true);
 
 		const deleteProductResponse = await request.delete(
 			`${API_URL}/api/products/${productId}`,

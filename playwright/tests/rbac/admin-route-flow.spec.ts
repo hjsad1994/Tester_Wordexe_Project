@@ -59,6 +59,7 @@ test.describe("Admin route flow", () => {
 		await expect(nav).toBeVisible();
 		await expect(nav.locator('a[href="/admin/products"]')).toBeVisible();
 		await expect(nav.locator('a[href="/admin/categories"]')).toBeVisible();
+		await expect(nav.locator('a[href="/admin/orders"]')).toBeVisible();
 	});
 
 	test("admin navigation remains reachable on mobile viewport", async ({
@@ -73,5 +74,6 @@ test.describe("Admin route flow", () => {
 		await expect(nav).toHaveClass(/overflow-x-auto/);
 		await expect(nav.locator('a[href="/admin/products"]')).toBeVisible();
 		await expect(nav.locator('a[href="/admin/categories"]')).toBeVisible();
+		await expect(nav.locator('a[href="/admin/orders"]')).toBeVisible();
 	});
 });
