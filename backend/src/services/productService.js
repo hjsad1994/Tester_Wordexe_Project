@@ -4,6 +4,22 @@ const cloudinary = require('../config/cloudinary');
 const { NotFoundError, ValidationError } = require('../errors');
 
 class ProductService {
+  normalizeQuantity(value, { required = false } = {}) {
+    if (value === undefined || value === null || value === '') {
+      if (required) {
+        throw new ValidationError('Quantity is required');
+      }
+      return undefined;
+    }
+
+    const parsedQuantity = Number(value);
+    if (!Number.isInteger(parsedQuantity) || parsedQuantity < 0) {
+      throw new ValidationError('Quantity must be a non-negative integer');
+    }
+
+    return parsedQuantity;
+  }
+
   async getAllProducts(options = {}) {
     return productRepository.findAll(options);
   }
@@ -66,10 +82,22 @@ class ProductService {
       }
     }
 
-    return productRepository.create(data);
+    const normalizedData = { ...data };
+    const normalizedQuantity = this.normalizeQuantity(data.quantity);
+    normalizedData.quantity = normalizedQuantity ?? 0;
+
+    return productRepository.create(normalizedData);
   }
 
   async updateProduct(id, data) {
+    const normalizedData = { ...data };
+
+    if (Object.hasOwn(data, 'quantity')) {
+      normalizedData.quantity = this.normalizeQuantity(data.quantity, {
+        required: true,
+      });
+    }
+
     if (data.category) {
       const category = await categoryRepository.findById(data.category);
       if (!category) {
@@ -84,7 +112,7 @@ class ProductService {
       }
     }
 
-    const product = await productRepository.update(id, data);
+    const product = await productRepository.update(id, normalizedData);
     if (!product) {
       throw new NotFoundError(`Product with id ${id} not found`);
     }

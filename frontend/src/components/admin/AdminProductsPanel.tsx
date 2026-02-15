@@ -16,6 +16,7 @@ import {
 type ProductFormState = {
   name: string;
   price: string;
+  quantity: string;
   category: string;
   description: string;
 };
@@ -26,6 +27,7 @@ const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 const createEmptyProductForm = (categoryId = ''): ProductFormState => ({
   name: '',
   price: '',
+  quantity: '0',
   category: categoryId,
   description: '',
 });
@@ -207,6 +209,19 @@ export default function AdminProductsPanel() {
       return;
     }
 
+    const parsedPrice = Number(productForm.price);
+    if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
+      setAdminError('Giá sản phẩm phải là số không âm');
+      return;
+    }
+
+    const quantityInput = productForm.quantity.trim();
+    const parsedQuantity = quantityInput === '' ? 0 : Number(quantityInput);
+    if (!Number.isInteger(parsedQuantity) || parsedQuantity < 0) {
+      setAdminError('Tồn kho phải là số nguyên không âm');
+      return;
+    }
+
     try {
       setIsSubmittingProduct(true);
       setAdminError(null);
@@ -214,12 +229,14 @@ export default function AdminProductsPanel() {
       const payload: {
         name: string;
         price: number;
+        quantity: number;
         category: string;
         description?: string;
         images?: string[];
       } = {
         name: productForm.name.trim(),
-        price: Number(productForm.price),
+        price: parsedPrice,
+        quantity: parsedQuantity,
         category: productForm.category,
         description: productForm.description.trim() || undefined,
       };
@@ -273,6 +290,7 @@ export default function AdminProductsPanel() {
     setProductForm({
       name: product.name,
       price: String(product.price),
+      quantity: String(product.quantity ?? 0),
       category: typeof product.category === 'string' ? product.category : product.category._id,
       description: product.description || '',
     });
@@ -425,6 +443,7 @@ export default function AdminProductsPanel() {
               <th className="py-2 pr-2">Ảnh</th>
               <th className="py-2 pr-2">Tên</th>
               <th className="py-2 pr-2">Giá</th>
+              <th className="py-2 pr-2">Tồn kho</th>
               <th className="py-2 pr-2">Danh mục</th>
               <th className="py-2 pr-2">Trạng thái</th>
               <th className="py-2">Thao tác</th>
@@ -433,7 +452,7 @@ export default function AdminProductsPanel() {
           <tbody>
             {adminLoading ? (
               <tr>
-                <td className="py-4 text-[var(--text-muted)]" colSpan={6}>
+                <td className="py-4 text-[var(--text-muted)]" colSpan={7}>
                   Đang tải dữ liệu quản trị...
                 </td>
               </tr>
@@ -461,6 +480,9 @@ export default function AdminProductsPanel() {
                     {product.name}
                   </td>
                   <td className="py-3 pr-2">{Number(product.price).toLocaleString('vi-VN')}đ</td>
+                  <td className="py-3 pr-2">
+                    {product.quantity > 0 ? `${product.quantity} sản phẩm` : 'Hết hàng'}
+                  </td>
                   <td className="py-3 pr-2">{getCategoryName(product)}</td>
                   <td className="py-3 pr-2">{product.isActive ? 'Hiển thị' : 'Ẩn'}</td>
                   <td className="py-3">
@@ -558,6 +580,25 @@ export default function AdminProductsPanel() {
                       }))
                     }
                     placeholder="120000"
+                    className="w-full rounded-xl border border-pink-200 px-3 py-2.5 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
+                  />
+                </label>
+
+                <label className="space-y-1.5 text-sm font-medium text-[var(--text-primary)]">
+                  Tồn kho
+                  <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    inputMode="numeric"
+                    value={productForm.quantity}
+                    onChange={(event) =>
+                      setProductForm((prev) => ({
+                        ...prev,
+                        quantity: event.target.value,
+                      }))
+                    }
+                    placeholder="0"
                     className="w-full rounded-xl border border-pink-200 px-3 py-2.5 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
                   />
                 </label>
