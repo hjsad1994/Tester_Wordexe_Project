@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
-import { useCart } from "@/contexts/CartContext";
-import { useWishlist } from "@/contexts/WishlistContext";
-import { CartIcon, HeartIcon, HeartOutlineIcon, StarIcon } from "./icons";
-import { type ProductIllustrationType, productIllustrations } from "./icons/ProductIllustrations";
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState } from 'react';
+import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext';
+import { CartIcon, HeartIcon, HeartOutlineIcon, StarIcon } from './icons';
+import { type ProductIllustrationType, productIllustrations } from './icons/ProductIllustrations';
 
 export interface Product {
   id: string;
@@ -18,7 +18,7 @@ export interface Product {
   imageUrl?: string;
   rating: number;
   reviews: number;
-  badge?: "new" | "sale" | "bestseller";
+  badge?: 'new' | 'sale' | 'bestseller';
   category: string;
 }
 
@@ -30,11 +30,11 @@ interface ProductCardProps {
 const toUrlSlug = (value: string) =>
   value
     .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
@@ -49,34 +49,34 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
   const formatPrice = (price: number) => {
     if (price >= 1000000) {
-      return (price / 1000000).toFixed(1).replace(".0", "") + "M";
+      return (price / 1000000).toFixed(1).replace('.0', '') + 'M';
     }
-    return (price / 1000).toFixed(0) + "K";
+    return (price / 1000).toFixed(0) + 'K';
   };
 
   const getBadgeStyle = () => {
     switch (product.badge) {
-      case "new":
-        return "bg-blue-500 text-white";
-      case "sale":
-        return "bg-red-500 text-white";
-      case "bestseller":
-        return "bg-amber-500 text-white";
+      case 'new':
+        return 'bg-blue-500 text-white';
+      case 'sale':
+        return 'bg-red-500 text-white';
+      case 'bestseller':
+        return 'bg-amber-500 text-white';
       default:
-        return "";
+        return '';
     }
   };
 
   const getBadgeText = () => {
     switch (product.badge) {
-      case "new":
-        return "Mới";
-      case "sale":
+      case 'new':
+        return 'Mới';
+      case 'sale':
         return `-${discount}%`;
-      case "bestseller":
-        return "Hot";
+      case 'bestseller':
+        return 'Hot';
       default:
-        return "";
+        return '';
     }
   };
 
@@ -91,8 +91,8 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       style={{
         animationDelay: `${index * 0.05}s`,
         opacity: 0,
-        animationFillMode: "forwards",
-        animation: "fadeInUp 0.4s ease-out forwards",
+        animationFillMode: 'forwards',
+        animation: 'fadeInUp 0.4s ease-out forwards',
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -123,11 +123,11 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                 addToWishlist(product);
               }
             }}
-            aria-label={liked ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
+            aria-label={liked ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}
             className={`absolute top-2 right-2 z-10 p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-all duration-200 focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none ${
               liked
-                ? "bg-pink-500 text-white"
-                : "bg-white/90 text-pink-400 hover:bg-pink-500 hover:text-white"
+                ? 'bg-pink-500 text-white'
+                : 'bg-white/90 text-pink-400 hover:bg-pink-500 hover:text-white'
             } shadow-md`}
           >
             {liked ? <HeartIcon size={18} /> : <HeartOutlineIcon size={18} />}
@@ -136,7 +136,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           {/* Product Image or Illustration */}
           <div
             className={`relative w-full h-full transition-transform duration-300 ${
-              isHovered ? "scale-105" : "scale-100"
+              isHovered ? 'scale-105' : 'scale-100'
             }`}
           >
             {product.imageUrl ? (
