@@ -50,6 +50,11 @@ class ProductService {
     if (data.price === undefined || data.price === null) {
       throw new ValidationError('Price is required');
     }
+    const createPriceValue = Number.parseFloat(data.price);
+    if (!Number.isFinite(createPriceValue) || createPriceValue < 0) {
+      throw new ValidationError('Price must be a non-negative number');
+    }
+    data.price = createPriceValue;
     if (!data.category) {
       throw new ValidationError('Category is required');
     }
@@ -64,6 +69,14 @@ class ProductService {
       if (exists) {
         throw new ValidationError(`Product with SKU '${data.sku}' already exists`);
       }
+    }
+
+    if (data.quantity !== undefined && data.quantity !== null) {
+      const quantityValue = Number.parseFloat(data.quantity);
+      if (!Number.isInteger(quantityValue) || quantityValue < 0) {
+        throw new ValidationError('Quantity must be a non-negative integer');
+      }
+      data.quantity = quantityValue;
     }
 
     return productRepository.create(data);
@@ -82,6 +95,22 @@ class ProductService {
       if (exists) {
         throw new ValidationError(`Product with SKU '${data.sku}' already exists`);
       }
+    }
+
+    if (data.price !== undefined && data.price !== null) {
+      const updatePriceValue = Number.parseFloat(data.price);
+      if (!Number.isFinite(updatePriceValue) || updatePriceValue < 0) {
+        throw new ValidationError('Price must be a non-negative number');
+      }
+      data.price = updatePriceValue;
+    }
+
+    if (data.quantity !== undefined && data.quantity !== null) {
+      const quantityValue = Number.parseFloat(data.quantity);
+      if (!Number.isInteger(quantityValue) || quantityValue < 0) {
+        throw new ValidationError('Quantity must be a non-negative integer');
+      }
+      data.quantity = quantityValue;
     }
 
     const product = await productRepository.update(id, data);

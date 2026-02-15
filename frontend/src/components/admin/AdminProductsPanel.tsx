@@ -18,6 +18,7 @@ type ProductFormState = {
   price: string;
   category: string;
   description: string;
+  quantity: string;
 };
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
@@ -28,6 +29,7 @@ const createEmptyProductForm = (categoryId = ''): ProductFormState => ({
   price: '',
   category: categoryId,
   description: '',
+  quantity: '0',
 });
 
 export default function AdminProductsPanel() {
@@ -202,8 +204,21 @@ export default function AdminProductsPanel() {
   const handleProductSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!productForm.name || !productForm.price || !productForm.category) {
+    if (!productForm.name.trim() || productForm.price.trim() === '' || !productForm.category) {
       setAdminError('Vui lòng nhập đầy đủ tên, giá và danh mục sản phẩm');
+      return;
+    }
+
+    const priceValue = Number.parseFloat(productForm.price);
+    if (!Number.isFinite(priceValue) || priceValue < 0) {
+      setAdminError('Giá bán phải là số không âm');
+      return;
+    }
+
+    const quantityValue =
+      productForm.quantity.trim() === '' ? 0 : Number.parseFloat(productForm.quantity);
+    if (!Number.isInteger(quantityValue) || quantityValue < 0) {
+      setAdminError('Tồn kho phải là số nguyên không âm');
       return;
     }
 
@@ -216,12 +231,14 @@ export default function AdminProductsPanel() {
         price: number;
         category: string;
         description?: string;
+        quantity: number;
         images?: string[];
       } = {
         name: productForm.name.trim(),
-        price: Number(productForm.price),
+        price: priceValue,
         category: productForm.category,
         description: productForm.description.trim() || undefined,
+        quantity: quantityValue,
       };
 
       if (removeExistingImage && !selectedImageFile) {
@@ -275,6 +292,7 @@ export default function AdminProductsPanel() {
       price: String(product.price),
       category: typeof product.category === 'string' ? product.category : product.category._id,
       description: product.description || '',
+      quantity: String(product.quantity ?? 0),
     });
     setRemoveExistingImage(false);
     clearSelectedImage();
@@ -425,6 +443,7 @@ export default function AdminProductsPanel() {
               <th className="py-2 pr-2">Ảnh</th>
               <th className="py-2 pr-2">Tên</th>
               <th className="py-2 pr-2">Giá</th>
+              <th className="py-2 pr-2">Tồn kho</th>
               <th className="py-2 pr-2">Danh mục</th>
               <th className="py-2 pr-2">Trạng thái</th>
               <th className="py-2">Thao tác</th>
@@ -433,7 +452,7 @@ export default function AdminProductsPanel() {
           <tbody>
             {adminLoading ? (
               <tr>
-                <td className="py-4 text-[var(--text-muted)]" colSpan={6}>
+                <td className="py-4 text-[var(--text-muted)]" colSpan={7}>
                   Đang tải dữ liệu quản trị...
                 </td>
               </tr>
@@ -461,6 +480,7 @@ export default function AdminProductsPanel() {
                     {product.name}
                   </td>
                   <td className="py-3 pr-2">{Number(product.price).toLocaleString('vi-VN')}đ</td>
+                  <td className="py-3 pr-2">{product.quantity ?? 0}</td>
                   <td className="py-3 pr-2">{getCategoryName(product)}</td>
                   <td className="py-3 pr-2">{product.isActive ? 'Hiển thị' : 'Ẩn'}</td>
                   <td className="py-3">
@@ -558,6 +578,24 @@ export default function AdminProductsPanel() {
                       }))
                     }
                     placeholder="120000"
+                    className="w-full rounded-xl border border-pink-200 px-3 py-2.5 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
+                  />
+                </label>
+
+                <label className="space-y-1.5 text-sm font-medium text-[var(--text-primary)]">
+                  Tồn kho
+                  <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={productForm.quantity}
+                    onChange={(event) =>
+                      setProductForm((prev) => ({
+                        ...prev,
+                        quantity: event.target.value,
+                      }))
+                    }
+                    placeholder="0"
                     className="w-full rounded-xl border border-pink-200 px-3 py-2.5 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
                   />
                 </label>
