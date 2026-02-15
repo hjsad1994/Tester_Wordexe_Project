@@ -1,0 +1,30 @@
+# Progress Log
+
+Bead: bd-210
+Started: 2026-02-16
+
+## Codebase Patterns
+
+- Admin route guard is enforced in `frontend/src/app/admin/layout.tsx`.
+- Backend admin authorization pattern uses `authMiddleware` + `requireRole("admin")`.
+- Backend route registration entry point is `backend/src/routes/index.js`.
+- Checkout currently persists order data in session storage and must be migrated to backend order persistence.
+- Frontend API domain helpers are centralized in `frontend/src/lib/api.ts`.
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
+
+## 2026-02-16 - Task execution
+
+- [backend-1] Added `backend/src/models/Order.js` with status lifecycle, status history, and soft-delete audit fields (`deletedAt`, `deletedBy`, `deleteReason`).
+- [backend-2] Added order service/controller/routes and wired `/api/orders` in `backend/src/routes/index.js`; enforced admin guards for list/update/delete and blocked status changes after delivered.
+- [frontend-1] Replaced session-only checkout order creation with `createOrder` API call; success page now fetches persisted order by id.
+- [frontend-2] Added admin orders route/panel and sidebar link `/admin/orders`; admin can update status and archive orders.
+- [policy-1] Delete action is now soft-delete only with mandatory reason and archive wording in admin UI.
+- [qa-1] Verification executed with backend lint/test and frontend lint/typecheck/build. Playwright execution was skipped per user request.
+
+## 2026-02-16 - Review hardening
+
+- Applied token-gated public order lookup (`token` query required) to avoid exposing order PII by id alone.
+- Cleared `lastOrderId` and `lastOrderToken` after success-page load/error to prevent stale order replay in browser session.
