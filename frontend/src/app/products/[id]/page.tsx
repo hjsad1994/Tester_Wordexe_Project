@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -597,12 +598,24 @@ export default function ProductDetailPage() {
                     )}
                   </button>
 
-                  {/* Product Illustration */}
-                  <div className="absolute inset-0 flex items-center justify-center p-12">
-                    <div className="animate-float-slow">
-                      <IllustrationComponent size={280} />
+                  {product.imageUrl ? (
+                    <div className="absolute inset-0">
+                      <Image
+                        src={product.imageUrl}
+                        alt={product.name}
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                        className="object-cover"
+                        priority
+                      />
                     </div>
-                  </div>
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center p-12">
+                      <div className="animate-float-slow">
+                        <IllustrationComponent size={280} />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Thumbnail placeholder - could be expanded */}

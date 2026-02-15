@@ -1,0 +1,22 @@
+# Progress Log
+
+Bead: bd-2ey
+Started: 2026-02-16
+
+## Codebase Patterns
+
+- Product detail maps `imageUrl` from `images?.[0]` in `frontend/src/app/products/[id]/page.tsx`.
+- Product cards render DB-backed image URLs via Next.js `Image` in `frontend/src/components/ProductCard.tsx`.
+- Cloudinary host is allowlisted in `frontend/next.config.ts`.
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
+
+## 2026-02-16 - Ship execution
+
+- Task `ui-1` completed: product detail now renders `product.imageUrl` with `next/image` when available in `frontend/src/app/products/[id]/page.tsx`.
+- Task `ui-2` completed: product detail preserves illustration fallback when `product.imageUrl` is missing.
+- Task `qa-1` completed: added Playwright regression scenarios in `playwright/tests/demo-user-12/test-cases.spec.ts` for Cloudinary image rendering and no-image fallback paths.
+- Verification run: `npm run lint:fix`, `npm run typecheck`, `npm run build`, `npm run lint` in `frontend/` all passed.
+- User-approved exception: Playwright execution was skipped per user instruction (`khong can test play wright`).
