@@ -204,7 +204,7 @@ export default function AdminProductsPanel() {
   const handleProductSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!productForm.name || !productForm.price || !productForm.category) {
+    if (!productForm.name.trim() || productForm.price.trim() === '' || !productForm.category) {
       setAdminError('Vui lòng nhập đầy đủ tên, giá và danh mục sản phẩm');
       return;
     }

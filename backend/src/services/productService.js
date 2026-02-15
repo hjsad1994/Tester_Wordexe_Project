@@ -66,6 +66,13 @@ class ProductService {
     if (data.price === undefined || data.price === null) {
       throw new ValidationError('Price is required');
     }
+    const normalizedData = { ...data };
+
+    const createPriceValue = Number.parseFloat(data.price);
+    if (!Number.isFinite(createPriceValue) || createPriceValue < 0) {
+      throw new ValidationError('Price must be a non-negative number');
+    }
+    normalizedData.price = createPriceValue;
     if (!data.category) {
       throw new ValidationError('Category is required');
     }
@@ -75,14 +82,12 @@ class ProductService {
       throw new NotFoundError(`Category with id ${data.category} not found`);
     }
 
-    if (data.sku) {
-      const exists = await productRepository.existsBySku(data.sku);
+    if (normalizedData.sku) {
+      const exists = await productRepository.existsBySku(normalizedData.sku);
       if (exists) {
-        throw new ValidationError(`Product with SKU '${data.sku}' already exists`);
+        throw new ValidationError(`Product with SKU '${normalizedData.sku}' already exists`);
       }
     }
-
-    const normalizedData = { ...data };
     const normalizedQuantity = this.normalizeQuantity(data.quantity);
     normalizedData.quantity = normalizedQuantity ?? 0;
 
@@ -110,6 +115,14 @@ class ProductService {
       if (exists) {
         throw new ValidationError(`Product with SKU '${data.sku}' already exists`);
       }
+    }
+
+    if (Object.hasOwn(data, 'price')) {
+      const updatePriceValue = Number.parseFloat(data.price);
+      if (!Number.isFinite(updatePriceValue) || updatePriceValue < 0) {
+        throw new ValidationError('Price must be a non-negative number');
+      }
+      normalizedData.price = updatePriceValue;
     }
 
     const product = await productRepository.update(id, normalizedData);
