@@ -1,0 +1,107 @@
+{
+	"beadId": "bd-3ub",
+	"prdName": "admin-navigation-full-not-cropped",
+	"tasks": [
+		{
+			"id": "layout-1",
+			"category": "layout",
+			"title": "Stabilize admin layout width behavior",
+			"description": "Admin layout uses a container strategy that preserves current page structure while ensuring navigation is not visually cropped in the main admin frame.",
+			"steps": [
+				"cd frontend && npm run lint",
+				"cd frontend && npm run typecheck"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [],
+				"parallel": false,
+				"conflicts_with": ["Harden sidebar overflow and responsive behavior"],
+				"files": ["frontend/src/app/admin/layout.tsx"]
+			}
+		},
+		{
+			"id": "ui-1",
+			"category": "ui",
+			"title": "Harden sidebar overflow and responsive behavior",
+			"description": "Admin sidebar renders fully with responsive width/overflow rules that avoid clipping navigation items across supported breakpoints.",
+			"steps": [
+				"cd frontend && npm run lint",
+				"cd frontend && npm run typecheck",
+				"cd frontend && npm run dev and manually validate /admin/products at mobile and desktop widths"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["Stabilize admin layout width behavior"],
+				"parallel": false,
+				"conflicts_with": ["Stabilize admin layout width behavior"],
+				"files": [
+					"frontend/src/components/admin/AdminSidebar.tsx",
+					"frontend/src/app/globals.css"
+				]
+			}
+		},
+		{
+			"id": "routing-1",
+			"category": "routing",
+			"title": "Preserve admin route gating and redirect behavior",
+			"description": "Admin auth gating and /admin redirect semantics remain unchanged after layout/navigation fixes.",
+			"steps": [
+				"cd playwright && npm run test -- tests/rbac/admin-route-flow.spec.ts"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["Harden sidebar overflow and responsive behavior"],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/app/admin/layout.tsx",
+					"frontend/src/app/admin/page.tsx",
+					"frontend/src/app/admin/products/page.tsx",
+					"frontend/src/app/admin/categories/page.tsx"
+				]
+			}
+		},
+		{
+			"id": "test-1",
+			"category": "test",
+			"title": "Add regression coverage for navigation visibility",
+			"description": "Automated coverage explicitly verifies admin navigation visibility/structure so future layout changes do not reintroduce cropping.",
+			"steps": [
+				"cd playwright && npm run test -- tests/rbac/admin-route-flow.spec.ts"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["Harden sidebar overflow and responsive behavior"],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": ["playwright/tests/rbac/admin-route-flow.spec.ts"]
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"Admin layout composition and route gating in frontend/src/app/admin/layout.tsx",
+			"Sidebar active-state and responsive overflow in frontend/src/components/admin/AdminSidebar.tsx",
+			"Global overflow rule in frontend/src/app/globals.css"
+		],
+		"keyFiles": [
+			"frontend/src/app/admin/layout.tsx",
+			"frontend/src/components/admin/AdminSidebar.tsx",
+			"frontend/src/app/globals.css",
+			"frontend/src/app/admin/page.tsx",
+			"playwright/tests/rbac/admin-route-flow.spec.ts"
+		],
+		"nonGoals": [
+			"Full admin UI redesign",
+			"Unrelated non-admin navigation changes",
+			"New admin features beyond navigation visibility"
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": true,
+		"conflicts_with": [],
+		"blocks": [],
+		"estimated_hours": 2
+	}
+}
