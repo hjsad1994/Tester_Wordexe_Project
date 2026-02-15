@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import Footer from '@/components/Footer';
-import Header from '@/components/Header';
+import { useEffect, useMemo, useState } from "react";
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
 import {
   CloseIcon,
   FilterIcon,
@@ -10,7 +10,7 @@ import {
   ListIcon,
   SearchIcon,
   SparkleIcon,
-} from '@/components/icons';
+} from "@/components/icons";
 import {
   BottleIllustration,
   ClothesIllustration,
@@ -18,49 +18,59 @@ import {
   PacifierIllustration,
   StrollerIllustration,
   TeddyIllustration,
-} from '@/components/icons/ProductIllustrations';
-import ProductCard, { type Product as CardProduct } from '@/components/ProductCard';
+} from "@/components/icons/ProductIllustrations";
+import ProductCard, { type Product as CardProduct } from "@/components/ProductCard";
 import {
   type Category as ApiCategory,
   type Product as ApiProduct,
   fetchCategories,
   fetchProducts,
-} from '@/lib/api';
+} from "@/lib/api";
 
-const categoryIllustrationMap: Record<string, CardProduct['illustration']> = {
-  'Quần áo': 'clothes',
-  'Bình sữa': 'bottle',
-  'Đồ chơi': 'teddy',
-  'Tã & Bỉm': 'diaper',
-  'Xe đẩy': 'stroller',
-  'Giường & Nôi': 'crib',
-  'Chăm sóc': 'skincare',
-  'Giày dép': 'shoes',
-  'Phụ kiện': 'pacifier',
-  'Ăn dặm': 'food',
+const categoryIllustrationMap: Record<string, CardProduct["illustration"]> = {
+  "Quần áo": "clothes",
+  "Bình sữa": "bottle",
+  "Đồ chơi": "teddy",
+  "Tã & Bỉm": "diaper",
+  "Xe đẩy": "stroller",
+  "Giường & Nôi": "crib",
+  "Chăm sóc": "skincare",
+  "Giày dép": "shoes",
+  "Phụ kiện": "pacifier",
+  "Ăn dặm": "food",
 };
 
 const categoryIconMap: Record<
   string,
   React.ComponentType<{ size?: number; className?: string }>
 > = {
-  'Quần áo': ClothesIllustration,
-  'Bình sữa': BottleIllustration,
-  'Đồ chơi': TeddyIllustration,
-  'Tã & Bỉm': DiaperIllustration,
-  'Xe đẩy': StrollerIllustration,
-  'Phụ kiện': PacifierIllustration,
+  "Quần áo": ClothesIllustration,
+  "Bình sữa": BottleIllustration,
+  "Đồ chơi": TeddyIllustration,
+  "Tã & Bỉm": DiaperIllustration,
+  "Xe đẩy": StrollerIllustration,
+  "Phụ kiện": PacifierIllustration,
 };
 
+const toUrlSlug = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
 const mapApiProductToCard = (product: ApiProduct): CardProduct => {
-  const categoryName = typeof product.category === 'string' ? '' : product.category?.name || '';
+  const categoryName = typeof product.category === "string" ? "" : product.category?.name || "";
 
   return {
     id: product._id,
+    slug: product.slug || toUrlSlug(product.name),
     name: product.name,
     price: product.price,
     imageUrl: product.images?.[0],
-    illustration: categoryIllustrationMap[categoryName] || 'teddy',
+    illustration: categoryIllustrationMap[categoryName] || "teddy",
     rating: Number((4.5 + Math.random() * 0.5).toFixed(1)),
     reviews: Math.floor(Math.random() * 300) + 50,
     category: categoryName,
@@ -68,19 +78,19 @@ const mapApiProductToCard = (product: ApiProduct): CardProduct => {
 };
 
 const sortOptions = [
-  { id: 'popular', name: 'Phổ biến nhất' },
-  { id: 'newest', name: 'Mới nhất' },
-  { id: 'price-asc', name: 'Giá thấp → cao' },
-  { id: 'price-desc', name: 'Giá cao → thấp' },
-  { id: 'rating', name: 'Đánh giá cao' },
+  { id: "popular", name: "Phổ biến nhất" },
+  { id: "newest", name: "Mới nhất" },
+  { id: "price-asc", name: "Giá thấp → cao" },
+  { id: "price-desc", name: "Giá cao → thấp" },
+  { id: "rating", name: "Đánh giá cao" },
 ];
 
 const priceRanges = [
-  { id: 'all', name: 'Tất cả', min: 0, max: Infinity },
-  { id: 'under-200k', name: '< 200K', min: 0, max: 200000 },
-  { id: '200k-500k', name: '200K - 500K', min: 200000, max: 500000 },
-  { id: '500k-1m', name: '500K - 1M', min: 500000, max: 1000000 },
-  { id: 'over-1m', name: '> 1M', min: 1000000, max: Infinity },
+  { id: "all", name: "Tất cả", min: 0, max: Infinity },
+  { id: "under-200k", name: "< 200K", min: 0, max: 200000 },
+  { id: "200k-500k", name: "200K - 500K", min: 200000, max: 500000 },
+  { id: "500k-1m", name: "500K - 1M", min: 500000, max: 1000000 },
+  { id: "over-1m", name: "> 1M", min: 1000000, max: Infinity },
 ];
 
 export default function ProductsPage() {
@@ -89,12 +99,12 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedSort, setSelectedSort] = useState('popular');
-  const [selectedPriceRange, setSelectedPriceRange] = useState('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedSort, setSelectedSort] = useState("popular");
+  const [selectedPriceRange, setSelectedPriceRange] = useState("all");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   useEffect(() => {
     Promise.all([fetchProducts({ limit: 100 }), fetchCategories()])
@@ -103,8 +113,8 @@ export default function ProductsPage() {
         setApiCategories(categoryData);
       })
       .catch((error: unknown) => {
-        console.error('Failed to load products/categories:', error);
-        setLoadError('Không thể tải dữ liệu sản phẩm');
+        console.error("Failed to load products/categories:", error);
+        setLoadError("Không thể tải dữ liệu sản phẩm");
       })
       .finally(() => setLoading(false));
   }, []);
@@ -117,8 +127,8 @@ export default function ProductsPage() {
       count: number;
     }> = [
       {
-        id: 'all',
-        name: 'Tất cả',
+        id: "all",
+        name: "Tất cả",
         Icon: SparkleIcon,
         count: allProducts.length,
       },
@@ -143,11 +153,11 @@ export default function ProductsPage() {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
-        (p) => p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query)
+        (p) => p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query),
       );
     }
 
-    if (selectedCategory !== 'all') {
+    if (selectedCategory !== "all") {
       const selectedCat = apiCategories.find((c) => c._id === selectedCategory);
       if (selectedCat) {
         result = result.filter((p) => p.category === selectedCat.name);
@@ -155,20 +165,20 @@ export default function ProductsPage() {
     }
 
     const priceRange = priceRanges.find((r) => r.id === selectedPriceRange);
-    if (priceRange && priceRange.id !== 'all') {
+    if (priceRange && priceRange.id !== "all") {
       result = result.filter((p) => p.price >= priceRange.min && p.price < priceRange.max);
     }
 
     switch (selectedSort) {
-      case 'newest':
+      case "newest":
         break;
-      case 'price-asc':
+      case "price-asc":
         result.sort((a, b) => a.price - b.price);
         break;
-      case 'price-desc':
+      case "price-desc":
         result.sort((a, b) => b.price - a.price);
         break;
-      case 'rating':
+      case "rating":
         result.sort((a, b) => b.rating - a.rating);
         break;
       default:
@@ -179,14 +189,14 @@ export default function ProductsPage() {
   }, [allProducts, apiCategories, searchQuery, selectedCategory, selectedSort, selectedPriceRange]);
 
   const clearFilters = () => {
-    setSearchQuery('');
-    setSelectedCategory('all');
-    setSelectedPriceRange('all');
-    setSelectedSort('popular');
+    setSearchQuery("");
+    setSelectedCategory("all");
+    setSelectedPriceRange("all");
+    setSelectedSort("popular");
   };
 
   const hasActiveFilters =
-    searchQuery || selectedCategory !== 'all' || selectedPriceRange !== 'all';
+    searchQuery || selectedCategory !== "all" || selectedPriceRange !== "all";
 
   return (
     <div className="min-h-screen bg-[var(--warm-white)]">
@@ -200,7 +210,7 @@ export default function ProductsPage() {
                 Sản phẩm cho <span className="text-gradient">Bé yêu</span>
               </h1>
               <p className="text-sm text-[var(--text-muted)] mt-1">
-                {loading ? '...' : `${filteredProducts.length} sản phẩm`}
+                {loading ? "..." : `${filteredProducts.length} sản phẩm`}
               </p>
             </div>
 
@@ -219,7 +229,7 @@ export default function ProductsPage() {
               />
               {searchQuery && (
                 <button
-                  onClick={() => setSearchQuery('')}
+                  onClick={() => setSearchQuery("")}
                   aria-label="Xóa tìm kiếm"
                   className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[var(--text-muted)] hover:text-pink-500 focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none rounded"
                 >
@@ -239,15 +249,15 @@ export default function ProductsPage() {
                   onClick={() => setSelectedCategory(category.id)}
                   className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl text-sm font-medium transition-all focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none ${
                     isActive
-                      ? 'bg-gradient-to-r from-pink-400 to-pink-500 text-white shadow-md'
-                      : 'bg-white border border-pink-100 text-[var(--text-secondary)] hover:border-pink-300 hover:bg-pink-50'
+                      ? "bg-gradient-to-r from-pink-400 to-pink-500 text-white shadow-md"
+                      : "bg-white border border-pink-100 text-[var(--text-secondary)] hover:border-pink-300 hover:bg-pink-50"
                   }`}
                 >
                   <div className="w-6 h-6 flex items-center justify-center">
-                    {category.id === 'all' ? (
+                    {category.id === "all" ? (
                       <IconComponent
                         size={16}
-                        className={isActive ? 'text-white' : 'text-pink-500'}
+                        className={isActive ? "text-white" : "text-pink-500"}
                       />
                     ) : (
                       <IconComponent size={24} />
@@ -256,7 +266,7 @@ export default function ProductsPage() {
                   <span>{category.name}</span>
                   <span
                     className={`text-xs px-1.5 py-0.5 rounded-full ${
-                      isActive ? 'bg-white/25' : 'bg-pink-100 text-pink-500'
+                      isActive ? "bg-white/25" : "bg-pink-100 text-pink-500"
                     }`}
                   >
                     {category.count}
@@ -286,9 +296,9 @@ export default function ProductsPage() {
                   onChange={(e) => setSelectedPriceRange(e.target.value)}
                   aria-label="Lọc theo giá"
                   className={`px-3 py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-colors appearance-none bg-no-repeat bg-[length:14px] bg-[right_8px_center] bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23ec4899%22%20stroke-width%3D%222%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] pr-7 cursor-pointer focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none ${
-                    selectedPriceRange !== 'all'
-                      ? 'bg-pink-500 text-white'
-                      : 'bg-pink-50 text-pink-600 hover:bg-pink-100'
+                    selectedPriceRange !== "all"
+                      ? "bg-pink-500 text-white"
+                      : "bg-pink-50 text-pink-600 hover:bg-pink-100"
                   }`}
                 >
                   {priceRanges.map((range) => (
@@ -329,25 +339,25 @@ export default function ProductsPage() {
 
               <div className="hidden sm:flex items-center border border-pink-200 rounded-lg overflow-hidden">
                 <button
-                  onClick={() => setViewMode('grid')}
+                  onClick={() => setViewMode("grid")}
                   aria-label="Xem dạng lưới"
-                  aria-pressed={viewMode === 'grid'}
+                  aria-pressed={viewMode === "grid"}
                   className={`p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none ${
-                    viewMode === 'grid'
-                      ? 'bg-pink-500 text-white'
-                      : 'bg-white text-[var(--text-muted)] hover:bg-pink-50'
+                    viewMode === "grid"
+                      ? "bg-pink-500 text-white"
+                      : "bg-white text-[var(--text-muted)] hover:bg-pink-50"
                   }`}
                 >
                   <GridIcon size={16} />
                 </button>
                 <button
-                  onClick={() => setViewMode('list')}
+                  onClick={() => setViewMode("list")}
                   aria-label="Xem dạng danh sách"
-                  aria-pressed={viewMode === 'list'}
+                  aria-pressed={viewMode === "list"}
                   className={`p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none ${
-                    viewMode === 'list'
-                      ? 'bg-pink-500 text-white'
-                      : 'bg-white text-[var(--text-muted)] hover:bg-pink-50'
+                    viewMode === "list"
+                      ? "bg-pink-500 text-white"
+                      : "bg-white text-[var(--text-muted)] hover:bg-pink-50"
                   }`}
                 >
                   <ListIcon size={16} />
@@ -381,9 +391,9 @@ export default function ProductsPage() {
           ) : filteredProducts.length > 0 ? (
             <div
               className={`grid gap-4 ${
-                viewMode === 'grid'
-                  ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
-                  : 'grid-cols-1 sm:grid-cols-2'
+                viewMode === "grid"
+                  ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+                  : "grid-cols-1 sm:grid-cols-2"
               }`}
             >
               {filteredProducts.map((product, index) => (
@@ -458,15 +468,15 @@ export default function ProductsPage() {
                         onClick={() => setSelectedCategory(category.id)}
                         className={`flex flex-col items-center gap-1 p-3 min-h-[44px] rounded-xl transition-all text-xs focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none ${
                           isActive
-                            ? 'bg-gradient-to-br from-pink-400 to-pink-500 text-white shadow-md'
-                            : 'bg-pink-50 text-[var(--text-secondary)]'
+                            ? "bg-gradient-to-br from-pink-400 to-pink-500 text-white shadow-md"
+                            : "bg-pink-50 text-[var(--text-secondary)]"
                         }`}
                       >
                         <div className="w-8 h-8 flex items-center justify-center">
-                          {category.id === 'all' ? (
+                          {category.id === "all" ? (
                             <IconComponent
                               size={18}
-                              className={isActive ? 'text-white' : 'text-pink-500'}
+                              className={isActive ? "text-white" : "text-pink-500"}
                             />
                           ) : (
                             <IconComponent size={28} />
@@ -490,8 +500,8 @@ export default function ProductsPage() {
                       onClick={() => setSelectedPriceRange(range.id)}
                       className={`px-4 py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-all focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none ${
                         selectedPriceRange === range.id
-                          ? 'bg-gradient-to-r from-pink-400 to-pink-500 text-white shadow-md'
-                          : 'bg-pink-50 text-[var(--text-secondary)]'
+                          ? "bg-gradient-to-r from-pink-400 to-pink-500 text-white shadow-md"
+                          : "bg-pink-50 text-[var(--text-secondary)]"
                       }`}
                     >
                       {range.name}

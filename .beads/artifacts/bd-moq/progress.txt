@@ -1,0 +1,58 @@
+# Progress Log
+
+Bead: bd-moq
+Started: 2026-02-15
+
+## Codebase Patterns
+
+- Product listing surfaces map API product models into ProductCard props.
+- Product detail route currently resolves from dynamic route params and needs slug/id alignment.
+- Backend already provides slug and id lookup paths for products.
+
+---
+
+## Start Session Notes
+
+- `/start` executed with isolated worktree request.
+- Worktree created at `/Users/trantai/worktrees/testing_project/bd-moq` on branch `feat/bd-moq-product-slug-image-fix`.
+- Bead status updated to `in_progress`.
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
+
+## 2026-02-15 Task Execution
+
+- Completed `routing-1`: product detail page now resolves by slug first, then id fallback, and local catalog fallback to avoid false not-found.
+- Completed `frontend-1`: product links now use `/products/<slug>` (with id fallback) across product list and featured surfaces.
+- Completed `backend-1`: backend product routes prioritize `/slug/:slug` before `/:id`; slug generator now transliterates Vietnamese characters safely.
+- Completed `ui-1`: ProductCard image now uses `next/image` `fill` + `object-cover` for full media-frame coverage.
+- Completed `verification-1`: CI-aligned checks passed in worktree (no Playwright).
+
+Verification evidence:
+
+- `cd /Users/trantai/worktrees/testing_project/bd-moq/frontend && npm run lint`
+- `cd /Users/trantai/worktrees/testing_project/bd-moq/frontend && npm run typecheck`
+- `cd /Users/trantai/worktrees/testing_project/bd-moq/frontend && npm run build`
+- `cd /Users/trantai/worktrees/testing_project/bd-moq/backend && npm run lint`
+
+Review evidence:
+
+- Review agent rerun found no critical/high/medium issues after loading-state/performance fix.
+
+Post-feedback adjustment:
+
+- User reported links still opening with long IDs and hitting not-found from current local run.
+- Added slug fallback generation from product name when API `slug` is missing, applied consistently in:
+  - `frontend/src/components/ProductCard.tsx`
+  - `frontend/src/app/products/page.tsx`
+  - `frontend/src/components/FeaturedProducts.tsx`
+  - `frontend/src/app/products/[id]/page.tsx`
+- Re-verified frontend and backend gates after fallback fix.
+
+Verification evidence (post-feedback):
+
+- `cd /Users/trantai/worktrees/testing_project/bd-moq/frontend && npm run lint && npm run typecheck && npm run build`
+- `cd /Users/trantai/worktrees/testing_project/bd-moq/backend && npm run lint`
+
+---

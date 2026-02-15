@@ -9,17 +9,32 @@ router.get('/', productController.getAllProducts);
 router.get('/active', productController.getActiveProducts);
 router.get('/search', productController.searchProducts);
 router.get('/category/:categoryId', productController.getProductsByCategory);
-router.get('/:id', productController.getProductById);
 router.get('/slug/:slug', productController.getProductBySlug);
-router.post('/', authMiddleware, requireRole('admin'), productController.createProduct);
+router.get('/:id', productController.getProductById);
 router.post(
-  '/:id/images',
-  authMiddleware,
-  requireRole('admin'),
-  uploadProductImage,
-  productController.uploadImage
+	'/',
+	authMiddleware,
+	requireRole('admin'),
+	productController.createProduct,
 );
-router.put('/:id', authMiddleware, requireRole('admin'), productController.updateProduct);
-router.delete('/:id', authMiddleware, requireRole('admin'), productController.deleteProduct);
+router.post(
+	'/:id/images',
+	authMiddleware,
+	requireRole('admin'),
+	uploadProductImage,
+	productController.uploadImage,
+);
+router.put(
+	'/:id',
+	authMiddleware,
+	requireRole('admin'),
+	productController.updateProduct,
+);
+router.delete(
+	'/:id',
+	authMiddleware,
+	requireRole('admin'),
+	productController.deleteProduct,
+);
 
 module.exports = router;

@@ -1,15 +1,16 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useState } from 'react';
-import { useCart } from '@/contexts/CartContext';
-import { useWishlist } from '@/contexts/WishlistContext';
-import { CartIcon, HeartIcon, HeartOutlineIcon, StarIcon } from './icons';
-import { type ProductIllustrationType, productIllustrations } from './icons/ProductIllustrations';
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
+import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { CartIcon, HeartIcon, HeartOutlineIcon, StarIcon } from "./icons";
+import { type ProductIllustrationType, productIllustrations } from "./icons/ProductIllustrations";
 
 export interface Product {
   id: string;
+  slug?: string;
   name: string;
   price: number;
   originalPrice?: number;
@@ -17,7 +18,7 @@ export interface Product {
   imageUrl?: string;
   rating: number;
   reviews: number;
-  badge?: 'new' | 'sale' | 'bestseller';
+  badge?: "new" | "sale" | "bestseller";
   category: string;
 }
 
@@ -25,6 +26,15 @@ interface ProductCardProps {
   product: Product;
   index?: number;
 }
+
+const toUrlSlug = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
@@ -39,38 +49,41 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
   const formatPrice = (price: number) => {
     if (price >= 1000000) {
-      return (price / 1000000).toFixed(1).replace('.0', '') + 'M';
+      return (price / 1000000).toFixed(1).replace(".0", "") + "M";
     }
-    return (price / 1000).toFixed(0) + 'K';
+    return (price / 1000).toFixed(0) + "K";
   };
 
   const getBadgeStyle = () => {
     switch (product.badge) {
-      case 'new':
-        return 'bg-blue-500 text-white';
-      case 'sale':
-        return 'bg-red-500 text-white';
-      case 'bestseller':
-        return 'bg-amber-500 text-white';
+      case "new":
+        return "bg-blue-500 text-white";
+      case "sale":
+        return "bg-red-500 text-white";
+      case "bestseller":
+        return "bg-amber-500 text-white";
       default:
-        return '';
+        return "";
     }
   };
 
   const getBadgeText = () => {
     switch (product.badge) {
-      case 'new':
-        return 'Mới';
-      case 'sale':
+      case "new":
+        return "Mới";
+      case "sale":
         return `-${discount}%`;
-      case 'bestseller':
-        return 'Hot';
+      case "bestseller":
+        return "Hot";
       default:
-        return '';
+        return "";
     }
   };
 
   const IllustrationComponent = productIllustrations[product.illustration];
+  const resolvedSlug =
+    (product.slug && product.slug.trim()) || toUrlSlug(product.name) || product.id;
+  const productPath = `/products/${encodeURIComponent(resolvedSlug)}`;
 
   return (
     <div
@@ -78,18 +91,18 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       style={{
         animationDelay: `${index * 0.05}s`,
         opacity: 0,
-        animationFillMode: 'forwards',
-        animation: 'fadeInUp 0.4s ease-out forwards',
+        animationFillMode: "forwards",
+        animation: "fadeInUp 0.4s ease-out forwards",
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Image Container - Clickable Link */}
       <Link
-        href={`/products/${product.id}`}
+        href={productPath}
         className="block focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none rounded-t-2xl"
       >
-        <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-pink-50 to-purple-50 p-2">
+        <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-pink-50 to-purple-50">
           {/* Badge */}
           {product.badge && (
             <div
@@ -110,43 +123,42 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                 addToWishlist(product);
               }
             }}
-            aria-label={liked ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}
+            aria-label={liked ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
             className={`absolute top-2 right-2 z-10 p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-all duration-200 focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none ${
               liked
-                ? 'bg-pink-500 text-white'
-                : 'bg-white/90 text-pink-400 hover:bg-pink-500 hover:text-white'
+                ? "bg-pink-500 text-white"
+                : "bg-white/90 text-pink-400 hover:bg-pink-500 hover:text-white"
             } shadow-md`}
           >
             {liked ? <HeartIcon size={18} /> : <HeartOutlineIcon size={18} />}
           </button>
 
           {/* Product Image or Illustration */}
-          <div className="w-full h-full flex items-center justify-center">
-            <div
-              className={`transition-transform duration-300 ${
-                isHovered ? 'scale-110' : 'scale-100'
-              }`}
-            >
-              {product.imageUrl ? (
-                <Image
-                  src={product.imageUrl}
-                  alt={product.name}
-                  width={200}
-                  height={200}
-                  className="object-contain w-full h-full rounded-lg"
-                  sizes="(max-width: 640px) 50vw, 200px"
-                />
-              ) : (
-                <IllustrationComponent size={100} />
-              )}
-            </div>
+          <div
+            className={`relative w-full h-full transition-transform duration-300 ${
+              isHovered ? "scale-105" : "scale-100"
+            }`}
+          >
+            {product.imageUrl ? (
+              <Image
+                src={product.imageUrl}
+                alt={product.name}
+                fill
+                className="object-cover"
+                sizes="(max-width: 640px) 50vw, (max-width: 1280px) 25vw, 20vw"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center p-4">
+                <IllustrationComponent size={120} />
+              </div>
+            )}
           </div>
         </div>
       </Link>
 
       {/* Product Info */}
       <Link
-        href={`/products/${product.id}`}
+        href={productPath}
         className="block p-3 pb-2 focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none"
       >
         {/* Name */}
@@ -191,7 +203,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           <span>Thêm giỏ</span>
         </button>
         <Link
-          href={`/products/${product.id}`}
+          href={productPath}
           className="flex-1 py-2.5 min-h-[44px] bg-white border-2 border-pink-300 text-pink-500 text-xs font-semibold rounded-xl flex items-center justify-center hover:bg-pink-50 hover:border-pink-400 hover:shadow-md active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:ring-offset-1 focus-visible:outline-none transition-all duration-200"
         >
           Chi tiết
