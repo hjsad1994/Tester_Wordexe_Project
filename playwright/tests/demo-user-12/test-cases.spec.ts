@@ -147,3 +147,136 @@ test.describe("Demo User 12 - Profile Avatar Upload", () => {
 		);
 	});
 });
+
+test.describe("Demo User 12 - Product Detail Image Rendering", () => {
+	test("renders Cloudinary image from product.images on product detail", async ({
+		page,
+	}) => {
+		const product = {
+			_id: "prod-cloudinary-01",
+			name: "Bé bông Cloudinary",
+			slug: "be-bong-cloudinary",
+			price: 199000,
+			category: {
+				_id: "cat-toys",
+				name: "Đồ chơi",
+				slug: "do-choi",
+			},
+			quantity: 50,
+			images: [
+				"https://res.cloudinary.com/demo/image/upload/v1/products/be-bong-cloudinary.png",
+			],
+			isActive: true,
+			createdAt: "2026-01-01T00:00:00.000Z",
+			updatedAt: "2026-01-01T00:00:00.000Z",
+		};
+
+		await page.route("**/api/products?*", async (route) => {
+			await route.fulfill({
+				status: 200,
+				contentType: "application/json",
+				body: JSON.stringify({
+					status: "success",
+					message: "OK",
+					data: {
+						products: [product],
+						pagination: {
+							page: 1,
+							limit: 100,
+							total: 1,
+							pages: 1,
+						},
+					},
+				}),
+			});
+		});
+
+		await page.route(
+			"**/api/products/slug/be-bong-cloudinary",
+			async (route) => {
+				await route.fulfill({
+					status: 200,
+					contentType: "application/json",
+					body: JSON.stringify({
+						status: "success",
+						message: "OK",
+						data: product,
+					}),
+				});
+			},
+		);
+
+		await page.goto("/products/be-bong-cloudinary");
+
+		await expect(
+			page.getByRole("heading", { name: "Bé bông Cloudinary" }),
+		).toBeVisible();
+		await expect(page.locator('img[alt="Bé bông Cloudinary"]')).toHaveAttribute(
+			"src",
+			/res\.cloudinary\.com/,
+		);
+	});
+
+	test("falls back without broken product image when images[] is empty", async ({
+		page,
+	}) => {
+		const product = {
+			_id: "prod-no-image-01",
+			name: "Bé bông không ảnh",
+			slug: "be-bong-khong-anh",
+			price: 159000,
+			category: {
+				_id: "cat-toys",
+				name: "Đồ chơi",
+				slug: "do-choi",
+			},
+			quantity: 50,
+			images: [],
+			isActive: true,
+			createdAt: "2026-01-01T00:00:00.000Z",
+			updatedAt: "2026-01-01T00:00:00.000Z",
+		};
+
+		await page.route("**/api/products?*", async (route) => {
+			await route.fulfill({
+				status: 200,
+				contentType: "application/json",
+				body: JSON.stringify({
+					status: "success",
+					message: "OK",
+					data: {
+						products: [product],
+						pagination: {
+							page: 1,
+							limit: 100,
+							total: 1,
+							pages: 1,
+						},
+					},
+				}),
+			});
+		});
+
+		await page.route(
+			"**/api/products/slug/be-bong-khong-anh",
+			async (route) => {
+				await route.fulfill({
+					status: 200,
+					contentType: "application/json",
+					body: JSON.stringify({
+						status: "success",
+						message: "OK",
+						data: product,
+					}),
+				});
+			},
+		);
+
+		await page.goto("/products/be-bong-khong-anh");
+
+		await expect(
+			page.getByRole("heading", { name: "Bé bông không ảnh" }),
+		).toBeVisible();
+		await expect(page.locator('img[alt="Bé bông không ảnh"]')).toHaveCount(0);
+	});
+});
