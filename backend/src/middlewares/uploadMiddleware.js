@@ -4,49 +4,45 @@ const { ValidationError } = require('../errors');
 const storage = multer.memoryStorage();
 
 const upload = multer({
-	storage,
-	limits: {
-		fileSize: 5 * 1024 * 1024,
-	},
-	fileFilter: (_req, file, cb) => {
-		const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+  },
+  fileFilter: (_req, file, cb) => {
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
-		if (allowedMimes.includes(file.mimetype)) {
-			cb(null, true);
-			return;
-		}
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+      return;
+    }
 
-		cb(new ValidationError('Only JPEG, PNG, WebP, and GIF images are allowed'));
-	},
+    cb(new ValidationError('Only JPEG, PNG, WebP, and GIF images are allowed'));
+  },
 });
 
-const createImageUploadMiddleware =
-	(fieldName, tooLargeMessage) => (req, res, next) => {
-		upload.single(fieldName)(req, res, (error) => {
-			if (!error) {
-				next();
-				return;
-			}
+const createImageUploadMiddleware = (fieldName, tooLargeMessage) => (req, res, next) => {
+  upload.single(fieldName)(req, res, (error) => {
+    if (!error) {
+      next();
+      return;
+    }
 
-			if (
-				error instanceof multer.MulterError &&
-				error.code === 'LIMIT_FILE_SIZE'
-			) {
-				next(new ValidationError(tooLargeMessage));
-				return;
-			}
+    if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
+      next(new ValidationError(tooLargeMessage));
+      return;
+    }
 
-			next(error);
-		});
-	};
+    next(error);
+  });
+};
 
 const uploadProductImage = createImageUploadMiddleware(
-	'image',
-	'Image file size must be 5MB or less',
+  'image',
+  'Image file size must be 5MB or less'
 );
 const uploadAvatarImage = createImageUploadMiddleware(
-	'avatar',
-	'Avatar file size must be 5MB or less',
+  'avatar',
+  'Avatar file size must be 5MB or less'
 );
 
 module.exports = uploadProductImage;

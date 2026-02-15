@@ -8,10 +8,10 @@ const router = express.Router();
 router.get('/me', authMiddleware, userController.getMe);
 router.patch('/me', authMiddleware, userController.updateMe);
 router.post(
-	'/me/avatar',
-	authMiddleware,
-	uploadMiddleware.uploadAvatarImage,
-	userController.uploadAvatar,
+  '/me/avatar',
+  authMiddleware,
+  uploadMiddleware.uploadAvatarImage,
+  userController.uploadAvatar
 );
 
 module.exports = router;

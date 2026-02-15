@@ -88,14 +88,14 @@ export interface CategoryPayload {
 }
 
 export interface UserProfile {
-	id: string;
-	name: string;
-	email: string;
-	phone: string;
-	address: string;
-	bio: string;
-	avatar: string | null;
-	role: "admin" | "user";
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  bio: string;
+  avatar: string | null;
+  role: 'admin' | 'user';
 }
 
 const parseError = async (res: Response, fallback: string) => {
@@ -278,54 +278,54 @@ export async function deleteCategory(id: string): Promise<void> {
 }
 
 export async function fetchMyProfile(): Promise<UserProfile> {
-	const res = await fetch(`${API_BASE_URL}/api/users/me`, {
-		credentials: "include",
-		cache: "no-store",
-	});
+  const res = await fetch(`${API_BASE_URL}/api/users/me`, {
+    credentials: 'include',
+    cache: 'no-store',
+  });
 
-	if (!res.ok) {
-		throw new Error(await parseError(res, "Không thể tải thông tin tài khoản"));
-	}
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể tải thông tin tài khoản'));
+  }
 
-	const body = (await res.json()) as ApiResponse<UserProfile>;
-	return body.data;
+  const body = (await res.json()) as ApiResponse<UserProfile>;
+  return body.data;
 }
 
 export async function updateMyProfile(payload: {
-	name: string;
-	phone: string;
-	address: string;
-	bio: string;
+  name: string;
+  phone: string;
+  address: string;
+  bio: string;
 }): Promise<UserProfile> {
-	const res = await fetch(`${API_BASE_URL}/api/users/me`, {
-		method: "PATCH",
-		credentials: "include",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify(payload),
-	});
+  const res = await fetch(`${API_BASE_URL}/api/users/me`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
 
-	if (!res.ok) {
-		throw new Error(await parseError(res, "Không thể cập nhật hồ sơ"));
-	}
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể cập nhật hồ sơ'));
+  }
 
-	const body = (await res.json()) as ApiResponse<UserProfile>;
-	return body.data;
+  const body = (await res.json()) as ApiResponse<UserProfile>;
+  return body.data;
 }
 
 export async function uploadAvatar(file: File): Promise<UserProfile> {
-	const formData = new FormData();
-	formData.append("avatar", file);
+  const formData = new FormData();
+  formData.append('avatar', file);
 
-	const res = await fetch(`${API_BASE_URL}/api/users/me/avatar`, {
-		method: "POST",
-		credentials: "include",
-		body: formData,
-	});
+  const res = await fetch(`${API_BASE_URL}/api/users/me/avatar`, {
+    method: 'POST',
+    credentials: 'include',
+    body: formData,
+  });
 
-	if (!res.ok) {
-		throw new Error(await parseError(res, "Không thể tải lên ảnh đại diện"));
-	}
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể tải lên ảnh đại diện'));
+  }
 
-	const body = (await res.json()) as ApiResponse<UserProfile>;
-	return body.data;
+  const body = (await res.json()) as ApiResponse<UserProfile>;
+  return body.data;
 }
