@@ -1,23 +1,8 @@
 import type { Metadata } from 'next';
-import { Nunito, Quicksand } from 'next/font/google';
 import { CartProvider } from '@/contexts/CartContext';
 import { WishlistProvider } from '@/contexts/WishlistContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import './globals.css';
-
-const nunito = Nunito({
-  variable: '--font-nunito',
-  subsets: ['latin', 'vietnamese'],
-  weight: ['400', '500', '600', '700', '800'],
-  display: 'swap',
-});
-
-const quicksand = Quicksand({
-  variable: '--font-quicksand',
-  subsets: ['latin', 'vietnamese'],
-  weight: ['400', '500', '600', '700'],
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: 'Baby Bliss - Yêu thương từng khoảnh khắc | Sản phẩm cho bé',
@@ -48,7 +33,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
-      <body className={`${nunito.variable} ${quicksand.variable} antialiased font-sans`}>
+      <body className="antialiased font-sans">
         <AuthProvider>
           <CartProvider>
             <WishlistProvider>{children}</WishlistProvider>

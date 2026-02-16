@@ -3,6 +3,9 @@
 /* ===== BABY BLISS - PINK PASTEL THEME (OKLCH) ===== */
 
 :root {
+  --font-nunito: 'Nunito', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-quicksand: 'Quicksand', 'Nunito', 'Segoe UI', sans-serif;
+
   /* Pink Pastel Palette (OKLCH for uniform perceived brightness) */
   --pink-50: oklch(0.971 0.014 343.4);
   --pink-100: oklch(0.948 0.028 342.3);
