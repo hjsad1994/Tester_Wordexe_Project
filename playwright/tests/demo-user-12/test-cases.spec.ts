@@ -279,4 +279,124 @@ test.describe("Demo User 12 - Product Detail Image Rendering", () => {
 		).toBeVisible();
 		await expect(page.locator('img[alt="Bé bông không ảnh"]')).toHaveCount(0);
 	});
+
+	test("renders DB-backed stock quantity when product has inventory", async ({
+		page,
+	}) => {
+		const product = {
+			_id: "prod-stock-01",
+			name: "Bé bông còn hàng",
+			slug: "be-bong-con-hang",
+			price: 219000,
+			category: {
+				_id: "cat-toys",
+				name: "Đồ chơi",
+				slug: "do-choi",
+			},
+			quantity: 12,
+			images: [],
+			isActive: true,
+			createdAt: "2026-01-01T00:00:00.000Z",
+			updatedAt: "2026-01-01T00:00:00.000Z",
+		};
+
+		await page.route("**/api/products?*", async (route) => {
+			await route.fulfill({
+				status: 200,
+				contentType: "application/json",
+				body: JSON.stringify({
+					status: "success",
+					message: "OK",
+					data: {
+						products: [product],
+						pagination: {
+							page: 1,
+							limit: 100,
+							total: 1,
+							pages: 1,
+						},
+					},
+				}),
+			});
+		});
+
+		await page.route("**/api/products/slug/be-bong-con-hang", async (route) => {
+			await route.fulfill({
+				status: 200,
+				contentType: "application/json",
+				body: JSON.stringify({
+					status: "success",
+					message: "OK",
+					data: product,
+				}),
+			});
+		});
+
+		await page.goto("/products/be-bong-con-hang");
+
+		await expect(page.getByText("Còn hàng")).toBeVisible();
+		await expect(page.getByText("Còn 12 sản phẩm")).toBeVisible();
+		await expect(
+			page.getByRole("button", { name: "Thêm vào giỏ hàng" }),
+		).toBeEnabled();
+	});
+
+	test("renders out-of-stock state from DB quantity 0", async ({ page }) => {
+		const product = {
+			_id: "prod-stock-00",
+			name: "Bé bông hết hàng",
+			slug: "be-bong-het-hang",
+			price: 219000,
+			category: {
+				_id: "cat-toys",
+				name: "Đồ chơi",
+				slug: "do-choi",
+			},
+			quantity: 0,
+			images: [],
+			isActive: true,
+			createdAt: "2026-01-01T00:00:00.000Z",
+			updatedAt: "2026-01-01T00:00:00.000Z",
+		};
+
+		await page.route("**/api/products?*", async (route) => {
+			await route.fulfill({
+				status: 200,
+				contentType: "application/json",
+				body: JSON.stringify({
+					status: "success",
+					message: "OK",
+					data: {
+						products: [product],
+						pagination: {
+							page: 1,
+							limit: 100,
+							total: 1,
+							pages: 1,
+						},
+					},
+				}),
+			});
+		});
+
+		await page.route("**/api/products/slug/be-bong-het-hang", async (route) => {
+			await route.fulfill({
+				status: 200,
+				contentType: "application/json",
+				body: JSON.stringify({
+					status: "success",
+					message: "OK",
+					data: product,
+				}),
+			});
+		});
+
+		await page.goto("/products/be-bong-het-hang");
+
+		await expect(page.getByText("Hết hàng")).toBeVisible();
+		await expect(page.getByText("Sản phẩm tạm hết hàng")).toBeVisible();
+		await expect(
+			page.getByRole("button", { name: "Thêm vào giỏ hàng" }),
+		).toBeDisabled();
+	});
 });

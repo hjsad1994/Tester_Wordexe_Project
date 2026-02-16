@@ -51,6 +51,7 @@ const mapApiProductToCard = (product: ApiProduct): Product => {
     slug: product.slug || toProductSlug(product.name),
     name: product.name,
     price: product.price,
+    quantity: product.quantity,
     imageUrl: product.images?.[0],
     illustration: categoryIllustrationMap[categoryName] || 'teddy',
     rating: Number((4.5 + Math.random() * 0.5).toFixed(1)),
@@ -448,6 +449,11 @@ export default function ProductDetailPage() {
       .slice(0, 4);
   }, [catalogProducts, product]);
 
+  const availableQuantity =
+    typeof product?.quantity === 'number' && Number.isFinite(product.quantity)
+      ? Math.max(0, Math.floor(product.quantity))
+      : null;
+
   if (isProductLoading) {
     return (
       <div className="min-h-screen bg-[var(--warm-white)]">
@@ -495,6 +501,17 @@ export default function ProductDetailPage() {
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
+  const isOutOfStock = availableQuantity === 0;
+  const stockStatusLabel =
+    availableQuantity === null ? 'Đang cập nhật tồn kho' : isOutOfStock ? 'Hết hàng' : 'Còn hàng';
+  const stockCountLabel =
+    availableQuantity === null
+      ? 'Đang cập nhật tồn kho'
+      : isOutOfStock
+        ? 'Sản phẩm tạm hết hàng'
+        : `Còn ${availableQuantity} sản phẩm`;
+  const selectedQuantity =
+    availableQuantity === null ? quantity : Math.min(quantity, Math.max(1, availableQuantity));
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN').format(price) + 'đ';
@@ -670,7 +687,11 @@ export default function ProductDetailPage() {
                 <span className="text-[var(--text-muted)]">|</span>
                 <span className="text-[var(--text-secondary)]">{product.reviews} đánh giá</span>
                 <span className="text-[var(--text-muted)]">|</span>
-                <span className="text-green-600 font-medium">Còn hàng</span>
+                <span
+                  className={`font-medium ${isOutOfStock ? 'text-red-600' : availableQuantity === null ? 'text-amber-600' : 'text-green-600'}`}
+                >
+                  {stockStatusLabel}
+                </span>
               </div>
 
               {/* Price */}
@@ -754,24 +775,36 @@ export default function ProductDetailPage() {
                 <div className="flex items-center gap-4">
                   <div className="flex items-center border-2 border-pink-200 rounded-xl overflow-hidden">
                     <button
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      onClick={() => setQuantity(Math.max(1, selectedQuantity - 1))}
+                      disabled={isOutOfStock}
                       className="w-12 h-12 flex items-center justify-center text-[var(--text-secondary)] hover:bg-pink-50 transition-colors text-xl focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none"
                       aria-label="Giảm số lượng"
                     >
                       −
                     </button>
                     <span className="w-16 text-center font-semibold text-[var(--text-primary)] text-lg">
-                      {quantity}
+                      {selectedQuantity}
                     </span>
                     <button
-                      onClick={() => setQuantity(quantity + 1)}
+                      onClick={() => {
+                        setQuantity((currentQuantity) => {
+                          if (availableQuantity === null) {
+                            return currentQuantity + 1;
+                          }
+                          return Math.min(availableQuantity, currentQuantity + 1);
+                        });
+                      }}
+                      disabled={
+                        isOutOfStock ||
+                        (availableQuantity !== null && selectedQuantity >= availableQuantity)
+                      }
                       className="w-12 h-12 flex items-center justify-center text-[var(--text-secondary)] hover:bg-pink-50 transition-colors text-xl focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none"
                       aria-label="Tăng số lượng"
                     >
                       +
                     </button>
                   </div>
-                  <span className="text-sm text-[var(--text-muted)]">Còn 156 sản phẩm</span>
+                  <span className="text-sm text-[var(--text-muted)]">{stockCountLabel}</span>
                 </div>
               </div>
 
@@ -779,7 +812,10 @@ export default function ProductDetailPage() {
               <div className="flex gap-4 mb-8">
                 <button
                   onClick={() => {
-                    for (let i = 0; i < quantity; i++) {
+                    if (isOutOfStock) {
+                      return;
+                    }
+                    for (let i = 0; i < selectedQuantity; i++) {
                       addToCart({
                         id: product.id,
                         name: product.name,
@@ -788,23 +824,28 @@ export default function ProductDetailPage() {
                       });
                     }
                   }}
-                  className="flex-1 py-4 px-6 bg-gradient-to-r from-pink-400 to-pink-500 text-white font-semibold rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-pink-200 transition-all active:scale-[0.98]"
+                  disabled={isOutOfStock}
+                  className="flex-1 py-4 px-6 bg-gradient-to-r from-pink-400 to-pink-500 text-white font-semibold rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-pink-200 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:active:scale-100"
                 >
                   <CartIcon size={22} />
                   <span>Thêm vào giỏ hàng</span>
                 </button>
                 <button
                   onClick={() => {
+                    if (isOutOfStock) {
+                      return;
+                    }
                     setBuyNowItem({
                       id: product.id,
                       name: product.name,
                       price: product.price,
                       image: product.illustration,
-                      quantity,
+                      quantity: selectedQuantity,
                     });
                     router.push('/checkout?buyNow=true');
                   }}
-                  className="py-4 px-8 border-2 border-pink-400 text-pink-500 font-semibold rounded-2xl hover:bg-pink-50 transition-all"
+                  disabled={isOutOfStock}
+                  className="py-4 px-8 border-2 border-pink-400 text-pink-500 font-semibold rounded-2xl hover:bg-pink-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                 >
                   Mua ngay
                 </button>
