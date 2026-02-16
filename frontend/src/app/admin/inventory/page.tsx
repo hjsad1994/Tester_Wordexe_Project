@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import AdminInventoryPanel from "@/components/admin/AdminInventoryPanel";
+import AdminInventoryPanel from '@/components/admin/AdminInventoryPanel';
 
 export default function AdminInventoryPage() {
-	return <AdminInventoryPanel />;
+  return <AdminInventoryPanel />;
 }

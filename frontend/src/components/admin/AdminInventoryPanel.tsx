@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import AdminProductsPanel from "@/components/admin/AdminProductsPanel";
+import AdminProductsPanel from '@/components/admin/AdminProductsPanel';
 
 export default function AdminInventoryPanel() {
-	return <AdminProductsPanel view="inventory" />;
+  return <AdminProductsPanel view="inventory" />;
 }
