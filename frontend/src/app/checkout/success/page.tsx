@@ -1,63 +1,120 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Header from '@/components/Header';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import Footer from '@/components/Footer';
-import { SparkleIcon, TruckIcon, ArrowRightIcon } from '@/components/icons';
+import Header from '@/components/Header';
+import { ArrowRightIcon, SparkleIcon, TruckIcon } from '@/components/icons';
 import {
-  productIllustrations,
   type ProductIllustrationType,
+  productIllustrations,
 } from '@/components/icons/ProductIllustrations';
-
-interface OrderData {
-  orderId: string;
-  items: Array<{ id: string; name: string; price: number; image: string; quantity: number }>;
-  subtotal: number;
-  shippingFee: number;
-  total: number;
-  customerInfo: {
-    fullName: string;
-    phone: string;
-    province: string;
-    district: string;
-    ward: string;
-    address: string;
-    notes: string;
-  };
-  paymentMethod: 'cod' | 'momo';
-  status: string;
-  estimatedDelivery: string;
-}
+import { fetchOrderById, type Order, type OrderStatus } from '@/lib/api';
 
 function formatPrice(price: number): string {
   return price.toLocaleString('vi-VN') + 'đ';
 }
 
-export default function CheckoutSuccessPage() {
-  const router = useRouter();
+const statusLabelMap: Record<OrderStatus, string> = {
+  pending: 'Chờ xác nhận',
+  paid: 'Đã thanh toán',
+  processing: 'Đang xử lý',
+  shipped: 'Đang giao',
+  delivered: 'Đã giao thành công',
+  cancelled: 'Đã hủy',
+};
 
-  const [order] = useState<OrderData | null>(() => {
-    if (typeof window === 'undefined') return null;
-    const data = sessionStorage.getItem('lastOrder');
-    if (data) {
-      sessionStorage.removeItem('lastOrder');
-      return JSON.parse(data) as OrderData;
+const statusColorMap: Record<OrderStatus, string> = {
+  pending: 'bg-yellow-100 text-yellow-700',
+  paid: 'bg-green-100 text-green-700',
+  processing: 'bg-blue-100 text-blue-700',
+  shipped: 'bg-indigo-100 text-indigo-700',
+  delivered: 'bg-emerald-100 text-emerald-700',
+  cancelled: 'bg-rose-100 text-rose-700',
+};
+
+function CheckoutSuccessContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [order, setOrder] = useState<Order | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const estimatedDeliveryDate = useMemo(() => {
+    if (!order?.createdAt) {
+      return '';
     }
-    return null;
-  });
+
+    const date = new Date(order.createdAt);
+    date.setDate(date.getDate() + 5);
+    return date.toLocaleDateString('vi-VN');
+  }, [order?.createdAt]);
 
   useEffect(() => {
-    if (!order) {
-      router.push('/products');
-    }
-  }, [order, router]);
+    const loadOrder = async () => {
+      const orderIdFromQuery = searchParams.get('orderId');
+      const tokenFromQuery = searchParams.get('token');
+      const orderId =
+        orderIdFromQuery ||
+        (typeof window !== 'undefined' ? sessionStorage.getItem('lastOrderId') : null);
+      const accessToken =
+        tokenFromQuery ||
+        (typeof window !== 'undefined' ? sessionStorage.getItem('lastOrderToken') : null);
 
-  if (!order) {
+      if (!orderId || !accessToken) {
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('lastOrderId');
+          sessionStorage.removeItem('lastOrderToken');
+        }
+        router.replace('/products');
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setError(null);
+        const result = await fetchOrderById(orderId, accessToken);
+        setOrder(result);
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('lastOrderId');
+          sessionStorage.removeItem('lastOrderToken');
+        }
+      } catch (loadError) {
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('lastOrderId');
+          sessionStorage.removeItem('lastOrderToken');
+        }
+        setError(loadError instanceof Error ? loadError.message : 'Không thể tải đơn hàng');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void loadOrder();
+  }, [router, searchParams]);
+
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-[var(--warm-white)] flex items-center justify-center">
         <p className="text-[var(--text-secondary)]">Đang tải...</p>
+      </div>
+    );
+  }
+
+  if (error || !order) {
+    return (
+      <div className="min-h-screen bg-[var(--warm-white)] flex items-center justify-center px-4">
+        <div className="max-w-md rounded-2xl border border-rose-200 bg-white p-5 text-center shadow-sm">
+          <p className="text-rose-600 mb-3">{error || 'Không tìm thấy đơn hàng'}</p>
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-2 rounded-xl bg-pink-500 px-4 py-2 text-sm font-semibold text-white"
+          >
+            <span>Quay lại sản phẩm</span>
+            <ArrowRightIcon size={16} />
+          </Link>
+        </div>
       </div>
     );
   }
@@ -67,7 +124,6 @@ export default function CheckoutSuccessPage() {
       <Header />
       <main className="pt-32 pb-20">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          {/* Success Banner */}
           <div className="text-center mb-8">
             <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
               <svg
@@ -88,24 +144,19 @@ export default function CheckoutSuccessPage() {
               Đặt hàng thành công!
             </h1>
             <p className="text-[var(--text-secondary)]">
-              Mã đơn hàng: <span className="font-semibold text-pink-500">{order.orderId}</span>
+              Mã đơn hàng: <span className="font-semibold text-pink-500">{order.orderNumber}</span>
             </p>
           </div>
 
-          {/* Order Status Card */}
           <div className="bg-white rounded-2xl shadow-md border border-pink-50 p-5 sm:p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-[var(--text-primary)] font-heading">
                 Trạng thái đơn hàng
               </h2>
               <span
-                className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                  order.status === 'Đã thanh toán'
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-yellow-100 text-yellow-700'
-                }`}
+                className={`px-3 py-1 rounded-full text-sm font-semibold ${statusColorMap[order.status]}`}
               >
-                {order.status}
+                {statusLabelMap[order.status]}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm">
@@ -117,14 +168,11 @@ export default function CheckoutSuccessPage() {
               </div>
               <div>
                 <p className="text-[var(--text-secondary)] mb-1">Dự kiến giao hàng</p>
-                <p className="font-semibold text-[var(--text-primary)]">
-                  {order.estimatedDelivery}
-                </p>
+                <p className="font-semibold text-[var(--text-primary)]">{estimatedDeliveryDate}</p>
               </div>
             </div>
           </div>
 
-          {/* Delivery Info */}
           <div className="bg-white rounded-2xl shadow-md border border-pink-50 p-5 sm:p-6 mb-6">
             <h2 className="text-lg font-bold text-[var(--text-primary)] font-heading mb-4 flex items-center gap-2">
               <TruckIcon size={20} className="text-pink-400" />
@@ -161,7 +209,6 @@ export default function CheckoutSuccessPage() {
             </div>
           </div>
 
-          {/* Order Items */}
           <div className="bg-white rounded-2xl shadow-md border border-pink-50 p-5 sm:p-6 mb-6">
             <h2 className="text-lg font-bold text-[var(--text-primary)] font-heading mb-4 flex items-center gap-2">
               <SparkleIcon size={20} className="text-pink-400" />
@@ -170,8 +217,13 @@ export default function CheckoutSuccessPage() {
             <div className="space-y-3 mb-4">
               {order.items.map((item) => {
                 const Illustration = productIllustrations[item.image as ProductIllustrationType];
+                const key =
+                  typeof item.product === 'string'
+                    ? `${item.product}-${item.productName}`
+                    : `${item.product._id}-${item.productName}`;
+
                 return (
-                  <div key={item.id} className="flex items-center gap-3">
+                  <div key={key} className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-50 to-[var(--soft-cream)] flex items-center justify-center flex-shrink-0">
                       {Illustration ? (
                         <Illustration size={32} />
@@ -181,18 +233,18 @@ export default function CheckoutSuccessPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-[var(--text-primary)] truncate">
-                        {item.name}
+                        {item.productName}
                       </p>
                       <p className="text-xs text-[var(--text-secondary)]">x{item.quantity}</p>
                     </div>
                     <p className="text-sm font-semibold text-[var(--text-primary)]">
-                      {formatPrice(item.price * item.quantity)}
+                      {formatPrice(item.productPrice * item.quantity)}
                     </p>
                   </div>
                 );
               })}
             </div>
-            {/* Totals */}
+
             <div className="border-t border-pink-100 pt-3 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-[var(--text-secondary)]">Tạm tính</span>
@@ -209,7 +261,6 @@ export default function CheckoutSuccessPage() {
             </div>
           </div>
 
-          {/* CTA */}
           <div className="text-center">
             <Link
               href="/products"
@@ -223,5 +274,19 @@ export default function CheckoutSuccessPage() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[var(--warm-white)] flex items-center justify-center">
+          <p className="text-[var(--text-secondary)]">Đang tải...</p>
+        </div>
+      }
+    >
+      <CheckoutSuccessContent />
+    </Suspense>
   );
 }

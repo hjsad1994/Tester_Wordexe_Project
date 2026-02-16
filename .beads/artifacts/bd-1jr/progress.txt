@@ -1,0 +1,23 @@
+# Progress Log
+
+Bead: bd-1jr
+Started: 2026-02-16
+
+## Codebase Patterns
+
+<!-- Consolidate reusable patterns here -->
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
+
+## 2026-02-16 - Shipping progress
+
+- Completed: Split admin sidebar into `San pham` and `Ton kho` entries.
+- Completed: Added admin inventory route at `/admin/inventory`.
+- Completed: Reused `AdminProductsPanel` with `view="inventory"` and inventory-focused rendering/behavior.
+- Completed: Inventory edit modal now updates `quantity` only via `updateProductApi` payload `{ quantity }`.
+- Completed: Inventory view hides product creation and deletion actions.
+- Completed: Header admin entry points to `/admin` for centralized admin landing.
+- Verification run: `cd frontend && npm run typecheck` (pass), `cd frontend && npm run lint` (pass), `cd frontend && npm run build` (pass).
+- Waived by request: Playwright verification was skipped (`khong can test playwright`) and bead closure approved.

@@ -1,16 +1,17 @@
 'use client';
 
-import { Suspense, useState, useMemo, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useCart } from '@/contexts/CartContext';
-import Header from '@/components/Header';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import Footer from '@/components/Footer';
-import { ArrowRightIcon, TruckIcon, ShieldIcon, SparkleIcon } from '@/components/icons';
+import Header from '@/components/Header';
+import { ArrowRightIcon, ShieldIcon, SparkleIcon, TruckIcon } from '@/components/icons';
 import {
-  productIllustrations,
   type ProductIllustrationType,
+  productIllustrations,
 } from '@/components/icons/ProductIllustrations';
+import { useCart } from '@/contexts/CartContext';
+import { createOrder as createOrderApi } from '@/lib/api';
 
 interface CheckoutFormData {
   fullName: string;
@@ -75,6 +76,7 @@ function CheckoutContent() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod');
   const [showMomoOverlay, setShowMomoOverlay] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleChange = (field: keyof CheckoutFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -99,31 +101,49 @@ function CheckoutContent() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const completeOrder = (method: PaymentMethod) => {
-    const orderId = `BB-${Date.now().toString(36).toUpperCase()}`;
-    const orderData = {
-      orderId,
-      items: checkoutItems,
-      subtotal,
-      shippingFee: SHIPPING_FEE,
-      total,
-      customerInfo: formData,
-      paymentMethod: method,
-      status: method === 'momo' ? 'Đã thanh toán' : 'Chờ xác nhận',
-      estimatedDelivery: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN'),
-    };
-    sessionStorage.setItem('lastOrder', JSON.stringify(orderData));
+  const completeOrder = async (method: PaymentMethod) => {
+    setIsSubmitting(true);
+    setSubmitError(null);
 
-    if (isBuyNow) {
-      clearBuyNowItem();
-    } else {
-      clearCart();
+    try {
+      const createdOrder = await createOrderApi({
+        items: checkoutItems.map((item) => ({
+          productId: item.id,
+          quantity: item.quantity,
+        })),
+        customerInfo: {
+          fullName: formData.fullName,
+          phone: formData.phone,
+          province: formData.province,
+          district: formData.district,
+          ward: formData.ward,
+          address: formData.address,
+          notes: formData.notes,
+        },
+        paymentMethod: method,
+        shippingFee: SHIPPING_FEE,
+      });
+
+      sessionStorage.setItem('lastOrderId', createdOrder._id);
+      sessionStorage.setItem('lastOrderToken', createdOrder.publicAccessToken || '');
+
+      if (isBuyNow) {
+        clearBuyNowItem();
+      } else {
+        clearCart();
+      }
+
+      router.push(
+        `/checkout/success?orderId=${encodeURIComponent(createdOrder._id)}&token=${encodeURIComponent(createdOrder.publicAccessToken || '')}`
+      );
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'Không thể tạo đơn hàng');
+    } finally {
+      setIsSubmitting(false);
     }
-
-    router.push('/checkout/success');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) {
       const firstErrorField = Object.keys(errors)[0];
@@ -132,15 +152,14 @@ function CheckoutContent() {
       }
       return;
     }
-    setIsSubmitting(true);
+    setSubmitError(null);
 
     if (paymentMethod === 'momo') {
       setShowMomoOverlay(true);
-      setIsSubmitting(false);
       return;
     }
 
-    completeOrder('cod');
+    await completeOrder('cod');
   };
 
   if (checkoutItems.length === 0) {
@@ -174,6 +193,11 @@ function CheckoutContent() {
           </div>
 
           <form id="checkout-form" onSubmit={handleSubmit}>
+            {submitError && (
+              <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
+                {submitError}
+              </div>
+            )}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Left Column — Form */}
               <div className="lg:col-span-2 space-y-6">
@@ -530,11 +554,12 @@ function CheckoutContent() {
             <button
               onClick={() => {
                 setShowMomoOverlay(false);
-                completeOrder('momo');
+                void completeOrder('momo');
               }}
+              disabled={isSubmitting}
               className="w-full py-3 bg-gradient-to-r from-pink-400 to-pink-500 text-white font-semibold rounded-2xl mb-3 hover:shadow-lg transition-all"
             >
-              Đã thanh toán
+              {isSubmitting ? 'Đang xử lý...' : 'Đã thanh toán'}
             </button>
             <button
               onClick={() => setShowMomoOverlay(false)}

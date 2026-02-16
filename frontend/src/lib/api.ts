@@ -98,6 +98,71 @@ export interface UserProfile {
   role: 'admin' | 'user';
 }
 
+export type OrderStatus = 'pending' | 'paid' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+
+export interface OrderItem {
+  product: string | Pick<Product, '_id' | 'name' | 'slug'>;
+  productName: string;
+  productPrice: number;
+  quantity: number;
+  image?: string;
+}
+
+export interface OrderCustomerInfo {
+  fullName: string;
+  phone: string;
+  province: string;
+  district: string;
+  ward: string;
+  address: string;
+  notes?: string;
+}
+
+export interface Order {
+  _id: string;
+  orderNumber: string;
+  publicAccessToken?: string;
+  user?:
+    | string
+    | {
+        _id: string;
+        name: string;
+        email: string;
+      }
+    | null;
+  items: OrderItem[];
+  subtotal: number;
+  shippingFee: number;
+  total: number;
+  customerInfo: OrderCustomerInfo;
+  paymentMethod: 'cod' | 'momo';
+  status: OrderStatus;
+  deletedAt: string | null;
+  deleteReason?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateOrderPayload {
+  items: Array<{
+    productId: string;
+    quantity: number;
+  }>;
+  customerInfo: OrderCustomerInfo;
+  paymentMethod: 'cod' | 'momo';
+  shippingFee?: number;
+}
+
+interface OrderListData {
+  orders: Order[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
 const parseError = async (res: Response, fallback: string) => {
   try {
     const body = (await res.json()) as { message?: string };
@@ -345,5 +410,97 @@ export async function uploadAvatar(file: File): Promise<UserProfile> {
   }
 
   const body = (await res.json()) as ApiResponse<UserProfile>;
+  return body.data;
+}
+
+export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
+  const res = await fetch(`${API_BASE_URL}/api/orders`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể tạo đơn hàng'));
+  }
+
+  const body = (await res.json()) as ApiResponse<Order>;
+  return body.data;
+}
+
+export async function fetchOrderById(id: string, accessToken: string): Promise<Order> {
+  const query = new URLSearchParams({ token: accessToken });
+  const res = await fetch(
+    `${API_BASE_URL}/api/orders/${encodeURIComponent(id)}?${query.toString()}`,
+    {
+      credentials: 'include',
+      cache: 'no-store',
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể tải đơn hàng'));
+  }
+
+  const body = (await res.json()) as ApiResponse<Order>;
+  return body.data;
+}
+
+export async function fetchAdminOrders(params?: {
+  page?: number;
+  limit?: number;
+  status?: OrderStatus;
+  includeDeleted?: boolean;
+}): Promise<OrderListData> {
+  const query = new URLSearchParams();
+  if (params?.page) query.set('page', String(params.page));
+  if (params?.limit) query.set('limit', String(params.limit));
+  if (params?.status) query.set('status', params.status);
+  if (params?.includeDeleted) query.set('includeDeleted', 'true');
+
+  const suffix = query.toString() ? `?${query.toString()}` : '';
+  const res = await fetch(`${API_BASE_URL}/api/orders${suffix}`, {
+    credentials: 'include',
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể tải danh sách đơn hàng'));
+  }
+
+  const body = (await res.json()) as ApiResponse<OrderListData>;
+  return body.data;
+}
+
+export async function updateOrderStatus(id: string, status: OrderStatus): Promise<Order> {
+  const res = await fetch(`${API_BASE_URL}/api/orders/${encodeURIComponent(id)}/status`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể cập nhật trạng thái đơn hàng'));
+  }
+
+  const body = (await res.json()) as ApiResponse<Order>;
+  return body.data;
+}
+
+export async function softDeleteOrder(id: string, reason: string): Promise<Order> {
+  const res = await fetch(`${API_BASE_URL}/api/orders/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reason }),
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể lưu trữ đơn hàng'));
+  }
+
+  const body = (await res.json()) as ApiResponse<Order>;
   return body.data;
 }
