@@ -1,0 +1,171 @@
+{
+	"beadId": "bd-210",
+	"prdName": "admin-order-management",
+	"tasks": [
+		{
+			"id": "backend-1",
+			"category": "backend",
+			"title": "Define order domain model and lifecycle rules",
+			"description": "Order persistence schema exists with lifecycle fields, terminal state definitions, and soft-delete audit fields.",
+			"steps": [
+				"npm run typecheck",
+				"Manual: create/update service calls accept allowed states and reject terminal-state mutation."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": [
+					"backend/src/models/Order.js",
+					"backend/src/services/orderService.js"
+				]
+			}
+		},
+		{
+			"id": "backend-2",
+			"category": "backend",
+			"title": "Add order API endpoints for checkout and admin",
+			"description": "Backend exposes create/list/update/soft-delete order endpoints with admin protection on management actions.",
+			"steps": [
+				"npm run typecheck",
+				"Manual: non-admin receives forbidden on admin endpoints.",
+				"Manual: delivered order status update returns rejection."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["Define order domain model and lifecycle rules"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"backend/src/routes/index.js",
+					"backend/src/routes/orderRoutes.js",
+					"backend/src/controllers/orderController.js",
+					"backend/src/services/orderService.js",
+					"backend/src/middlewares/requireRole.js"
+				]
+			}
+		},
+		{
+			"id": "frontend-1",
+			"category": "frontend",
+			"title": "Integrate checkout with persisted order creation",
+			"description": "Checkout submit path calls backend order creation API and uses returned order id/data for success flow.",
+			"steps": [
+				"npm run typecheck",
+				"Manual: checkout creates retrievable persisted order instead of session-only record."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["Add order API endpoints for checkout and admin"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/lib/api.ts",
+					"frontend/src/app/checkout/page.tsx",
+					"frontend/src/app/checkout/success/page.tsx"
+				]
+			}
+		},
+		{
+			"id": "frontend-2",
+			"category": "frontend",
+			"title": "Build admin orders route and management panel",
+			"description": "Admin has a dedicated orders screen with list/detail/status actions that consumes backend order APIs.",
+			"steps": [
+				"npm run typecheck",
+				"Manual: /admin/orders visible to admin and hidden/blocked for non-admin."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["Add order API endpoints for checkout and admin"],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/components/admin/AdminSidebar.tsx",
+					"frontend/src/app/admin/orders/page.tsx",
+					"frontend/src/components/admin/AdminOrdersPanel.tsx",
+					"frontend/src/lib/api.ts"
+				]
+			}
+		},
+		{
+			"id": "policy-1",
+			"category": "policy",
+			"title": "Enforce deletion policy in API and UI language",
+			"description": "Delete behavior is explicitly soft delete with audit metadata and operator-facing wording that avoids hard-delete semantics.",
+			"steps": [
+				"npm run typecheck",
+				"Manual: delete action marks deletedAt/deletedBy/reason; record remains queryable in audit view."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [
+					"Add order API endpoints for checkout and admin",
+					"Build admin orders route and management panel"
+				],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"backend/src/controllers/orderController.js",
+					"backend/src/services/orderService.js",
+					"frontend/src/components/admin/AdminOrdersPanel.tsx"
+				]
+			}
+		},
+		{
+			"id": "qa-1",
+			"category": "qa",
+			"title": "Add regression checks for order workflow",
+			"description": "Core order flow has repeatable verification checks covering creation, admin visibility, status lock, and soft-delete behavior.",
+			"steps": [
+				"npm run lint && npm test (backend)",
+				"npm run lint:fix && npm run lint && npm run typecheck && npm run build (frontend)",
+				"Playwright execution skipped per user request."
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [
+					"Integrate checkout with persisted order creation",
+					"Build admin orders route and management panel",
+					"Enforce deletion policy in API and UI language"
+				],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"playwright/tests/rbac/admin-route-flow.spec.ts",
+					"playwright/tests/rbac/admin-product-category.spec.ts"
+				]
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"Admin route guard: frontend/src/app/admin/layout.tsx",
+			"Backend role checks: backend/src/middlewares/authMiddleware.js + backend/src/middlewares/requireRole.js",
+			"Admin CRUD route style: backend/src/routes/productRoutes.js and backend/src/routes/categoryRoutes.js",
+			"Frontend API helper style: frontend/src/lib/api.ts",
+			"Checkout currently stores order in sessionStorage: frontend/src/app/checkout/page.tsx"
+		],
+		"keyFiles": [
+			"backend/src/routes/index.js",
+			"backend/src/models/User.js",
+			"frontend/src/components/admin/AdminSidebar.tsx",
+			"frontend/src/app/admin/products/page.tsx",
+			"frontend/src/app/admin/categories/page.tsx"
+		],
+		"nonGoals": [
+			"Payment gateway integration redesign",
+			"Full returns/exchange module implementation",
+			"Inventory reservation and allocation engine",
+			"Bulk import/export order tooling"
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": true,
+		"conflicts_with": [],
+		"blocks": [],
+		"estimated_hours": 14
+	}
+}
