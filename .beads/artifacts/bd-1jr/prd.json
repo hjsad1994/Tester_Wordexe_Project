@@ -1,0 +1,140 @@
+{
+	"beadId": "bd-1jr",
+	"prdName": "tach-biet-navigation-admin-san-pham-va-ton-kho",
+	"tasks": [
+		{
+			"id": "frontend-1",
+			"title": "Split Admin Sidebar Navigation",
+			"category": "frontend",
+			"description": "Admin sidebar renders separate and correctly active entries for San pham and Ton kho without regressing existing Danh muc navigation.",
+			"steps": [
+				"cd frontend && npm run typecheck",
+				"cd playwright && npm run test -- tests/rbac/admin-route-flow.spec.ts"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": ["frontend/src/components/admin/AdminSidebar.tsx"]
+			}
+		},
+		{
+			"id": "routing-1",
+			"title": "Create Inventory Admin Route",
+			"category": "routing",
+			"description": "Route /admin/inventory exists under admin App Router and renders inside existing admin layout with current auth guard behavior.",
+			"steps": [
+				"cd frontend && npm run typecheck",
+				"cd playwright && npm run test -- tests/rbac/admin-route-flow.spec.ts"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/app/admin/inventory/page.tsx",
+					"frontend/src/app/admin/layout.tsx"
+				]
+			}
+		},
+		{
+			"id": "frontend-2",
+			"title": "Reuse Quantity Management Logic for Inventory Page",
+			"category": "frontend",
+			"description": "Inventory page reuses existing quantity fetch, validation, and update behavior so stock edits follow the same business rules as product admin flows.",
+			"steps": [
+				"cd frontend && npm run typecheck",
+				"manual check tren /admin/inventory voi quantity -1, 1.5, 0, 10"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["Create Inventory Admin Route"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/components/admin/AdminInventoryPanel.tsx",
+					"frontend/src/components/admin/AdminProductsPanel.tsx",
+					"frontend/src/lib/api.ts"
+				]
+			}
+		},
+		{
+			"id": "routing-2",
+			"title": "Align Admin Entry and Root Redirect Behavior",
+			"category": "routing",
+			"description": "Admin entry points (header link and /admin redirect) consistently lead to the agreed default page after Products and Inventory separation.",
+			"steps": [
+				"cd frontend && npm run typecheck",
+				"cd playwright && npm run test -- tests/rbac/admin-route-flow.spec.ts"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [
+					"Split Admin Sidebar Navigation",
+					"Create Inventory Admin Route"
+				],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/components/Header.tsx",
+					"frontend/src/app/admin/page.tsx"
+				]
+			}
+		},
+		{
+			"id": "testing-1",
+			"title": "Update Admin Navigation and Inventory Route Tests",
+			"category": "testing",
+			"description": "Automated RBAC and route tests cover separate Products and Inventory navigation and /admin/inventory accessibility behavior.",
+			"steps": [
+				"cd playwright && npm run test -- tests/rbac/admin-route-flow.spec.ts",
+				"cd playwright && npm run test -- tests/rbac/admin-inventory-flow.spec.ts"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [
+					"Split Admin Sidebar Navigation",
+					"Create Inventory Admin Route",
+					"Reuse Quantity Management Logic for Inventory Page",
+					"Align Admin Entry and Root Redirect Behavior"
+				],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"playwright/tests/rbac/admin-route-flow.spec.ts",
+					"playwright/tests/rbac/admin-inventory-flow.spec.ts"
+				]
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"Admin pages under frontend/src/app/admin/* use thin page wrappers and shared admin layout.",
+			"Admin sidebar links are centralized in frontend/src/components/admin/AdminSidebar.tsx.",
+			"Inventory quantity is currently handled as product.quantity in AdminProductsPanel and backend productService validation."
+		],
+		"keyFiles": [
+			"frontend/src/app/admin/layout.tsx",
+			"frontend/src/app/admin/products/page.tsx",
+			"frontend/src/components/admin/AdminProductsPanel.tsx",
+			"frontend/src/components/admin/AdminSidebar.tsx",
+			"frontend/src/lib/api.ts",
+			"backend/src/services/productService.js",
+			"playwright/tests/rbac/admin-route-flow.spec.ts"
+		],
+		"nonGoals": [
+			"No backend schema or endpoint changes for advanced warehouse/reservation inventory.",
+			"No full admin UI redesign outside products and inventory navigation/page scope.",
+			"No audit-log system for stock adjustments in this bead."
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": true,
+		"conflicts_with": [],
+		"blocks": [],
+		"estimated_hours": 6
+	}
+}

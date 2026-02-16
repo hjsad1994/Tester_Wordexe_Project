@@ -32,7 +32,14 @@ const createEmptyProductForm = (categoryId = ''): ProductFormState => ({
   description: '',
 });
 
-export default function AdminProductsPanel() {
+type AdminProductsPanelView = 'products' | 'inventory';
+
+export default function AdminProductsPanel({
+  view = 'products',
+}: {
+  view?: AdminProductsPanelView;
+}) {
+  const isInventoryView = view === 'inventory';
   const [adminProducts, setAdminProducts] = useState<ApiProduct[]>([]);
   const [adminCategories, setAdminCategories] = useState<ApiCategory[]>([]);
   const [adminLoading, setAdminLoading] = useState(false);
@@ -51,12 +58,21 @@ export default function AdminProductsPanel() {
   const productModalRef = useRef<HTMLDivElement | null>(null);
   const deleteModalRef = useRef<HTMLDivElement | null>(null);
   const productNameInputRef = useRef<HTMLInputElement | null>(null);
+  const quantityInputRef = useRef<HTMLInputElement | null>(null);
   const deleteCancelButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const editingProduct = useMemo(
     () => adminProducts.find((product) => product._id === editingProductId) ?? null,
     [adminProducts, editingProductId]
   );
+
+  const displayedProducts = useMemo(() => {
+    if (!isInventoryView) {
+      return adminProducts;
+    }
+
+    return [...adminProducts].sort((a, b) => (a.quantity ?? 0) - (b.quantity ?? 0));
+  }, [adminProducts, isInventoryView]);
 
   const editingProductImage = editingProduct?.images?.[0] || null;
   const previewImageUrl =
@@ -187,9 +203,14 @@ export default function AdminProductsPanel() {
     }
 
     queueMicrotask(() => {
+      if (isInventoryView) {
+        quantityInputRef.current?.focus();
+        return;
+      }
+
       productNameInputRef.current?.focus();
     });
-  }, [productModalOpen]);
+  }, [isInventoryView, productModalOpen]);
 
   useEffect(() => {
     if (!deletingProduct) {
@@ -204,7 +225,43 @@ export default function AdminProductsPanel() {
   const handleProductSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!productForm.name.trim() || productForm.price.trim() === '' || !productForm.category) {
+    const quantityInput = productForm.quantity.trim();
+    const parsedQuantity = quantityInput === '' ? 0 : Number(quantityInput);
+    if (!Number.isInteger(parsedQuantity) || parsedQuantity < 0) {
+      setAdminError('Tồn kho phải là số nguyên không âm');
+      return;
+    }
+
+    if (isInventoryView) {
+      if (!editingProductId) {
+        setAdminError('Vui lòng chọn sản phẩm để cập nhật tồn kho');
+        return;
+      }
+
+      try {
+        setIsSubmittingProduct(true);
+        setAdminError(null);
+
+        const updated = await updateProductApi(editingProductId, {
+          quantity: parsedQuantity,
+        });
+
+        setAdminProducts((prev) =>
+          prev.map((product) => (product._id === updated._id ? updated : product))
+        );
+
+        setProductModalOpen(false);
+        resetProductForm();
+      } catch (error) {
+        setAdminError(error instanceof Error ? error.message : 'Không thể cập nhật tồn kho');
+      } finally {
+        setIsSubmittingProduct(false);
+      }
+
+      return;
+    }
+
+    if (!productForm.name || !productForm.price || !productForm.category) {
       setAdminError('Vui lòng nhập đầy đủ tên, giá và danh mục sản phẩm');
       return;
     }
@@ -212,13 +269,6 @@ export default function AdminProductsPanel() {
     const parsedPrice = Number(productForm.price);
     if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
       setAdminError('Giá sản phẩm phải là số không âm');
-      return;
-    }
-
-    const quantityInput = productForm.quantity.trim();
-    const parsedQuantity = quantityInput === '' ? 0 : Number(quantityInput);
-    if (!Number.isInteger(parsedQuantity) || parsedQuantity < 0) {
-      setAdminError('Tồn kho phải là số nguyên không âm');
       return;
     }
 
@@ -405,13 +455,45 @@ export default function AdminProductsPanel() {
     );
   };
 
+  const getStockLevel = (quantity?: number) => {
+    const value = quantity ?? 0;
+    if (value <= 0) {
+      return {
+        label: 'Hết hàng',
+        badgeClass:
+          'inline-flex rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-xs font-semibold text-rose-600',
+        note: 'Cần nhập ngay',
+      };
+    }
+
+    if (value <= 5) {
+      return {
+        label: 'Sắp hết',
+        badgeClass:
+          'inline-flex rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700',
+        note: 'Cần bổ sung',
+      };
+    }
+
+    return {
+      label: 'Ổn định',
+      badgeClass:
+        'inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700',
+      note: 'Đủ bán',
+    };
+  };
+
   return (
     <div className="rounded-3xl border border-pink-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-xl font-bold text-[var(--text-primary)]">Bảng quản trị sản phẩm</h2>
+          <h2 className="text-xl font-bold text-[var(--text-primary)]">
+            {isInventoryView ? 'Bảng quản trị tồn kho' : 'Bảng quản trị sản phẩm'}
+          </h2>
           <p className="mt-1 text-sm text-[var(--text-muted)]">
-            CRUD sản phẩm dành riêng cho tài khoản admin
+            {isInventoryView
+              ? 'Theo dõi và điều chỉnh số lượng tồn kho theo từng sản phẩm.'
+              : 'CRUD sản phẩm dành riêng cho tài khoản admin'}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -421,12 +503,14 @@ export default function AdminProductsPanel() {
           >
             Làm mới dữ liệu
           </button>
-          <button
-            onClick={openCreateModal}
-            className="min-h-[44px] rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:from-pink-600 hover:to-rose-600"
-          >
-            Thêm sản phẩm
-          </button>
+          {!isInventoryView && (
+            <button
+              onClick={openCreateModal}
+              className="min-h-[44px] rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:from-pink-600 hover:to-rose-600"
+            >
+              Thêm sản phẩm
+            </button>
+          )}
         </div>
       </div>
 
@@ -442,10 +526,10 @@ export default function AdminProductsPanel() {
             <tr className="border-b border-pink-100 text-left text-[var(--text-muted)]">
               <th className="py-2 pr-2">Ảnh</th>
               <th className="py-2 pr-2">Tên</th>
-              <th className="py-2 pr-2">Giá</th>
+              <th className="py-2 pr-2">{isInventoryView ? 'Danh mục' : 'Giá'}</th>
               <th className="py-2 pr-2">Tồn kho</th>
-              <th className="py-2 pr-2">Danh mục</th>
-              <th className="py-2 pr-2">Trạng thái</th>
+              <th className="py-2 pr-2">{isInventoryView ? 'Mức tồn' : 'Danh mục'}</th>
+              <th className="py-2 pr-2">{isInventoryView ? 'Khuyến nghị' : 'Trạng thái'}</th>
               <th className="py-2">Thao tác</th>
             </tr>
           </thead>
@@ -457,55 +541,73 @@ export default function AdminProductsPanel() {
                 </td>
               </tr>
             ) : (
-              adminProducts.map((product) => (
-                <tr key={product._id} className="align-top border-b border-pink-50">
-                  <td className="py-3 pr-2">
-                    {product.images?.[0] ? (
-                      <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-pink-100">
-                        <Image
-                          src={product.images[0]}
-                          alt={`Ảnh sản phẩm ${product.name}`}
-                          fill
-                          className="object-cover"
-                          unoptimized
-                        />
+              displayedProducts.map((product) => {
+                const stockLevel = getStockLevel(product.quantity);
+
+                return (
+                  <tr key={product._id} className="align-top border-b border-pink-50">
+                    <td className="py-3 pr-2">
+                      {product.images?.[0] ? (
+                        <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-pink-100">
+                          <Image
+                            src={product.images[0]}
+                            alt={`Ảnh sản phẩm ${product.name}`}
+                            fill
+                            className="object-cover"
+                            unoptimized
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-dashed border-pink-200 text-xs text-pink-400">
+                          Chưa có
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-3 pr-2 font-medium text-[var(--text-primary)]">
+                      {product.name}
+                    </td>
+                    <td className="py-3 pr-2">
+                      {isInventoryView
+                        ? getCategoryName(product)
+                        : `${Number(product.price).toLocaleString('vi-VN')}đ`}
+                    </td>
+                    <td className="py-3 pr-2">
+                      {product.quantity > 0 ? `${product.quantity} sản phẩm` : 'Hết hàng'}
+                    </td>
+                    <td className="py-3 pr-2">
+                      {isInventoryView ? (
+                        <span className={stockLevel.badgeClass}>{stockLevel.label}</span>
+                      ) : (
+                        getCategoryName(product)
+                      )}
+                    </td>
+                    <td className="py-3 pr-2">
+                      {isInventoryView ? stockLevel.note : product.isActive ? 'Hiển thị' : 'Ẩn'}
+                    </td>
+                    <td className="py-3">
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          onClick={() => handleEditProduct(product)}
+                          className="min-h-[36px] rounded-lg border border-pink-300 px-3 py-1.5 text-pink-600 transition-colors hover:bg-pink-50"
+                        >
+                          {isInventoryView ? 'Cập nhật tồn' : 'Sửa'}
+                        </button>
+                        {!isInventoryView && (
+                          <button
+                            onClick={() => {
+                              setAdminError(null);
+                              setDeletingProduct(product);
+                            }}
+                            className="min-h-[36px] rounded-lg border border-rose-300 px-3 py-1.5 text-rose-600 transition-colors hover:bg-rose-50"
+                          >
+                            Xóa
+                          </button>
+                        )}
                       </div>
-                    ) : (
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-dashed border-pink-200 text-xs text-pink-400">
-                        Chưa có
-                      </div>
-                    )}
-                  </td>
-                  <td className="py-3 pr-2 font-medium text-[var(--text-primary)]">
-                    {product.name}
-                  </td>
-                  <td className="py-3 pr-2">{Number(product.price).toLocaleString('vi-VN')}đ</td>
-                  <td className="py-3 pr-2">
-                    {product.quantity > 0 ? `${product.quantity} sản phẩm` : 'Hết hàng'}
-                  </td>
-                  <td className="py-3 pr-2">{getCategoryName(product)}</td>
-                  <td className="py-3 pr-2">{product.isActive ? 'Hiển thị' : 'Ẩn'}</td>
-                  <td className="py-3">
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        onClick={() => handleEditProduct(product)}
-                        className="min-h-[36px] rounded-lg border border-pink-300 px-3 py-1.5 text-pink-600 transition-colors hover:bg-pink-50"
-                      >
-                        Sửa
-                      </button>
-                      <button
-                        onClick={() => {
-                          setAdminError(null);
-                          setDeletingProduct(product);
-                        }}
-                        className="min-h-[36px] rounded-lg border border-rose-300 px-3 py-1.5 text-rose-600 transition-colors hover:bg-rose-50"
-                      >
-                        Xóa
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
@@ -533,10 +635,16 @@ export default function AdminProductsPanel() {
                   id="product-modal-title"
                   className="text-lg font-bold text-[var(--text-primary)]"
                 >
-                  {editingProductId ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}
+                  {editingProductId
+                    ? isInventoryView
+                      ? 'Cập nhật tồn kho'
+                      : 'Chỉnh sửa sản phẩm'
+                    : 'Thêm sản phẩm mới'}
                 </h3>
                 <p className="mt-1 text-sm text-[var(--text-muted)]">
-                  Cập nhật thông tin sản phẩm và ảnh hiển thị ngay trong một modal.
+                  {isInventoryView
+                    ? 'Chỉ chỉnh sửa số lượng tồn kho, không thay đổi thông tin sản phẩm khác.'
+                    : 'Cập nhật thông tin sản phẩm và ảnh hiển thị ngay trong một modal.'}
                 </p>
               </div>
               <button
@@ -549,144 +657,193 @@ export default function AdminProductsPanel() {
             </div>
 
             <form onSubmit={handleProductSubmit} className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <label className="space-y-1.5 text-sm font-medium text-[var(--text-primary)]">
-                  Tên sản phẩm
-                  <input
-                    ref={productNameInputRef}
-                    type="text"
-                    value={productForm.name}
-                    onChange={(event) =>
-                      setProductForm((prev) => ({
-                        ...prev,
-                        name: event.target.value,
-                      }))
-                    }
-                    placeholder="Ví dụ: Gấu bông thỏ kem"
-                    className="w-full rounded-xl border border-pink-200 px-3 py-2.5 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
-                  />
-                </label>
-
-                <label className="space-y-1.5 text-sm font-medium text-[var(--text-primary)]">
-                  Giá bán
-                  <input
-                    type="number"
-                    min={0}
-                    value={productForm.price}
-                    onChange={(event) =>
-                      setProductForm((prev) => ({
-                        ...prev,
-                        price: event.target.value,
-                      }))
-                    }
-                    placeholder="120000"
-                    className="w-full rounded-xl border border-pink-200 px-3 py-2.5 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
-                  />
-                </label>
-
-                <label className="space-y-1.5 text-sm font-medium text-[var(--text-primary)]">
-                  Tồn kho
-                  <input
-                    type="number"
-                    min={0}
-                    step={1}
-                    inputMode="numeric"
-                    value={productForm.quantity}
-                    onChange={(event) =>
-                      setProductForm((prev) => ({
-                        ...prev,
-                        quantity: event.target.value,
-                      }))
-                    }
-                    placeholder="0"
-                    className="w-full rounded-xl border border-pink-200 px-3 py-2.5 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
-                  />
-                </label>
-
-                <label className="space-y-1.5 text-sm font-medium text-[var(--text-primary)]">
-                  Danh mục
-                  <select
-                    value={productForm.category}
-                    onChange={(event) =>
-                      setProductForm((prev) => ({
-                        ...prev,
-                        category: event.target.value,
-                      }))
-                    }
-                    className="w-full rounded-xl border border-pink-200 px-3 py-2.5 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
-                  >
-                    <option value="">Chọn danh mục</option>
-                    {adminCategories.map((category) => (
-                      <option key={category._id} value={category._id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="space-y-1.5 text-sm font-medium text-[var(--text-primary)]">
-                  Mô tả ngắn
-                  <textarea
-                    value={productForm.description}
-                    onChange={(event) =>
-                      setProductForm((prev) => ({
-                        ...prev,
-                        description: event.target.value,
-                      }))
-                    }
-                    rows={3}
-                    placeholder="Mô tả ngắn gọn về sản phẩm"
-                    className="w-full resize-none rounded-xl border border-pink-200 px-3 py-2.5 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
-                  />
-                </label>
-              </div>
-
-              <div className="rounded-2xl border border-pink-100 bg-pink-50/40 p-4">
-                <div className="mb-2 flex items-center justify-between gap-2">
-                  <h4 className="text-sm font-semibold text-[var(--text-primary)]">Ảnh sản phẩm</h4>
-                  {(previewImageUrl || selectedImageFile || editingProductImage) && (
-                    <button
-                      type="button"
-                      onClick={handleRemoveImage}
-                      className="min-h-[32px] rounded-lg border border-rose-300 px-3 py-1 text-xs font-medium text-rose-600 transition-colors hover:bg-rose-50"
-                    >
-                      Gỡ ảnh
-                    </button>
-                  )}
-                </div>
-
-                <label className="mb-3 flex min-h-[48px] cursor-pointer items-center justify-center rounded-xl border border-dashed border-pink-300 bg-white px-3 py-2 text-sm font-medium text-pink-600 transition-colors hover:bg-pink-50">
-                  Chọn ảnh (JPEG/PNG/WebP/GIF, tối đa 5MB)
-                  <input
-                    ref={imageInputRef}
-                    data-testid="product-image-input"
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    onChange={handleImageFileChange}
-                    className="sr-only"
-                  />
-                </label>
-
-                {imageUploadError && (
-                  <p className="mb-2 text-sm text-rose-600">{imageUploadError}</p>
-                )}
-
-                {previewImageUrl ? (
-                  <div className="relative h-44 w-full overflow-hidden rounded-2xl border border-pink-200 bg-white">
-                    <Image
-                      src={previewImageUrl}
-                      alt="Ảnh xem trước"
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
+              {isInventoryView ? (
+                <div className="space-y-4">
+                  <div className="grid gap-3 rounded-2xl border border-pink-100 bg-pink-50/40 p-4 text-sm text-[var(--text-muted)] sm:grid-cols-2">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-pink-500">
+                        Sản phẩm
+                      </p>
+                      <p className="mt-1 font-semibold text-[var(--text-primary)]">
+                        {productForm.name || 'Không xác định'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-pink-500">
+                        Danh mục
+                      </p>
+                      <p className="mt-1 font-medium text-[var(--text-primary)]">
+                        {editingProduct ? getCategoryName(editingProduct) : 'Không xác định'}
+                      </p>
+                    </div>
                   </div>
-                ) : (
-                  <p className="text-xs text-[var(--text-muted)]">
-                    Chưa chọn ảnh mới. Bạn có thể thay ảnh hiện tại hoặc giữ nguyên khi lưu.
-                  </p>
-                )}
-              </div>
+
+                  <label className="space-y-1.5 text-sm font-medium text-[var(--text-primary)]">
+                    Số lượng tồn kho
+                    <input
+                      id="product-quantity"
+                      ref={quantityInputRef}
+                      type="number"
+                      min={0}
+                      step={1}
+                      inputMode="numeric"
+                      value={productForm.quantity}
+                      onChange={(event) =>
+                        setProductForm((prev) => ({
+                          ...prev,
+                          quantity: event.target.value,
+                        }))
+                      }
+                      placeholder="0"
+                      className="w-full rounded-xl border border-pink-200 px-3 py-2.5 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
+                    />
+                  </label>
+                </div>
+              ) : (
+                <>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <label className="space-y-1.5 text-sm font-medium text-[var(--text-primary)]">
+                      Tên sản phẩm
+                      <input
+                        ref={productNameInputRef}
+                        type="text"
+                        value={productForm.name}
+                        onChange={(event) =>
+                          setProductForm((prev) => ({
+                            ...prev,
+                            name: event.target.value,
+                          }))
+                        }
+                        placeholder="Ví dụ: Gấu bông thỏ kem"
+                        className="w-full rounded-xl border border-pink-200 px-3 py-2.5 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
+                      />
+                    </label>
+
+                    <label className="space-y-1.5 text-sm font-medium text-[var(--text-primary)]">
+                      Giá bán
+                      <input
+                        type="number"
+                        min={0}
+                        value={productForm.price}
+                        onChange={(event) =>
+                          setProductForm((prev) => ({
+                            ...prev,
+                            price: event.target.value,
+                          }))
+                        }
+                        placeholder="120000"
+                        className="w-full rounded-xl border border-pink-200 px-3 py-2.5 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
+                      />
+                    </label>
+
+                    <label className="space-y-1.5 text-sm font-medium text-[var(--text-primary)]">
+                      Tồn kho
+                      <input
+                        id="product-quantity"
+                        type="number"
+                        min={0}
+                        step={1}
+                        inputMode="numeric"
+                        value={productForm.quantity}
+                        onChange={(event) =>
+                          setProductForm((prev) => ({
+                            ...prev,
+                            quantity: event.target.value,
+                          }))
+                        }
+                        placeholder="0"
+                        className="w-full rounded-xl border border-pink-200 px-3 py-2.5 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
+                      />
+                    </label>
+
+                    <label className="space-y-1.5 text-sm font-medium text-[var(--text-primary)]">
+                      Danh mục
+                      <select
+                        value={productForm.category}
+                        onChange={(event) =>
+                          setProductForm((prev) => ({
+                            ...prev,
+                            category: event.target.value,
+                          }))
+                        }
+                        className="w-full rounded-xl border border-pink-200 px-3 py-2.5 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
+                      >
+                        <option value="">Chọn danh mục</option>
+                        {adminCategories.map((category) => (
+                          <option key={category._id} value={category._id}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="space-y-1.5 text-sm font-medium text-[var(--text-primary)]">
+                      Mô tả ngắn
+                      <textarea
+                        value={productForm.description}
+                        onChange={(event) =>
+                          setProductForm((prev) => ({
+                            ...prev,
+                            description: event.target.value,
+                          }))
+                        }
+                        rows={3}
+                        placeholder="Mô tả ngắn gọn về sản phẩm"
+                        className="w-full resize-none rounded-xl border border-pink-200 px-3 py-2.5 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
+                      />
+                    </label>
+                  </div>
+
+                  <div className="rounded-2xl border border-pink-100 bg-pink-50/40 p-4">
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                      <h4 className="text-sm font-semibold text-[var(--text-primary)]">
+                        Ảnh sản phẩm
+                      </h4>
+                      {(previewImageUrl || selectedImageFile || editingProductImage) && (
+                        <button
+                          type="button"
+                          onClick={handleRemoveImage}
+                          className="min-h-[32px] rounded-lg border border-rose-300 px-3 py-1 text-xs font-medium text-rose-600 transition-colors hover:bg-rose-50"
+                        >
+                          Gỡ ảnh
+                        </button>
+                      )}
+                    </div>
+
+                    <label className="mb-3 flex min-h-[48px] cursor-pointer items-center justify-center rounded-xl border border-dashed border-pink-300 bg-white px-3 py-2 text-sm font-medium text-pink-600 transition-colors hover:bg-pink-50">
+                      Chọn ảnh (JPEG/PNG/WebP/GIF, tối đa 5MB)
+                      <input
+                        ref={imageInputRef}
+                        data-testid="product-image-input"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        onChange={handleImageFileChange}
+                        className="sr-only"
+                      />
+                    </label>
+
+                    {imageUploadError && (
+                      <p className="mb-2 text-sm text-rose-600">{imageUploadError}</p>
+                    )}
+
+                    {previewImageUrl ? (
+                      <div className="relative h-44 w-full overflow-hidden rounded-2xl border border-pink-200 bg-white">
+                        <Image
+                          src={previewImageUrl}
+                          alt="Ảnh xem trước"
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </div>
+                    ) : (
+                      <p className="text-xs text-[var(--text-muted)]">
+                        Chưa chọn ảnh mới. Bạn có thể thay ảnh hiện tại hoặc giữ nguyên khi lưu.
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
 
               <div className="flex flex-wrap justify-end gap-2 pt-2">
                 <button
@@ -704,9 +861,11 @@ export default function AdminProductsPanel() {
                 >
                   {isSubmittingProduct
                     ? 'Đang lưu...'
-                    : editingProductId
-                      ? 'Lưu thay đổi'
-                      : 'Lưu sản phẩm'}
+                    : isInventoryView
+                      ? 'Cập nhật tồn kho'
+                      : editingProductId
+                        ? 'Lưu thay đổi'
+                        : 'Lưu sản phẩm'}
                 </button>
               </div>
             </form>
