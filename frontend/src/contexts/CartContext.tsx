@@ -206,21 +206,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
 		dispatch({ type: "CLEAR_BUY_NOW" });
 	};
 
-	const value = useMemo(
-		() => ({
-			cartItems: state.items,
-			cartCount,
-			cartTotal,
-			buyNowItem: state.buyNowItem,
-			addToCart,
-			removeFromCart,
-			updateQuantity,
-			clearCart,
-			setBuyNowItem,
-			clearBuyNowItem,
-		}),
-		[state.items, state.buyNowItem, cartCount, cartTotal],
-	);
+	const value = {
+		cartItems: state.items,
+		cartCount,
+		cartTotal,
+		buyNowItem: state.buyNowItem,
+		addToCart,
+		removeFromCart,
+		updateQuantity,
+		clearCart,
+		setBuyNowItem,
+		clearBuyNowItem,
+	};
 
 	return <CartContext value={value}>{children}</CartContext>;
 }
