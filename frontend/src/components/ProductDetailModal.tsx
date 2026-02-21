@@ -1,23 +1,23 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  CloseIcon,
-  HeartIcon,
-  HeartOutlineIcon,
-  StarIcon,
-  CartIcon,
-  TruckIcon,
-  ShieldIcon,
-  GiftIcon,
-  SparkleIcon,
-  ArrowRightIcon,
-} from './icons';
-import { productIllustrations } from './icons/ProductIllustrations';
-import { Product } from './ProductCard';
+import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
+import {
+  ArrowRightIcon,
+  CartIcon,
+  CloseIcon,
+  GiftIcon,
+  HeartIcon,
+  HeartOutlineIcon,
+  ShieldIcon,
+  SparkleIcon,
+  StarIcon,
+  TruckIcon,
+} from './icons';
+import { productIllustrations } from './icons/ProductIllustrations';
+import type { Product } from './ProductCard';
 
 interface ProductDetailModalProps {
   product: Product | null;
@@ -26,13 +26,8 @@ interface ProductDetailModalProps {
 }
 
 // Extended product details
-const productDetails: Record<
-  string,
-  { description: string; features: string[]; colors?: string[] }
-> = {
+const productExtras: Record<string, { features: string[]; colors?: string[] }> = {
   '1': {
-    description:
-      'Bộ quần áo cotton organic cao cấp, được làm từ 100% cotton hữu cơ, mềm mại và an toàn cho làn da nhạy cảm của bé. Thiết kế tiện lợi với nút bấm dễ dàng thay đồ.',
     features: [
       '100% Cotton Organic',
       'Không chất tẩy độc hại',
@@ -42,19 +37,13 @@ const productDetails: Record<
     colors: ['Trắng', 'Hồng nhạt', 'Xanh mint'],
   },
   '2': {
-    description:
-      'Bình sữa chống đầy hơi với công nghệ van khí tiên tiến, giúp bé bú thoải mái mà không bị sặc hay đầy bụng. Chất liệu nhựa PP an toàn, không BPA.',
     features: ['Chống đầy hơi', 'Không BPA', 'Núm ti silicon mềm', 'Dễ vệ sinh'],
   },
   '3': {
-    description:
-      'Gấu bông Teddy Bear siêu mềm mại, làm từ chất liệu plush cao cấp, an toàn cho bé. Người bạn đồng hành đáng yêu cho những giấc ngủ ngon.',
     features: ['Chất liệu plush mềm', 'An toàn cho bé', 'Có thể giặt', 'Không rụng lông'],
     colors: ['Nâu', 'Trắng kem', 'Hồng'],
   },
   default: {
-    description:
-      'Sản phẩm chất lượng cao, được thiết kế đặc biệt cho bé yêu của bạn. An toàn, tiện lợi và đáng tin cậy.',
     features: ['Chất lượng cao', 'An toàn cho bé', 'Thiết kế tiện lợi', 'Đảm bảo chính hãng'],
   },
 };
@@ -70,7 +59,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
 
   const liked = isInWishlist(product.id);
 
-  const details = productDetails[product.id] || productDetails.default;
+  const extras = productExtras[product.id] || productExtras.default;
   const IllustrationComponent = productIllustrations[product.illustration];
 
   const discount = product.originalPrice
@@ -249,12 +238,12 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
               <div className="space-y-4 mb-6">
                 {/* Description */}
                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                  {details.description}
+                  {product.description || 'Chưa có mô tả cho sản phẩm này'}
                 </p>
 
                 {/* Features */}
                 <div className="grid grid-cols-2 gap-2">
-                  {details.features.map((feature, i) => (
+                  {extras.features.map((feature, i) => (
                     <div
                       key={i}
                       className="flex items-center gap-2 text-sm text-[var(--text-secondary)]"
@@ -278,13 +267,13 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                 </div>
 
                 {/* Colors if available */}
-                {details.colors && (
+                {extras.colors && (
                   <div>
                     <span className="text-sm font-medium text-[var(--text-primary)] mb-2 block">
                       Màu sắc:
                     </span>
                     <div className="flex gap-2">
-                      {details.colors.map((color, i) => (
+                      {extras.colors.map((color, i) => (
                         <button
                           key={i}
                           className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
@@ -314,7 +303,11 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                     rating: 5,
                     comment: 'Chất lượng tuyệt vời, giao hàng nhanh.',
                   },
-                  { name: 'Lê Thị L.', rating: 4, comment: 'Đóng gói cẩn thận, sẽ mua lại.' },
+                  {
+                    name: 'Lê Thị L.',
+                    rating: 4,
+                    comment: 'Đóng gói cẩn thận, sẽ mua lại.',
+                  },
                 ].map((review, i) => (
                   <div key={i} className="p-3 rounded-xl bg-pink-50/50 border border-pink-100">
                     <div className="flex items-center gap-2 mb-1">

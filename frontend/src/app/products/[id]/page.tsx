@@ -50,6 +50,7 @@ const mapApiProductToCard = (product: ApiProduct): Product => {
     id: product._id,
     slug: product.slug || toProductSlug(product.name),
     name: product.name,
+    description: product.description,
     price: product.price,
     quantity: product.quantity,
     imageUrl: product.images?.[0],
@@ -188,21 +189,16 @@ const allProducts: Product[] = [
 ];
 
 // Extended product details
-const productDetails: Record<
+const productExtras: Record<
   string,
   {
-    description: string;
-    longDescription: string;
     features: string[];
-    specifications: { label: string; value: string }[];
-    colors?: { name: string; hex: string }[];
+    specifications: Record<string, string>;
+    colors?: string[];
     sizes?: string[];
   }
 > = {
   '1': {
-    description: 'Bộ quần áo cotton organic cao cấp, được làm từ 100% cotton hữu cơ.',
-    longDescription:
-      'Bộ quần áo được thiết kế đặc biệt cho làn da nhạy cảm của bé sơ sinh. Chất liệu cotton organic 100% mềm mại, thoáng khí, không gây kích ứng. Đường may tỉ mỉ, chắc chắn. Nút bấm tiện lợi giúp ba mẹ dễ dàng thay đồ cho bé. Phù hợp cho bé từ 0-12 tháng tuổi.',
     features: [
       '100% Cotton Organic được chứng nhận GOTS',
       'Không chất tẩy độc hại',
@@ -211,23 +207,16 @@ const productDetails: Record<
       'Thiết kế thoáng mát cho mùa hè',
       'Co giãn 4 chiều thoải mái',
     ],
-    specifications: [
-      { label: 'Chất liệu', value: '100% Cotton Organic' },
-      { label: 'Xuất xứ', value: 'Việt Nam' },
-      { label: 'Độ tuổi', value: '0-12 tháng' },
-      { label: 'Bảo hành', value: '30 ngày đổi trả' },
-    ],
-    colors: [
-      { name: 'Trắng', hex: '#FFFFFF' },
-      { name: 'Hồng nhạt', hex: '#FFC0CB' },
-      { name: 'Xanh mint', hex: '#98FF98' },
-    ],
+    specifications: {
+      'Chất liệu': '100% Cotton Organic',
+      'Xuất xứ': 'Việt Nam',
+      'Độ tuổi': '0-12 tháng',
+      'Bảo hành': '30 ngày đổi trả',
+    },
+    colors: ['Trắng | #FFFFFF', 'Hồng nhạt | #FFC0CB', 'Xanh mint | #98FF98'],
     sizes: ['S (0-3M)', 'M (3-6M)', 'L (6-9M)', 'XL (9-12M)'],
   },
   '2': {
-    description: 'Bình sữa chống đầy hơi với công nghệ van khí tiên tiến.',
-    longDescription:
-      'Bình sữa Pigeon được thiết kế với công nghệ van khí độc quyền, giúp điều tiết lượng không khí vào bình, ngăn ngừa tình trạng bé nuốt phải khí khi bú. Núm ti silicon mềm mại, có hình dáng tương tự núm vú mẹ, giúp bé dễ dàng chuyển đổi giữa bú mẹ và bú bình.',
     features: [
       'Công nghệ van khí chống đầy hơi',
       'Núm ti Peristaltic Plus',
@@ -236,17 +225,14 @@ const productDetails: Record<
       'Vạch chia ml rõ ràng',
       'Nắp đậy kín chống tràn',
     ],
-    specifications: [
-      { label: 'Dung tích', value: '240ml' },
-      { label: 'Chất liệu', value: 'Nhựa PP cao cấp' },
-      { label: 'Xuất xứ', value: 'Nhật Bản' },
-      { label: 'Độ tuổi', value: '0+ tháng' },
-    ],
+    specifications: {
+      'Dung tích': '240ml',
+      'Chất liệu': 'Nhựa PP cao cấp',
+      'Xuất xứ': 'Nhật Bản',
+      'Độ tuổi': '0+ tháng',
+    },
   },
   '3': {
-    description: 'Gấu bông Teddy Bear siêu mềm mại, người bạn đồng hành đáng yêu.',
-    longDescription:
-      'Gấu bông Teddy Bear được làm từ chất liệu plush cao cấp, siêu mềm mại và an toàn cho bé. Bông nhồi bên trong được xử lý kháng khuẩn, không gây dị ứng. Đường may chắc chắn, mắt và mũi được thêu trực tiếp thay vì dùng nút, đảm bảo an toàn tuyệt đối cho bé.',
     features: [
       'Chất liệu plush siêu mềm',
       'Bông nhồi kháng khuẩn',
@@ -255,22 +241,15 @@ const productDetails: Record<
       'Không rụng lông',
       'Đạt tiêu chuẩn EN71',
     ],
-    specifications: [
-      { label: 'Kích thước', value: '35cm' },
-      { label: 'Chất liệu', value: 'Plush + PP Cotton' },
-      { label: 'Xuất xứ', value: 'Việt Nam' },
-      { label: 'Độ tuổi', value: '0+ tháng' },
-    ],
-    colors: [
-      { name: 'Nâu', hex: '#8B4513' },
-      { name: 'Kem', hex: '#FFFDD0' },
-      { name: 'Hồng', hex: '#FFB6C1' },
-    ],
+    specifications: {
+      'Kích thước': '35cm',
+      'Chất liệu': 'Plush + PP Cotton',
+      'Xuất xứ': 'Việt Nam',
+      'Độ tuổi': '0+ tháng',
+    },
+    colors: ['Nâu | #8B4513', 'Kem | #FFFDD0', 'Hồng | #FFB6C1'],
   },
   default: {
-    description: 'Sản phẩm chất lượng cao, được thiết kế đặc biệt cho bé yêu của bạn.',
-    longDescription:
-      'Sản phẩm được sản xuất theo tiêu chuẩn an toàn quốc tế, đảm bảo chất lượng và an toàn tuyệt đối cho bé. Thiết kế tiện lợi, dễ sử dụng, phù hợp với nhu cầu chăm sóc bé hàng ngày của ba mẹ.',
     features: [
       'Chất lượng cao cấp',
       'An toàn cho bé',
@@ -279,11 +258,11 @@ const productDetails: Record<
       'Bảo hành đổi trả',
       'Hỗ trợ 24/7',
     ],
-    specifications: [
-      { label: 'Chất lượng', value: 'Cao cấp' },
-      { label: 'Bảo hành', value: '30 ngày' },
-      { label: 'Xuất xứ', value: 'Chính hãng' },
-    ],
+    specifications: {
+      'Chất lượng': 'Cao cấp',
+      'Bảo hành': '30 ngày',
+      'Xuất xứ': 'Chính hãng',
+    },
   },
 };
 
@@ -429,13 +408,20 @@ export default function ProductDetailPage() {
     };
   }, [routeParam]);
 
-  const details = product
-    ? productDetails[product.id] || productDetails.default
-    : productDetails.default;
-  const colorOptions = details.colors || [];
-  const sizeOptions = details.sizes || [];
+  const extras = product
+    ? productExtras[product.id] || productExtras.default
+    : productExtras.default;
+  const colorOptions = extras.colors || [];
+  const parsedColorOptions = colorOptions.map((color) => {
+    const [name, hex] = color.split('|').map((part) => part.trim());
+    return {
+      name,
+      hex: hex || name,
+    };
+  });
+  const sizeOptions = extras.sizes || [];
   const selectedColorIndex =
-    colorOptions.length > 0 ? Math.min(selectedColor, colorOptions.length - 1) : 0;
+    parsedColorOptions.length > 0 ? Math.min(selectedColor, parsedColorOptions.length - 1) : 0;
   const selectedSizeIndex =
     sizeOptions.length > 0 ? Math.min(selectedSize, sizeOptions.length - 1) : 0;
 
@@ -713,7 +699,7 @@ export default function ProductDetailPage() {
 
               {/* Short Description */}
               <p className="text-[var(--text-secondary)] mb-6 leading-relaxed">
-                {details.description}
+                {product.description || 'Chưa có mô tả cho sản phẩm này'}
               </p>
 
               {/* Colors */}
@@ -722,11 +708,11 @@ export default function ProductDetailPage() {
                   <label className="block text-sm font-semibold text-[var(--text-primary)] mb-3">
                     Màu sắc:{' '}
                     <span className="font-normal text-[var(--text-secondary)]">
-                      {colorOptions[selectedColorIndex].name}
+                      {parsedColorOptions[selectedColorIndex].name}
                     </span>
                   </label>
                   <div className="flex gap-3">
-                    {colorOptions.map((color, i) => (
+                    {parsedColorOptions.map((color, i) => (
                       <button
                         key={i}
                         onClick={() => setSelectedColor(i)}
@@ -920,14 +906,14 @@ export default function ProductDetailPage() {
             {activeTab === 'description' && (
               <div className="space-y-6 animate-fadeIn">
                 <p className="text-[var(--text-secondary)] leading-relaxed text-lg">
-                  {details.longDescription}
+                  {product.description || 'Chưa có mô tả cho sản phẩm này'}
                 </p>
                 <div>
                   <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
                     Tính năng nổi bật
                   </h3>
                   <div className="grid sm:grid-cols-2 gap-3">
-                    {details.features.map((feature, i) => (
+                    {extras.features.map((feature, i) => (
                       <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-pink-50/50">
                         <span className="w-6 h-6 rounded-full bg-pink-500 flex items-center justify-center flex-shrink-0 mt-0.5">
                           <svg
@@ -953,14 +939,12 @@ export default function ProductDetailPage() {
             {activeTab === 'specs' && (
               <div className="animate-fadeIn">
                 <div className="rounded-2xl border border-pink-100 overflow-hidden">
-                  {details.specifications.map((spec, i) => (
+                  {Object.entries(extras.specifications).map(([label, value], i) => (
                     <div key={i} className={`flex ${i % 2 === 0 ? 'bg-pink-50/50' : 'bg-white'}`}>
                       <div className="w-1/3 px-6 py-4 font-medium text-[var(--text-primary)]">
-                        {spec.label}
+                        {label}
                       </div>
-                      <div className="flex-1 px-6 py-4 text-[var(--text-secondary)]">
-                        {spec.value}
-                      </div>
+                      <div className="flex-1 px-6 py-4 text-[var(--text-secondary)]">{value}</div>
                     </div>
                   ))}
                 </div>

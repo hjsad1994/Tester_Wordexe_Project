@@ -60,6 +60,7 @@ const mapApiProductToCard = (product: ApiProduct): CardProduct => {
     id: product._id,
     slug: product.slug || toProductSlug(product.name),
     name: product.name,
+    description: product.description,
     price: product.price,
     imageUrl: product.images?.[0],
     illustration: categoryIllustrationMap[categoryName] || 'teddy',

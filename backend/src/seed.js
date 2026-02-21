@@ -35,6 +35,8 @@ const SEED_PRODUCTS = [
     price: 299000,
     quantity: 50,
     categoryName: 'Quần áo',
+    description:
+      'Chất liệu cotton organic mềm mịn, thấm hút tốt, an toàn cho da nhạy cảm của bé sơ sinh.',
     imageIdx: 0,
   },
   {
@@ -42,6 +44,8 @@ const SEED_PRODUCTS = [
     price: 189000,
     quantity: 100,
     categoryName: 'Bình sữa',
+    description:
+      'Van chống đầy hơi giúp bé bú êm, giảm sặc và đau bụng, dễ vệ sinh sau mỗi lần dùng.',
     imageIdx: 1,
   },
   {
@@ -49,6 +53,7 @@ const SEED_PRODUCTS = [
     price: 159000,
     quantity: 80,
     categoryName: 'Đồ chơi',
+    description: 'Gấu bông mềm mịn, ôm ấm áp, đường may chắc chắn giúp bé yên tâm chơi và ngủ.',
     imageIdx: 2,
   },
   {
@@ -56,6 +61,7 @@ const SEED_PRODUCTS = [
     price: 249000,
     quantity: 200,
     categoryName: 'Tã & Bỉm',
+    description: 'Lõi thấm hút nhanh, bề mặt siêu mềm, giúp da bé khô thoáng cả ngày lẫn đêm.',
     imageIdx: 3,
   },
   {
@@ -63,6 +69,8 @@ const SEED_PRODUCTS = [
     price: 2490000,
     quantity: 15,
     categoryName: 'Xe đẩy',
+    description:
+      'Thiết kế gấp gọn tiện mang theo, khung chắc chắn và đệm êm giúp bé ngồi thoải mái.',
     imageIdx: 4,
   },
   {
@@ -70,6 +78,7 @@ const SEED_PRODUCTS = [
     price: 1890000,
     quantity: 20,
     categoryName: 'Phụ kiện',
+    description: 'Nôi điện ru ngủ nhẹ nhàng, nhiều chế độ rung và nhạc êm giúp bé ngủ sâu hơn.',
     imageIdx: 5,
   },
   {
@@ -77,6 +86,7 @@ const SEED_PRODUCTS = [
     price: 329000,
     quantity: 60,
     categoryName: 'Phụ kiện',
+    description: 'Bộ sản phẩm dịu nhẹ gồm sữa tắm, dầu gội, lotion, hỗ trợ dưỡng ẩm da bé.',
     imageIdx: 6,
   },
   {
@@ -84,6 +94,7 @@ const SEED_PRODUCTS = [
     price: 199000,
     quantity: 75,
     categoryName: 'Quần áo',
+    description: 'Đế mềm chống trơn trượt, ôm chân vừa vặn giúp bé tập đi an toàn và tự tin hơn.',
     imageIdx: 7,
   },
   {
@@ -91,6 +102,7 @@ const SEED_PRODUCTS = [
     price: 89000,
     quantity: 150,
     categoryName: 'Phụ kiện',
+    description: 'Silicon mềm mại, hình dáng tự nhiên giúp bé ngậm dễ chịu và hạn chế kích ứng.',
     imageIdx: 1,
   },
   {
@@ -98,6 +110,7 @@ const SEED_PRODUCTS = [
     price: 129000,
     quantity: 90,
     categoryName: 'Đồ chơi',
+    description: 'Âm thanh vui tai và màu sắc nổi bật giúp kích thích thị giác, thính giác của bé.',
     imageIdx: 2,
   },
   {
@@ -105,6 +118,7 @@ const SEED_PRODUCTS = [
     price: 175000,
     quantity: 120,
     categoryName: 'Phụ kiện',
+    description: 'Bột ăn dặm organic giàu dưỡng chất, dễ tiêu hóa, phù hợp bé bắt đầu tập ăn.',
     imageIdx: 6,
   },
   {
@@ -112,6 +126,7 @@ const SEED_PRODUCTS = [
     price: 450000,
     quantity: 35,
     categoryName: 'Quần áo',
+    description: 'Lớp lông cừu ấm áp, nhẹ nhàng, giúp bé giữ nhiệt tốt khi trời lạnh hoặc gió.',
     imageIdx: 0,
   },
   {
@@ -119,6 +134,7 @@ const SEED_PRODUCTS = [
     price: 320000,
     quantity: 55,
     categoryName: 'Bình sữa',
+    description: 'Thủy tinh bền nhiệt, núm ti mềm mô phỏng ti mẹ, giúp bé bú tự nhiên hơn.',
     imageIdx: 1,
   },
   {
@@ -126,6 +142,7 @@ const SEED_PRODUCTS = [
     price: 189000,
     quantity: 65,
     categoryName: 'Đồ chơi',
+    description: 'Thỏ bông đáng yêu, chất liệu an toàn, kích thước vừa tay để bé ôm và chơi.',
     imageIdx: 2,
   },
   {
@@ -133,6 +150,7 @@ const SEED_PRODUCTS = [
     price: 289000,
     quantity: 180,
     categoryName: 'Tã & Bỉm',
+    description: 'Tã quần co giãn linh hoạt, thấm hút nhanh, giúp bé vận động thoải mái cả ngày.',
     imageIdx: 3,
   },
   {
@@ -140,6 +158,7 @@ const SEED_PRODUCTS = [
     price: 3200000,
     quantity: 10,
     categoryName: 'Xe đẩy',
+    description: 'Xe đẩy siêu nhẹ kèm ghế ngồi, chuyển đổi linh hoạt cho chuyến đi tiện lợi.',
     imageIdx: 4,
   },
 ];
@@ -231,7 +250,7 @@ async function seedProducts(categoryMap) {
       price: productData.price,
       quantity: productData.quantity,
       category: categoryId,
-      description: `${productData.name} - Sản phẩm chất lượng cao cho bé yêu`,
+      description: productData.description,
       images: imageUrl ? [imageUrl] : [],
       isActive: true,
     });

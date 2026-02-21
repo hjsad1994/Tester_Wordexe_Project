@@ -526,6 +526,7 @@ export default function AdminProductsPanel({
             <tr className="border-b border-pink-100 text-left text-[var(--text-muted)]">
               <th className="py-2 pr-2">Ảnh</th>
               <th className="py-2 pr-2">Tên</th>
+              <th className="py-2 pr-2">Mô tả</th>
               <th className="py-2 pr-2">{isInventoryView ? 'Danh mục' : 'Giá'}</th>
               <th className="py-2 pr-2">Tồn kho</th>
               <th className="py-2 pr-2">{isInventoryView ? 'Mức tồn' : 'Danh mục'}</th>
@@ -536,7 +537,7 @@ export default function AdminProductsPanel({
           <tbody>
             {adminLoading ? (
               <tr>
-                <td className="py-4 text-[var(--text-muted)]" colSpan={7}>
+                <td className="py-4 text-[var(--text-muted)]" colSpan={8}>
                   Đang tải dữ liệu quản trị...
                 </td>
               </tr>
@@ -565,6 +566,17 @@ export default function AdminProductsPanel({
                     </td>
                     <td className="py-3 pr-2 font-medium text-[var(--text-primary)]">
                       {product.name}
+                    </td>
+                    <td className="py-3 pr-2">
+                      {product.description ? (
+                        <span className="text-sm text-gray-600" title={product.description}>
+                          {product.description.length > 50
+                            ? `${product.description.slice(0, 50)}...`
+                            : product.description}
+                        </span>
+                      ) : (
+                        <span className="text-sm text-gray-400 italic">Chưa có mô tả</span>
+                      )}
                     </td>
                     <td className="py-3 pr-2">
                       {isInventoryView
