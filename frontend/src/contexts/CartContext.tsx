@@ -7,6 +7,7 @@ import {
 	useEffect,
 	useMemo,
 	useReducer,
+	useRef,
 } from "react";
 
 const STORAGE_KEY = "baby-bliss-cart";
@@ -80,7 +81,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 		case "CLEAR_BUY_NOW":
 			return { ...state, buyNowItem: null };
 		case "HYDRATE":
-			return action.payload;
+			return { ...state, ...action.payload };
 		default:
 			return state;
 	}
@@ -106,6 +107,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 		items: [],
 		buyNowItem: null,
 	});
+	const isHydrated = useRef(false);
 
 	// Hydrate cart state from localStorage on mount
 	useEffect(() => {
@@ -114,7 +116,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
 			if (stored) {
 				const parsed = JSON.parse(stored) as CartState;
 				if (parsed && Array.isArray(parsed.items)) {
-					dispatch({ type: "HYDRATE", payload: parsed });
+					// Validate each item has required numeric fields to prevent NaN propagation
+					const validItems = parsed.items.filter(
+						(item: unknown): item is CartItem => {
+							const i = item as Record<string, unknown>;
+							return (
+								typeof i?.id === "string" &&
+								typeof i?.name === "string" &&
+								typeof i?.price === "number" &&
+								typeof i?.image === "string" &&
+								typeof i?.quantity === "number" &&
+								i.quantity > 0
+							);
+						},
+					);
+					// Only persist items — buyNowItem is session-scoped
+					dispatch({
+						type: "HYDRATE",
+						payload: { items: validItems, buyNowItem: null },
+					});
 				}
 			}
 		} catch {
@@ -125,20 +145,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
 				// localStorage not available
 			}
 		}
+		isHydrated.current = true;
 	}, []);
 
-	// Sync cart state to localStorage on changes
+	// Sync cart items to localStorage on changes (buyNowItem excluded — session-scoped)
 	useEffect(() => {
+		if (!isHydrated.current) return;
 		try {
-			localStorage.setItem(
-				STORAGE_KEY,
-				JSON.stringify({ items: state.items, buyNowItem: state.buyNowItem }),
-			);
+			localStorage.setItem(STORAGE_KEY, JSON.stringify({ items: state.items }));
 		} catch {
 			// Storage quota exceeded or localStorage not available
 			console.warn("Failed to persist cart to localStorage");
 		}
-	}, [state.items, state.buyNowItem]);
+	}, [state.items]);
 
 	const cartCount = useMemo(
 		() => state.items.reduce((sum, item) => sum + item.quantity, 0),
