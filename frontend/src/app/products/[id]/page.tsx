@@ -9,7 +9,6 @@ import Header from '@/components/Header';
 import {
   ArrowRightIcon,
   CartIcon,
-  ChevronDownIcon,
   GiftIcon,
   HeartIcon,
   HeartOutlineIcon,
@@ -20,6 +19,7 @@ import {
 } from '@/components/icons';
 import { productIllustrations } from '@/components/icons/ProductIllustrations';
 import ProductCard, { type Product } from '@/components/ProductCard';
+import ProductReviews from '@/components/ProductReviews';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import {
@@ -55,8 +55,8 @@ const mapApiProductToCard = (product: ApiProduct): Product => {
     quantity: product.quantity,
     imageUrl: product.images?.[0],
     illustration: categoryIllustrationMap[categoryName] || 'teddy',
-    rating: Number((4.5 + Math.random() * 0.5).toFixed(1)),
-    reviews: Math.floor(Math.random() * 300) + 50,
+    rating: product.avgRating || 0,
+    reviews: product.reviewCount || 0,
     category: categoryName,
   };
 };
@@ -266,49 +266,6 @@ const productExtras: Record<
   },
 };
 
-// Sample reviews
-const sampleReviews = [
-  {
-    id: 1,
-    name: 'Nguyễn Thị Minh',
-    avatar: 'NM',
-    rating: 5,
-    date: '15/01/2025',
-    comment:
-      'Sản phẩm rất tốt, bé nhà mình rất thích! Chất liệu mềm mại, an toàn. Sẽ ủng hộ shop dài dài.',
-    helpful: 24,
-  },
-  {
-    id: 2,
-    name: 'Trần Văn Hùng',
-    avatar: 'TH',
-    rating: 5,
-    date: '12/01/2025',
-    comment:
-      'Giao hàng nhanh, đóng gói cẩn thận. Chất lượng sản phẩm đúng như mô tả. Rất hài lòng!',
-    helpful: 18,
-  },
-  {
-    id: 3,
-    name: 'Lê Thị Lan',
-    avatar: 'LL',
-    rating: 4,
-    date: '10/01/2025',
-    comment: 'Sản phẩm tốt, giá cả hợp lý. Bé dùng không bị kích ứng. Sẽ mua thêm cho bé.',
-    helpful: 12,
-  },
-  {
-    id: 4,
-    name: 'Phạm Văn Đức',
-    avatar: 'PD',
-    rating: 5,
-    date: '08/01/2025',
-    comment:
-      'Mua lần thứ 3 rồi, chất lượng luôn ổn định. Shop tư vấn nhiệt tình, giao hàng đúng hẹn.',
-    helpful: 31,
-  },
-];
-
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -318,7 +275,6 @@ export default function ProductDetailPage() {
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description');
   const [selectedColor, setSelectedColor] = useState(0);
   const [selectedSize, setSelectedSize] = useState(0);
-  const [showAllReviews, setShowAllReviews] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
   const [catalogProducts, setCatalogProducts] = useState<Product[]>(allProducts);
   const [isProductLoading, setIsProductLoading] = useState(true);
@@ -952,92 +908,8 @@ export default function ProductDetailPage() {
             )}
 
             {activeTab === 'reviews' && (
-              <div className="animate-fadeIn">
-                {/* Rating Summary */}
-                <div className="flex items-center gap-8 p-6 rounded-2xl bg-pink-50/50 border border-pink-100 mb-8">
-                  <div className="text-center">
-                    <div className="text-5xl font-bold text-pink-500 mb-1">{product.rating}</div>
-                    <div className="flex gap-1 justify-center mb-1">
-                      {[...Array(5)].map((_, i) => (
-                        <StarIcon
-                          key={i}
-                          size={16}
-                          className={
-                            i < Math.floor(product.rating) ? 'text-amber-400' : 'text-gray-200'
-                          }
-                        />
-                      ))}
-                    </div>
-                    <div className="text-sm text-[var(--text-muted)]">
-                      {product.reviews} đánh giá
-                    </div>
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    {[5, 4, 3, 2, 1].map((star) => (
-                      <div key={star} className="flex items-center gap-3">
-                        <span className="text-sm text-[var(--text-secondary)] w-6">{star}★</span>
-                        <div className="flex-1 h-2 rounded-full bg-gray-200 overflow-hidden">
-                          <div
-                            className="h-full bg-amber-400 rounded-full"
-                            style={{
-                              width: `${star === 5 ? 70 : star === 4 ? 20 : star === 3 ? 8 : 2}%`,
-                            }}
-                          />
-                        </div>
-                        <span className="text-sm text-[var(--text-muted)] w-10">
-                          {star === 5 ? '70%' : star === 4 ? '20%' : star === 3 ? '8%' : '2%'}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Reviews List */}
-                <div className="space-y-4">
-                  {(showAllReviews ? sampleReviews : sampleReviews.slice(0, 3)).map((review) => (
-                    <div
-                      key={review.id}
-                      className="p-5 rounded-2xl border border-pink-100 hover:border-pink-200 transition-colors"
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-400 to-purple-400 flex items-center justify-center text-white font-bold">
-                          {review.avatar}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <span className="font-semibold text-[var(--text-primary)]">
-                              {review.name}
-                            </span>
-                            <div className="flex gap-0.5">
-                              {[...Array(5)].map((_, i) => (
-                                <StarIcon
-                                  key={i}
-                                  size={14}
-                                  className={i < review.rating ? 'text-amber-400' : 'text-gray-200'}
-                                />
-                              ))}
-                            </div>
-                            <span className="text-sm text-[var(--text-muted)]">{review.date}</span>
-                          </div>
-                          <p className="text-[var(--text-secondary)] mb-3">{review.comment}</p>
-                          <button className="text-sm text-[var(--text-muted)] hover:text-pink-500 transition-colors">
-                            👍 Hữu ích ({review.helpful})
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {!showAllReviews && sampleReviews.length > 3 && (
-                  <button
-                    onClick={() => setShowAllReviews(true)}
-                    className="w-full mt-6 py-3 border-2 border-pink-200 text-pink-500 font-medium rounded-xl hover:bg-pink-50 transition-colors flex items-center justify-center gap-2"
-                  >
-                    Xem tất cả đánh giá
-                    <ChevronDownIcon size={18} />
-                  </button>
-                )}
+              <div>
+                <ProductReviews productId={product.id} />
               </div>
             )}
           </div>

@@ -64,8 +64,8 @@ const mapApiProductToCard = (product: ApiProduct): CardProduct => {
     price: product.price,
     imageUrl: product.images?.[0],
     illustration: categoryIllustrationMap[categoryName] || 'teddy',
-    rating: Number((4.5 + Math.random() * 0.5).toFixed(1)),
-    reviews: Math.floor(Math.random() * 300) + 50,
+    rating: product.avgRating || 0,
+    reviews: product.reviewCount || 0,
     category: categoryName,
   };
 };

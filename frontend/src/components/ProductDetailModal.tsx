@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
@@ -291,48 +292,34 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
               </div>
             ) : (
               <div className="space-y-3 mb-6">
-                {/* Sample reviews */}
-                {[
-                  {
-                    name: 'Nguyễn Thị M.',
-                    rating: 5,
-                    comment: 'Sản phẩm rất tốt, bé nhà mình rất thích!',
-                  },
-                  {
-                    name: 'Trần Văn H.',
-                    rating: 5,
-                    comment: 'Chất lượng tuyệt vời, giao hàng nhanh.',
-                  },
-                  {
-                    name: 'Lê Thị L.',
-                    rating: 4,
-                    comment: 'Đóng gói cẩn thận, sẽ mua lại.',
-                  },
-                ].map((review, i) => (
-                  <div key={i} className="p-3 rounded-xl bg-pink-50/50 border border-pink-100">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-pink-400 to-purple-400 flex items-center justify-center text-white text-xs font-bold">
-                        {review.name[0]}
-                      </div>
-                      <span className="text-sm font-medium text-[var(--text-primary)]">
-                        {review.name}
-                      </span>
-                      <div className="flex gap-0.5 ml-auto">
-                        {[...Array(5)].map((_, j) => (
-                          <StarIcon
-                            key={j}
-                            size={12}
-                            className={j < review.rating ? 'text-amber-400' : 'text-gray-200'}
-                          />
-                        ))}
-                      </div>
+                {/* Reviews Summary */}
+                <div className="p-4 rounded-xl bg-pink-50/50 border border-pink-100">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex gap-0.5">
+                      {[...Array(5)].map((_, i) => (
+                        <StarIcon
+                          key={i}
+                          size={14}
+                          className={
+                            i < Math.round(product.rating) ? 'text-amber-400' : 'text-gray-200'
+                          }
+                        />
+                      ))}
                     </div>
-                    <p className="text-xs text-[var(--text-secondary)]">{review.comment}</p>
+                    <span className="text-sm font-medium text-[var(--text-primary)]">
+                      {product.rating > 0 ? product.rating.toFixed(1) : '0'}
+                    </span>
+                    <span className="text-sm text-[var(--text-muted)]">
+                      ({product.reviews || 0} đánh giá)
+                    </span>
                   </div>
-                ))}
-                <button className="w-full text-sm text-pink-500 font-medium hover:underline">
-                  Xem tất cả đánh giá →
-                </button>
+                  <Link
+                    href={`/products/${product.slug || product.id}`}
+                    className="text-sm text-pink-500 font-medium hover:underline"
+                  >
+                    Xem tất cả đánh giá →
+                  </Link>
+                </div>
               </div>
             )}
 

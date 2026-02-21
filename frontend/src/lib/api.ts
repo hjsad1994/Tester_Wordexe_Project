@@ -56,6 +56,8 @@ export interface Product {
   quantity: number;
   images?: string[];
   isActive: boolean;
+  avgRating: number;
+  reviewCount: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -151,6 +153,59 @@ export interface CreateOrderPayload {
   customerInfo: OrderCustomerInfo;
   paymentMethod: 'cod' | 'momo';
   shippingFee?: number;
+}
+
+// ─── Reviews ────────────────────────────────────────────────────────
+
+export interface ReviewImage {
+  publicId: string;
+  url: string;
+}
+
+export interface ReviewUser {
+  _id: string;
+  name: string;
+  email: string;
+  avatar: string | null;
+}
+
+export interface Review {
+  _id: string;
+  product: string;
+  user: ReviewUser;
+  rating: number;
+  comment: string;
+  images: ReviewImage[];
+  helpfulCount: number;
+  isLiked: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RatingDistribution {
+  5: number;
+  4: number;
+  3: number;
+  2: number;
+  1: number;
+}
+
+export interface ReviewSummary {
+  avgRating: number;
+  reviewCount: number;
+  distribution: RatingDistribution;
+  userHasReviewed: boolean;
+}
+
+export interface ReviewListData {
+  reviews: Review[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+  summary: ReviewSummary;
 }
 
 interface OrderListData {
@@ -502,5 +557,91 @@ export async function softDeleteOrder(id: string, reason: string): Promise<Order
   }
 
   const body = (await res.json()) as ApiResponse<Order>;
+  return body.data;
+}
+
+// ─── Review API ─────────────────────────────────────────────────────
+
+export async function fetchReviews(
+  productId: string,
+  params?: { page?: number; limit?: number }
+): Promise<ReviewListData> {
+  const query = new URLSearchParams();
+  if (params?.page) query.set('page', String(params.page));
+  if (params?.limit) query.set('limit', String(params.limit));
+
+  const suffix = query.toString() ? `?${query.toString()}` : '';
+  const res = await fetch(
+    `${API_BASE_URL}/api/products/${encodeURIComponent(productId)}/reviews${suffix}`,
+    {
+      credentials: 'include',
+      cache: 'no-store',
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể tải đánh giá'));
+  }
+
+  const body = (await res.json()) as ApiResponse<ReviewListData>;
+  return body.data;
+}
+
+export async function createReview(
+  productId: string,
+  data: { rating: number; comment: string },
+  images: File[] = []
+): Promise<Review> {
+  const formData = new FormData();
+  formData.append('rating', String(data.rating));
+  formData.append('comment', data.comment);
+  for (const image of images) {
+    formData.append('images', image);
+  }
+
+  const res = await fetch(`${API_BASE_URL}/api/products/${encodeURIComponent(productId)}/reviews`, {
+    method: 'POST',
+    credentials: 'include',
+    cache: 'no-store',
+    body: formData,
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể gửi đánh giá'));
+  }
+
+  const body = (await res.json()) as ApiResponse<Review>;
+  return body.data;
+}
+
+export async function deleteReview(reviewId: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/api/reviews/${encodeURIComponent(reviewId)}`, {
+    method: 'DELETE',
+    credentials: 'include',
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể xóa đánh giá'));
+  }
+}
+
+export async function toggleReviewHelpful(
+  reviewId: string
+): Promise<{ helpfulCount: number; isLiked: boolean }> {
+  const res = await fetch(`${API_BASE_URL}/api/reviews/${encodeURIComponent(reviewId)}/helpful`, {
+    method: 'POST',
+    credentials: 'include',
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể cập nhật'));
+  }
+
+  const body = (await res.json()) as ApiResponse<{
+    helpfulCount: number;
+    isLiked: boolean;
+  }>;
   return body.data;
 }
