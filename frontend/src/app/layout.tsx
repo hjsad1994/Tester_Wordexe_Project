@@ -42,13 +42,11 @@ export default function RootLayout({
 				</AuthProvider>
 				<Toaster
 					position="top-right"
+					offset={80}
+					closeButton
 					toastOptions={{
 						duration: 4000,
-						style: {
-							fontFamily: "inherit",
-						},
 					}}
-					richColors
 				/>
 			</body>
 		</html>

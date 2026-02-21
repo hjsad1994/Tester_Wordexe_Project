@@ -206,7 +206,6 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 							price: product.price,
 							image: product.illustration,
 						});
-						const Illustration = productIllustrations[product.illustration];
 						toast.success(
 							result.isNew
 								? "Đã thêm vào giỏ hàng"
@@ -214,11 +213,6 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 							{
 								id: `cart-${product.id}`,
 								description: product.name,
-								icon: (
-									<div className="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center flex-shrink-0">
-										<Illustration />
-									</div>
-								),
 								action: {
 									label: "Xem giỏ hàng",
 									onClick: () => router.push("/cart"),

@@ -271,6 +271,76 @@ body {
   }
 }
 
+/* ===== TOAST NOTIFICATIONS (Sonner) ===== */
+[data-sonner-toaster] {
+  --width: 380px;
+}
+
+[data-sonner-toast] {
+  --normal-bg: white;
+  --normal-border: var(--pink-200);
+  --normal-text: var(--text-primary);
+  border-radius: var(--radius-xl) !important;
+  border: 1px solid var(--pink-200) !important;
+  box-shadow: var(--shadow-soft) !important;
+  padding: 1rem 1.25rem !important;
+  font-family: var(--font-sans) !important;
+  gap: 0.75rem !important;
+}
+
+[data-sonner-toast][data-type="success"] {
+  --success-bg: var(--pink-50);
+  --success-border: var(--pink-200);
+  --success-text: var(--text-primary);
+  background: linear-gradient(135deg, white 0%, var(--pink-50) 100%) !important;
+  border-color: var(--pink-200) !important;
+}
+
+[data-sonner-toast][data-type="success"] [data-icon] svg {
+  color: var(--pink-500) !important;
+}
+
+[data-sonner-toast] [data-title] {
+  font-weight: 600 !important;
+  font-family: var(--font-display) !important;
+  font-size: 0.9rem !important;
+}
+
+[data-sonner-toast] [data-description] {
+  color: var(--text-secondary) !important;
+  font-size: 0.825rem !important;
+}
+
+[data-sonner-toast] [data-button] {
+  background: linear-gradient(to right, var(--pink-500), var(--pink-400)) !important;
+  color: white !important;
+  border-radius: 50px !important;
+  font-weight: 600 !important;
+  font-size: 0.75rem !important;
+  padding: 0.4rem 1rem !important;
+  border: none !important;
+  box-shadow: 0 2px 10px oklch(0.656 0.209 354.3 / 0.3) !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-sonner-toast] [data-button]:hover {
+  box-shadow: 0 4px 15px oklch(0.656 0.209 354.3 / 0.45) !important;
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+[data-sonner-toast] [data-close-button] {
+  border: 1px solid var(--pink-200) !important;
+  background: white !important;
+  color: var(--text-muted) !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  background: var(--pink-50) !important;
+  color: var(--text-secondary) !important;
+}
+
 /* ===== UTILITY CLASSES ===== */
 .animate-float {
   animation: float 6s ease-in-out infinite;

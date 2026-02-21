@@ -803,8 +803,6 @@ export default function ProductDetailPage() {
 											if (i === 0) isNew = result.isNew;
 											finalQuantity = result.newQuantity;
 										}
-										const Illustration =
-											productIllustrations[product.illustration];
 										toast.success(
 											isNew
 												? finalQuantity > 1
@@ -814,11 +812,6 @@ export default function ProductDetailPage() {
 											{
 												id: `cart-${product.id}`,
 												description: product.name,
-												icon: (
-													<div className="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center flex-shrink-0">
-														<Illustration />
-													</div>
-												),
 												action: {
 													label: "Xem giỏ hàng",
 													onClick: () => router.push("/cart"),
