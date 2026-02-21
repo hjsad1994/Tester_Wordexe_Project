@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   type Category as ApiCategory,
   createCategory,
@@ -14,10 +14,14 @@ export default function AdminCategoriesPanel() {
   const [adminError, setAdminError] = useState<string | null>(null);
   const [adminLoading, setAdminLoading] = useState(false);
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  const [deletingCategory, setDeletingCategory] = useState<ApiCategory | null>(null);
+  const [isDeletingCategory, setIsDeletingCategory] = useState(false);
   const [categoryForm, setCategoryForm] = useState({
     name: '',
     description: '',
   });
+  const deleteModalRef = useRef<HTMLDivElement | null>(null);
+  const deleteCancelButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -81,18 +85,75 @@ export default function AdminCategoriesPanel() {
     });
   };
 
-  const handleDeleteCategory = async (categoryId: string) => {
+  const trapFocus = useCallback((event: KeyboardEvent, container: HTMLElement | null) => {
+    if (!container) return false;
+    const focusable = Array.from(
+      container.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter((el) => !el.hasAttribute('disabled') && el.getAttribute('aria-hidden') !== 'true');
+    if (focusable.length === 0) return false;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const activeElement = document.activeElement;
+    if (!activeElement || !container.contains(activeElement)) {
+      first.focus();
+      event.preventDefault();
+      return true;
+    }
+    if (event.shiftKey && activeElement === first) {
+      event.preventDefault();
+      last.focus();
+      return true;
+    }
+    if (!event.shiftKey && activeElement === last) {
+      event.preventDefault();
+      first.focus();
+      return true;
+    }
+    return false;
+  }, []);
+
+  const confirmDeleteCategory = async () => {
+    if (!deletingCategory || isDeletingCategory) return;
     try {
+      setIsDeletingCategory(true);
       setAdminError(null);
-      await deleteCategory(categoryId);
-      setAdminCategories((prev) => prev.filter((category) => category._id !== categoryId));
-      if (editingCategoryId === categoryId) {
+      await deleteCategory(deletingCategory._id);
+      setAdminCategories((prev) =>
+        prev.filter((category) => category._id !== deletingCategory._id)
+      );
+      if (editingCategoryId === deletingCategory._id) {
         resetForm();
       }
+      setDeletingCategory(null);
     } catch (error) {
       setAdminError(error instanceof Error ? error.message : 'Không thể xóa danh mục');
+    } finally {
+      setIsDeletingCategory(false);
     }
   };
+
+  useEffect(() => {
+    if (deletingCategory) {
+      queueMicrotask(() => {
+        deleteCancelButtonRef.current?.focus();
+      });
+    }
+  }, [deletingCategory]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && deletingCategory && !isDeletingCategory) {
+        setDeletingCategory(null);
+      }
+      if (event.key === 'Tab' && deletingCategory) {
+        trapFocus(event, deleteModalRef.current);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [deletingCategory, isDeletingCategory, trapFocus]);
 
   return (
     <div className="rounded-3xl border border-pink-200 bg-white p-5 shadow-sm sm:p-6">
@@ -185,7 +246,10 @@ export default function AdminCategoriesPanel() {
                         Sửa
                       </button>
                       <button
-                        onClick={() => void handleDeleteCategory(category._id)}
+                        onClick={() => {
+                          setAdminError(null);
+                          setDeletingCategory(category);
+                        }}
                         className="rounded-lg border border-rose-300 px-3 py-1.5 text-rose-600 transition-colors hover:bg-rose-50"
                       >
                         Xóa
@@ -198,6 +262,57 @@ export default function AdminCategoriesPanel() {
           </tbody>
         </table>
       </div>
+
+      {deletingCategory && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <button
+            type="button"
+            aria-label="Đóng modal xác nhận xóa"
+            onClick={() => {
+              if (!isDeletingCategory) setDeletingCategory(null);
+            }}
+            className="absolute inset-0 bg-slate-900/45"
+          />
+          <div
+            ref={deleteModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-category-modal-title"
+            className="relative z-10 w-full max-w-md rounded-3xl border border-rose-200 bg-white p-5 shadow-2xl sm:p-6"
+          >
+            <h3
+              id="delete-category-modal-title"
+              className="text-base font-semibold text-[var(--text-primary)]"
+            >
+              Xác nhận xóa danh mục
+            </h3>
+            <p className="mt-2 text-sm text-[var(--text-muted)]">
+              Bạn sắp xóa danh mục{' '}
+              <span className="font-semibold text-rose-600">{deletingCategory.name}</span>. Hành
+              động này không thể hoàn tác.
+            </p>
+            <div className="mt-5 flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                ref={deleteCancelButtonRef}
+                onClick={() => setDeletingCategory(null)}
+                disabled={isDeletingCategory}
+                className="min-h-[44px] rounded-xl border border-pink-300 px-4 py-2.5 text-sm font-medium text-pink-600 transition-colors hover:bg-pink-50 disabled:opacity-50"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={() => void confirmDeleteCategory()}
+                disabled={isDeletingCategory}
+                className="min-h-[44px] rounded-xl border border-rose-400 bg-rose-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-rose-600 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {isDeletingCategory ? 'Đang xóa...' : 'Xóa danh mục'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
