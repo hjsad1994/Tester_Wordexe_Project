@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { useCart } from '@/contexts/CartContext';
-import { useWishlist } from '@/contexts/WishlistContext';
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 import {
   ArrowRightIcon,
   CartIcon,
@@ -16,9 +17,9 @@ import {
   SparkleIcon,
   StarIcon,
   TruckIcon,
-} from './icons';
-import { productIllustrations } from './icons/ProductIllustrations';
-import type { Product } from './ProductCard';
+} from "./icons";
+import { productIllustrations } from "./icons/ProductIllustrations";
+import type { Product } from "./ProductCard";
 
 interface ProductDetailModalProps {
   product: Product | null;
@@ -28,30 +29,30 @@ interface ProductDetailModalProps {
 
 // Extended product details
 const productExtras: Record<string, { features: string[]; colors?: string[] }> = {
-  '1': {
+  "1": {
     features: [
-      '100% Cotton Organic',
-      'Không chất tẩy độc hại',
-      'Nút bấm tiện lợi',
-      'Giặt máy được',
+      "100% Cotton Organic",
+      "Không chất tẩy độc hại",
+      "Nút bấm tiện lợi",
+      "Giặt máy được",
     ],
-    colors: ['Trắng', 'Hồng nhạt', 'Xanh mint'],
+    colors: ["Trắng", "Hồng nhạt", "Xanh mint"],
   },
-  '2': {
-    features: ['Chống đầy hơi', 'Không BPA', 'Núm ti silicon mềm', 'Dễ vệ sinh'],
+  "2": {
+    features: ["Chống đầy hơi", "Không BPA", "Núm ti silicon mềm", "Dễ vệ sinh"],
   },
-  '3': {
-    features: ['Chất liệu plush mềm', 'An toàn cho bé', 'Có thể giặt', 'Không rụng lông'],
-    colors: ['Nâu', 'Trắng kem', 'Hồng'],
+  "3": {
+    features: ["Chất liệu plush mềm", "An toàn cho bé", "Có thể giặt", "Không rụng lông"],
+    colors: ["Nâu", "Trắng kem", "Hồng"],
   },
   default: {
-    features: ['Chất lượng cao', 'An toàn cho bé', 'Thiết kế tiện lợi', 'Đảm bảo chính hãng'],
+    features: ["Chất lượng cao", "An toàn cho bé", "Thiết kế tiện lợi", "Đảm bảo chính hãng"],
   },
 };
 
 export default function ProductDetailModal({ product, isOpen, onClose }: ProductDetailModalProps) {
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState<'details' | 'reviews'>('details');
+  const [activeTab, setActiveTab] = useState<"details" | "reviews">("details");
   const { addToCart, setBuyNowItem } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const router = useRouter();
@@ -68,18 +69,42 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
     : 0;
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN').format(price) + 'đ';
+    return new Intl.NumberFormat("vi-VN").format(price) + "đ";
   };
 
   const handleAddToCart = () => {
+    let isNew = false;
+    let finalQuantity = 0;
     for (let i = 0; i < quantity; i++) {
-      addToCart({
+      const result = addToCart({
         id: product.id,
         name: product.name,
         price: product.price,
         image: product.illustration,
       });
+      if (i === 0) isNew = result.isNew;
+      finalQuantity = result.newQuantity;
     }
+    toast.success(
+      isNew
+        ? finalQuantity > 1
+          ? `Đã thêm vào giỏ hàng (×${finalQuantity})`
+          : "Đã thêm vào giỏ hàng"
+        : `Đã cập nhật giỏ hàng (×${finalQuantity})`,
+      {
+        id: `cart-${product.id}`,
+        description: product.name,
+        icon: (
+          <div className="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center flex-shrink-0">
+            <IllustrationComponent />
+          </div>
+        ),
+        action: {
+          label: "Xem giỏ hàng",
+          onClick: () => router.push("/cart"),
+        },
+      },
+    );
     onClose();
   };
 
@@ -118,18 +143,18 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
             {product.badge && (
               <div
                 className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold ${
-                  product.badge === 'new'
-                    ? 'bg-blue-500 text-white'
-                    : product.badge === 'sale'
-                      ? 'bg-red-500 text-white'
-                      : 'bg-amber-500 text-white'
+                  product.badge === "new"
+                    ? "bg-blue-500 text-white"
+                    : product.badge === "sale"
+                      ? "bg-red-500 text-white"
+                      : "bg-amber-500 text-white"
                 }`}
               >
-                {product.badge === 'new'
-                  ? 'Mới'
-                  : product.badge === 'sale'
+                {product.badge === "new"
+                  ? "Mới"
+                  : product.badge === "sale"
                     ? `-${discount}%`
-                    : 'Hot'}
+                    : "Hot"}
               </div>
             )}
 
@@ -142,11 +167,11 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                   addToWishlist(product);
                 }
               }}
-              aria-label={liked ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}
+              aria-label={liked ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
               className={`absolute top-4 right-14 md:right-4 p-2.5 rounded-full transition-all shadow-md ${
                 liked
-                  ? 'bg-pink-500 text-white'
-                  : 'bg-white/90 text-pink-400 hover:bg-pink-500 hover:text-white'
+                  ? "bg-pink-500 text-white"
+                  : "bg-white/90 text-pink-400 hover:bg-pink-500 hover:text-white"
               }`}
             >
               {liked ? <HeartIcon size={18} /> : <HeartOutlineIcon size={18} />}
@@ -177,7 +202,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                   <StarIcon
                     key={i}
                     size={16}
-                    className={i < Math.floor(product.rating) ? 'text-amber-400' : 'text-gray-200'}
+                    className={i < Math.floor(product.rating) ? "text-amber-400" : "text-gray-200"}
                   />
                 ))}
               </div>
@@ -207,39 +232,39 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
             {/* Tabs */}
             <div className="flex gap-1 mb-4 border-b border-pink-100">
               <button
-                onClick={() => setActiveTab('details')}
+                onClick={() => setActiveTab("details")}
                 className={`px-4 py-2 text-sm font-medium transition-colors relative ${
-                  activeTab === 'details'
-                    ? 'text-pink-500'
-                    : 'text-[var(--text-muted)] hover:text-pink-400'
+                  activeTab === "details"
+                    ? "text-pink-500"
+                    : "text-[var(--text-muted)] hover:text-pink-400"
                 }`}
               >
                 Chi tiết
-                {activeTab === 'details' && (
+                {activeTab === "details" && (
                   <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-pink-500 rounded-full" />
                 )}
               </button>
               <button
-                onClick={() => setActiveTab('reviews')}
+                onClick={() => setActiveTab("reviews")}
                 className={`px-4 py-2 text-sm font-medium transition-colors relative ${
-                  activeTab === 'reviews'
-                    ? 'text-pink-500'
-                    : 'text-[var(--text-muted)] hover:text-pink-400'
+                  activeTab === "reviews"
+                    ? "text-pink-500"
+                    : "text-[var(--text-muted)] hover:text-pink-400"
                 }`}
               >
                 Đánh giá ({product.reviews})
-                {activeTab === 'reviews' && (
+                {activeTab === "reviews" && (
                   <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-pink-500 rounded-full" />
                 )}
               </button>
             </div>
 
             {/* Tab Content */}
-            {activeTab === 'details' ? (
+            {activeTab === "details" ? (
               <div className="space-y-4 mb-6">
                 {/* Description */}
                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                  {product.description || 'Chưa có mô tả cho sản phẩm này'}
+                  {product.description || "Chưa có mô tả cho sản phẩm này"}
                 </p>
 
                 {/* Features */}
@@ -279,8 +304,8 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                           key={i}
                           className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                             i === 0
-                              ? 'border-pink-400 bg-pink-50 text-pink-600'
-                              : 'border-gray-200 text-[var(--text-secondary)] hover:border-pink-300'
+                              ? "border-pink-400 bg-pink-50 text-pink-600"
+                              : "border-gray-200 text-[var(--text-secondary)] hover:border-pink-300"
                           }`}
                         >
                           {color}
@@ -301,13 +326,13 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                           key={i}
                           size={14}
                           className={
-                            i < Math.round(product.rating) ? 'text-amber-400' : 'text-gray-200'
+                            i < Math.round(product.rating) ? "text-amber-400" : "text-gray-200"
                           }
                         />
                       ))}
                     </div>
                     <span className="text-sm font-medium text-[var(--text-primary)]">
-                      {product.rating > 0 ? product.rating.toFixed(1) : '0'}
+                      {product.rating > 0 ? product.rating.toFixed(1) : "0"}
                     </span>
                     <span className="text-sm text-[var(--text-muted)]">
                       ({product.reviews || 0} đánh giá)
@@ -381,7 +406,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                   image: product.illustration,
                   quantity,
                 });
-                router.push('/checkout?buyNow=true');
+                router.push("/checkout?buyNow=true");
               }}
               className="w-full py-3 px-6 border-2 border-pink-400 text-pink-500 font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-pink-50 transition-all mb-5"
             >
