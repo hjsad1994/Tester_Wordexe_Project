@@ -1,0 +1,193 @@
+{
+	"beadId": "bd-wqw",
+	"prdName": "product-comment-review-system",
+	"tasks": [
+		{
+			"id": "backend-1",
+			"category": "backend",
+			"description": "The `Review` model exists at `backend/src/models/Review.js` with schema for product, user, rating, comment, images, helpful tracking, and compound unique index `{ product: 1, user: 1 }`. Product model has `avgRating` and `reviewCount` fields.",
+			"steps": [
+				"Verify: `node -e \"const m = require('./backend/src/models/Review'); console.log(m.schema.paths)\"` shows all fields",
+				"Verify: Product model has `avgRating` (Number, default 0) and `reviewCount` (Number, default 0) fields"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": [
+					"backend/src/models/Review.js",
+					"backend/src/models/Product.js"
+				]
+			}
+		},
+		{
+			"id": "backend-2",
+			"category": "backend",
+			"description": "`ReviewRepository` at `backend/src/repositories/reviewRepository.js` provides data access methods: `create`, `findByProduct` (paginated, populated), `findById`, `findByUserAndProduct`, `deleteById`, `addHelpful`, `removeHelpful`.",
+			"steps": ["Verify: Repository module exports all required methods"],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["backend-1"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": ["backend/src/repositories/reviewRepository.js"]
+			}
+		},
+		{
+			"id": "backend-3",
+			"category": "backend",
+			"description": "`ReviewService` at `backend/src/services/reviewService.js` implements business logic: create review (with image upload + product stats update), get reviews (with like status for requesting user), delete review (with image cleanup + product stats update), toggle helpful.",
+			"steps": [
+				"Verify: Service handles duplicate review conflict (throws ConflictError)",
+				"Verify: Service recalculates product avgRating/reviewCount on create and delete"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["backend-1", "backend-2"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": ["backend/src/services/reviewService.js"]
+			}
+		},
+		{
+			"id": "backend-4",
+			"category": "backend",
+			"description": "`ReviewController` at `backend/src/controllers/reviewController.js` and routes at `backend/src/routes/reviewRoutes.js` expose: `GET /api/products/:productId/reviews`, `POST /api/products/:productId/reviews`, `DELETE /api/reviews/:id`, `POST /api/reviews/:id/helpful`. Routes registered in `backend/src/routes/index.js`. Upload middleware accepts `images` field with max 3 files.",
+			"steps": [
+				"Verify: `curl http://localhost:3001/api/products/:id/reviews` returns `{ status: \"success\", data: { reviews: [], pagination: {...} } }`",
+				"Verify: POST with auth creates review, POST without auth returns 401",
+				"Verify: Upload middleware accepts `images` field with max 3 files"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["backend-3"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"backend/src/controllers/reviewController.js",
+					"backend/src/routes/reviewRoutes.js",
+					"backend/src/routes/index.js",
+					"backend/src/middlewares/uploadMiddleware.js"
+				]
+			}
+		},
+		{
+			"id": "frontend-5",
+			"category": "frontend",
+			"description": "`frontend/src/lib/api.ts` extended with `Review` interface, `ReviewListData` type, and functions: `fetchReviews()`, `createReview()`, `deleteReview()`, `toggleReviewHelpful()`.",
+			"steps": [
+				"Verify: TypeScript compiles with no errors related to review types"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["backend-4"],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": ["frontend/src/lib/api.ts"]
+			}
+		},
+		{
+			"id": "frontend-6",
+			"category": "frontend",
+			"description": "Create review UI components: `StarRatingInput` (interactive 1-5 star selector), `StarRatingDisplay` (read-only stars), `ReviewForm` (form with star rating + comment + image upload), `ReviewList` (paginated review display), `ReviewCard` (single review with like button), `RatingSummary` (average + distribution bars).",
+			"steps": [
+				"Verify: Star rating selector allows clicking 1-5 stars with visual hover feedback",
+				"Verify: Review form validates rating required, comment 10-1000 chars, images max 3",
+				"Verify: Image upload shows preview thumbnails with remove button",
+				"Verify: Like button toggles with optimistic count update"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["frontend-5"],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": ["frontend/src/app/products/[id]/page.tsx"]
+			}
+		},
+		{
+			"id": "frontend-7",
+			"category": "frontend",
+			"description": "Replace hardcoded `sampleReviews` in `frontend/src/app/products/[id]/page.tsx` with real API data. Update rating summary section. Show review form for authenticated users, login prompt for guests. Handle loading/error states. Update ProductDetailModal.",
+			"steps": [
+				"Verify: Product detail page Reviews tab shows reviews from API (no mock data)",
+				"Verify: Rating summary shows correct average and distribution from real data",
+				"Verify: Authenticated user can submit review and see it appear in list",
+				"Verify: ProductDetailModal shows real review count (or simplified view)"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["frontend-5", "frontend-6"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/app/products/[id]/page.tsx",
+					"frontend/src/components/ProductDetailModal.tsx"
+				]
+			}
+		},
+		{
+			"id": "testing-8",
+			"category": "testing",
+			"description": "Full flow test: login → navigate to product → submit review with images → verify review appears → like another review → delete own review → verify product stats update.",
+			"steps": [
+				"Verify: Complete review submission flow works (create → display → like → delete)",
+				"Verify: Duplicate review returns appropriate error message",
+				"Verify: Image upload to Cloudinary works and images display correctly",
+				"Verify: Product avgRating and reviewCount reflect actual reviews"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["frontend-7"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": []
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"Backend: Controller → Service → Repository",
+			"Response format: { status, message, data }",
+			"Auth: JWT cookie-based, authMiddleware extracts userId/userRole",
+			"Upload: Multer memory storage → Cloudinary stream upload",
+			"Frontend API: native fetch with credentials:'include' in frontend/src/lib/api.ts",
+			"Frontend state: useState (no React Query, no form library)",
+			"Styling: Tailwind CSS 4, OKLCH pink palette, Nunito/Quicksand fonts",
+			"Error classes: AppError hierarchy in backend/src/errors/",
+			"Route registration: backend/src/routes/index.js",
+			"Pagination: skip/limit, returns { items, pagination: { page, limit, total, pages } }"
+		],
+		"keyFiles": [
+			"backend/src/models/Product.js",
+			"backend/src/services/productService.js",
+			"backend/src/repositories/productRepository.js",
+			"backend/src/middlewares/uploadMiddleware.js",
+			"backend/src/middlewares/authMiddleware.js",
+			"backend/src/config/cloudinary.js",
+			"backend/src/routes/index.js",
+			"backend/src/utils/responseHelper.js",
+			"frontend/src/lib/api.ts",
+			"frontend/src/app/products/[id]/page.tsx",
+			"frontend/src/components/ProductDetailModal.tsx"
+		],
+		"nonGoals": [
+			"Verified purchase badges",
+			"Review moderation / admin approval",
+			"Reply/thread system",
+			"Rich text editor",
+			"Review sorting/filtering UI",
+			"Review editing after submission",
+			"Email notifications",
+			"Admin dashboard for reviews",
+			"SEO structured data"
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": true,
+		"conflicts_with": [],
+		"blocks": [],
+		"estimated_hours": 16
+	}
+}

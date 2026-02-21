@@ -1,0 +1,20 @@
+# Progress Log
+
+Bead: bd-wqw
+Started: 2026-02-21
+
+## Codebase Patterns
+
+- Backend: Controller → Service → Repository (JS, not TS)
+- Response: sendSuccess(), sendCreated() from responseHelper.js
+- Auth: JWT cookie-based, authMiddleware sets req.userId, req.userRole
+- Upload: Multer memory → Cloudinary upload_stream (see productService.js:135-162)
+- Frontend API: native fetch, credentials:'include', in frontend/src/lib/api.ts
+- Frontend state: useState, no React Query
+- Styling: Tailwind CSS 4, OKLCH pink palette
+- Error classes: BadRequestError, UnauthorizedError, ForbiddenError, NotFoundError, ConflictError, ValidationError
+- Pagination: skip/limit pattern from productRepository.js
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
