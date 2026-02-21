@@ -119,18 +119,18 @@ const orderSchema = new mongoose.Schema(
       },
       province: {
         type: String,
-        required: true,
         trim: true,
+        default: '',
       },
       district: {
         type: String,
-        required: true,
         trim: true,
+        default: '',
       },
       ward: {
         type: String,
-        required: true,
         trim: true,
+        default: '',
       },
       address: {
         type: String,

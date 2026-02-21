@@ -192,8 +192,14 @@ export default function AdminOrdersPanel() {
                         {order.customerInfo.fullName}
                       </div>
                       <div className="text-xs text-[var(--text-muted)] line-clamp-1">
-                        {order.customerInfo.address}, {order.customerInfo.ward},{' '}
-                        {order.customerInfo.district}
+                        {[
+                          order.customerInfo.address,
+                          order.customerInfo.ward,
+                          order.customerInfo.district,
+                          order.customerInfo.province,
+                        ]
+                          .filter(Boolean)
+                          .join(', ')}
                       </div>
                     </td>
                     <td className="py-3 pr-2">{order.customerInfo.phone}</td>
