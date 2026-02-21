@@ -1,10 +1,10 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* ===== BABY BLISS - PINK PASTEL THEME (OKLCH) ===== */
 
 :root {
-  --font-nunito: "Nunito", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-quicksand: "Quicksand", "Nunito", "Segoe UI", sans-serif;
+  --font-nunito: 'Nunito', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-quicksand: 'Quicksand', 'Nunito', 'Segoe UI', sans-serif;
 
   /* Pink Pastel Palette (OKLCH for uniform perceived brightness) */
   --pink-50: oklch(0.971 0.014 343.4);
@@ -82,7 +82,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
   overflow-x: hidden;
 }
 
@@ -288,7 +288,7 @@ body {
   gap: 0.75rem !important;
 }
 
-[data-sonner-toast][data-type="success"] {
+[data-sonner-toast][data-type='success'] {
   --success-bg: var(--pink-50);
   --success-border: var(--pink-200);
   --success-text: var(--text-primary);
@@ -296,7 +296,7 @@ body {
   border-color: var(--pink-200) !important;
 }
 
-[data-sonner-toast][data-type="success"] [data-icon] svg {
+[data-sonner-toast][data-type='success'] [data-icon] svg {
   color: var(--pink-500) !important;
 }
 
@@ -512,7 +512,7 @@ body {
 }
 
 .btn-primary::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: -100%;
@@ -591,7 +591,7 @@ body {
 }
 
 .pattern-hearts::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   opacity: 0.05;
