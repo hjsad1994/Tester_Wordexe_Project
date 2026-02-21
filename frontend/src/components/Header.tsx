@@ -165,7 +165,9 @@ export default function Header() {
                 <CartIcon size={22} />
                 {cartCount > 0 && (
                   <span
-                    className="absolute -top-1 -right-1 w-5 h-5 bg-white text-pink-500 text-xs font-bold rounded-full flex items-center justify-center shadow-md"
+                    key={cartCount}
+                    className="absolute -top-1 -right-1 w-5 h-5 bg-white text-pink-500 text-xs font-bold rounded-full flex items-center justify-center shadow-md animate-cart-badge-pop"
+                    style={{ animation: 'cart-badge-pop 0.3s ease-out' }}
                     aria-live="polite"
                     role="status"
                   >

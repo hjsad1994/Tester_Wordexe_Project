@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import {
@@ -757,14 +758,33 @@ export default function ProductDetailPage() {
                     if (isOutOfStock) {
                       return;
                     }
+                    let isNew = false;
+                    let finalQuantity = 0;
                     for (let i = 0; i < selectedQuantity; i++) {
-                      addToCart({
+                      const result = addToCart({
                         id: product.id,
                         name: product.name,
                         price: product.price,
                         image: product.illustration,
                       });
+                      if (i === 0) isNew = result.isNew;
+                      finalQuantity = result.newQuantity;
                     }
+                    toast.success(
+                      isNew
+                        ? finalQuantity > 1
+                          ? `Đã thêm vào giỏ hàng (×${finalQuantity})`
+                          : 'Đã thêm vào giỏ hàng'
+                        : `Đã cập nhật giỏ hàng (×${finalQuantity})`,
+                      {
+                        id: `cart-${product.id}`,
+                        description: product.name,
+                        action: {
+                          label: 'Xem giỏ hàng',
+                          onClick: () => router.push('/cart'),
+                        },
+                      }
+                    );
                   }}
                   disabled={isOutOfStock}
                   className="flex-1 py-4 px-6 bg-gradient-to-r from-pink-400 to-pink-500 text-white font-semibold rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-pink-200 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:active:scale-100"

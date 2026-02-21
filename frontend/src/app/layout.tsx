@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
+import { Toaster } from 'sonner';
+import { AuthProvider } from '@/contexts/AuthContext';
 import { CartProvider } from '@/contexts/CartContext';
 import { WishlistProvider } from '@/contexts/WishlistContext';
-import { AuthProvider } from '@/contexts/AuthContext';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -39,6 +40,14 @@ export default function RootLayout({
             <WishlistProvider>{children}</WishlistProvider>
           </CartProvider>
         </AuthProvider>
+        <Toaster
+          position="top-right"
+          offset={80}
+          closeButton
+          toastOptions={{
+            duration: 4000,
+          }}
+        />
       </body>
     </html>
   );

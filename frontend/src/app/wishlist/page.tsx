@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import {
@@ -31,6 +33,7 @@ const getProductPath = (product: { id: string; name: string; slug?: string }) =>
 export default function WishlistPage() {
   const { wishlistItems, wishlistCount, removeFromWishlist, clearWishlist } = useWishlist();
   const { addToCart } = useCart();
+  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-[var(--warm-white)]">
@@ -151,12 +154,25 @@ export default function WishlistPage() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => {
-                            addToCart({
+                            const result = addToCart({
                               id: product.id,
                               name: product.name,
                               price: product.price,
                               image: product.illustration,
                             });
+                            toast.success(
+                              result.isNew
+                                ? 'Đã thêm vào giỏ hàng'
+                                : `Đã cập nhật giỏ hàng (×${result.newQuantity})`,
+                              {
+                                id: `cart-${product.id}`,
+                                description: product.name,
+                                action: {
+                                  label: 'Xem giỏ hàng',
+                                  onClick: () => router.push('/cart'),
+                                },
+                              }
+                            );
                           }}
                           className="flex-1 py-2.5 min-h-[44px] bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 hover:from-pink-600 hover:to-rose-600 hover:shadow-lg hover:shadow-pink-200 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:ring-offset-1 focus-visible:outline-none transition-all duration-200"
                           aria-label={`Thêm ${product.name} vào giỏ hàng`}

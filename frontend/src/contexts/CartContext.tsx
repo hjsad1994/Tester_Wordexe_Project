@@ -20,6 +20,12 @@ export interface CartItem {
   quantity: number;
 }
 
+export interface AddToCartResult {
+  isNew: boolean;
+  newQuantity: number;
+  item: Omit<CartItem, 'quantity'>;
+}
+
 interface CartState {
   items: CartItem[];
   buyNowItem: CartItem | null;
@@ -88,7 +94,7 @@ interface CartContextValue {
   cartCount: number;
   cartTotal: number;
   buyNowItem: CartItem | null;
-  addToCart: (item: Omit<CartItem, 'quantity'>) => void;
+  addToCart: (item: Omit<CartItem, 'quantity'>) => AddToCartResult;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -163,8 +169,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [state.items]
   );
 
-  const addToCart = (item: Omit<CartItem, 'quantity'>) => {
+  const addToCart = (item: Omit<CartItem, 'quantity'>): AddToCartResult => {
+    const existing = state.items.find((i) => i.id === item.id);
     dispatch({ type: 'ADD_ITEM', payload: item });
+    return {
+      isNew: !existing,
+      newQuantity: existing ? existing.quantity + 1 : 1,
+      item,
+    };
   };
 
   const removeFromCart = (id: string) => {
@@ -187,21 +199,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'CLEAR_BUY_NOW' });
   };
 
-  const value = useMemo(
-    () => ({
-      cartItems: state.items,
-      cartCount,
-      cartTotal,
-      buyNowItem: state.buyNowItem,
-      addToCart,
-      removeFromCart,
-      updateQuantity,
-      clearCart,
-      setBuyNowItem,
-      clearBuyNowItem,
-    }),
-    [state.items, state.buyNowItem, cartCount, cartTotal]
-  );
+  const value = {
+    cartItems: state.items,
+    cartCount,
+    cartTotal,
+    buyNowItem: state.buyNowItem,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    setBuyNowItem,
+    clearBuyNowItem,
+  };
 
   return <CartContext value={value}>{children}</CartContext>;
 }

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import {
@@ -72,14 +73,33 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
   };
 
   const handleAddToCart = () => {
+    let isNew = false;
+    let finalQuantity = 0;
     for (let i = 0; i < quantity; i++) {
-      addToCart({
+      const result = addToCart({
         id: product.id,
         name: product.name,
         price: product.price,
         image: product.illustration,
       });
+      if (i === 0) isNew = result.isNew;
+      finalQuantity = result.newQuantity;
     }
+    toast.success(
+      isNew
+        ? finalQuantity > 1
+          ? `Đã thêm vào giỏ hàng (×${finalQuantity})`
+          : 'Đã thêm vào giỏ hàng'
+        : `Đã cập nhật giỏ hàng (×${finalQuantity})`,
+      {
+        id: `cart-${product.id}`,
+        description: product.name,
+        action: {
+          label: 'Xem giỏ hàng',
+          onClick: () => router.push('/cart'),
+        },
+      }
+    );
     onClose();
   };
 
