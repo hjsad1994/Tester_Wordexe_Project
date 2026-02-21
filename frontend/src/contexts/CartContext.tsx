@@ -4,9 +4,12 @@ import {
 	createContext,
 	type ReactNode,
 	useContext,
+	useEffect,
 	useMemo,
 	useReducer,
 } from "react";
+
+const STORAGE_KEY = "baby-bliss-cart";
 
 export interface CartItem {
 	id: string;
@@ -103,6 +106,39 @@ export function CartProvider({ children }: { children: ReactNode }) {
 		items: [],
 		buyNowItem: null,
 	});
+
+	// Hydrate cart state from localStorage on mount
+	useEffect(() => {
+		try {
+			const stored = localStorage.getItem(STORAGE_KEY);
+			if (stored) {
+				const parsed = JSON.parse(stored) as CartState;
+				if (parsed && Array.isArray(parsed.items)) {
+					dispatch({ type: "HYDRATE", payload: parsed });
+				}
+			}
+		} catch {
+			// Corrupted data — clear it and start fresh
+			try {
+				localStorage.removeItem(STORAGE_KEY);
+			} catch {
+				// localStorage not available
+			}
+		}
+	}, []);
+
+	// Sync cart state to localStorage on changes
+	useEffect(() => {
+		try {
+			localStorage.setItem(
+				STORAGE_KEY,
+				JSON.stringify({ items: state.items, buyNowItem: state.buyNowItem }),
+			);
+		} catch {
+			// Storage quota exceeded or localStorage not available
+			console.warn("Failed to persist cart to localStorage");
+		}
+	}, [state.items, state.buyNowItem]);
 
 	const cartCount = useMemo(
 		() => state.items.reduce((sum, item) => sum + item.quantity, 0),
