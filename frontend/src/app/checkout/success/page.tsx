@@ -194,8 +194,14 @@ function CheckoutSuccessContent() {
               <p>
                 <span className="text-[var(--text-secondary)]">Địa chỉ:</span>{' '}
                 <span className="font-medium text-[var(--text-primary)]">
-                  {order.customerInfo.address}, {order.customerInfo.ward},{' '}
-                  {order.customerInfo.district}, {order.customerInfo.province}
+                  {[
+                    order.customerInfo.address,
+                    order.customerInfo.ward,
+                    order.customerInfo.district,
+                    order.customerInfo.province,
+                  ]
+                    .filter(Boolean)
+                    .join(', ')}
                 </span>
               </p>
               {order.customerInfo.notes && (

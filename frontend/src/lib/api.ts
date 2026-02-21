@@ -113,10 +113,10 @@ export interface OrderItem {
 export interface OrderCustomerInfo {
   fullName: string;
   phone: string;
-  province: string;
-  district: string;
-  ward: string;
   address: string;
+  province?: string;
+  district?: string;
+  ward?: string;
   notes?: string;
 }
 

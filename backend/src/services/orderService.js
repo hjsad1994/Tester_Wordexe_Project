@@ -34,17 +34,11 @@ const ensureRequiredText = (value, fieldName) => {
 const normalizeCustomerInfo = (customerInfo = {}) => {
   ensureRequiredText(customerInfo.fullName, 'fullName');
   ensureRequiredText(customerInfo.phone, 'phone');
-  ensureRequiredText(customerInfo.province, 'province');
-  ensureRequiredText(customerInfo.district, 'district');
-  ensureRequiredText(customerInfo.ward, 'ward');
   ensureRequiredText(customerInfo.address, 'address');
 
   return {
     fullName: String(customerInfo.fullName).trim(),
     phone: String(customerInfo.phone).trim(),
-    province: String(customerInfo.province).trim(),
-    district: String(customerInfo.district).trim(),
-    ward: String(customerInfo.ward).trim(),
     address: String(customerInfo.address).trim(),
     notes: customerInfo.notes ? String(customerInfo.notes).trim() : '',
   };

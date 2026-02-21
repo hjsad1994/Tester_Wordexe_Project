@@ -10,15 +10,13 @@ import {
   type ProductIllustrationType,
   productIllustrations,
 } from '@/components/icons/ProductIllustrations';
+import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { createOrder as createOrderApi } from '@/lib/api';
 
 interface CheckoutFormData {
   fullName: string;
   phone: string;
-  province: string;
-  district: string;
-  ward: string;
   address: string;
   notes: string;
 }
@@ -26,9 +24,6 @@ interface CheckoutFormData {
 interface FormErrors {
   fullName?: string;
   phone?: string;
-  province?: string;
-  district?: string;
-  ward?: string;
   address?: string;
 }
 
@@ -42,6 +37,7 @@ function formatPrice(price: number): string {
 
 function CheckoutContent() {
   const { cartItems, clearCart, buyNowItem, clearBuyNowItem } = useCart();
+  const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const isBuyNow = searchParams.get('buyNow') === 'true';
@@ -66,9 +62,6 @@ function CheckoutContent() {
   const [formData, setFormData] = useState<CheckoutFormData>({
     fullName: '',
     phone: '',
-    province: '',
-    district: '',
-    ward: '',
     address: '',
     notes: '',
   });
@@ -77,6 +70,18 @@ function CheckoutContent() {
   const [showMomoOverlay, setShowMomoOverlay] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Pre-fill form from user profile when logged in
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        fullName: prev.fullName || user.name || '',
+        phone: prev.phone || user.phone || '',
+        address: prev.address || user.address || '',
+      }));
+    }
+  }, [user]);
 
   const handleChange = (field: keyof CheckoutFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -93,10 +98,7 @@ function CheckoutContent() {
     } else if (!/^0[0-9]{9}$/.test(formData.phone.trim())) {
       newErrors.phone = 'Số điện thoại không hợp lệ';
     }
-    if (!formData.province.trim()) newErrors.province = 'Vui lòng nhập tỉnh/thành phố';
-    if (!formData.district.trim()) newErrors.district = 'Vui lòng nhập quận/huyện';
-    if (!formData.ward.trim()) newErrors.ward = 'Vui lòng nhập phường/xã';
-    if (!formData.address.trim()) newErrors.address = 'Vui lòng nhập địa chỉ chi tiết';
+    if (!formData.address.trim()) newErrors.address = 'Vui lòng nhập địa chỉ';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -114,9 +116,6 @@ function CheckoutContent() {
         customerInfo: {
           fullName: formData.fullName,
           phone: formData.phone,
-          province: formData.province,
-          district: formData.district,
-          ward: formData.ward,
           address: formData.address,
           notes: formData.notes,
         },
@@ -262,112 +261,31 @@ function CheckoutContent() {
                       )}
                     </div>
 
-                    {/* Province & District row */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label
-                          htmlFor="province"
-                          className="block text-sm font-semibold text-[var(--text-primary)] mb-1.5"
+                    {/* Address */}
+                    <div>
+                      <label
+                        htmlFor="address"
+                        className="block text-sm font-semibold text-[var(--text-primary)] mb-1.5"
+                      >
+                        Địa chỉ <span className="text-pink-500">*</span>
+                      </label>
+                      <input
+                        id="address"
+                        type="text"
+                        value={formData.address}
+                        onChange={(e) => handleChange('address', e.target.value)}
+                        className={`w-full px-4 py-3 rounded-xl border-2 ${errors.address ? 'border-[var(--destructive)]' : 'border-pink-200'} bg-white text-[var(--text-primary)] focus:border-pink-400 focus:outline-none transition-colors`}
+                        placeholder="123 Đường ABC, Phường Bến Nghé, Quận 1, TP. HCM"
+                      />
+                      {errors.address && (
+                        <p
+                          className="text-sm text-[var(--destructive)] mt-1"
+                          role="alert"
+                          aria-live="polite"
                         >
-                          Tỉnh/Thành phố <span className="text-pink-500">*</span>
-                        </label>
-                        <input
-                          id="province"
-                          type="text"
-                          value={formData.province}
-                          onChange={(e) => handleChange('province', e.target.value)}
-                          className={`w-full px-4 py-3 rounded-xl border-2 ${errors.province ? 'border-[var(--destructive)]' : 'border-pink-200'} bg-white text-[var(--text-primary)] focus:border-pink-400 focus:outline-none transition-colors`}
-                          placeholder="TP. Hồ Chí Minh"
-                        />
-                        {errors.province && (
-                          <p
-                            className="text-sm text-[var(--destructive)] mt-1"
-                            role="alert"
-                            aria-live="polite"
-                          >
-                            {errors.province}
-                          </p>
-                        )}
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="district"
-                          className="block text-sm font-semibold text-[var(--text-primary)] mb-1.5"
-                        >
-                          Quận/Huyện <span className="text-pink-500">*</span>
-                        </label>
-                        <input
-                          id="district"
-                          type="text"
-                          value={formData.district}
-                          onChange={(e) => handleChange('district', e.target.value)}
-                          className={`w-full px-4 py-3 rounded-xl border-2 ${errors.district ? 'border-[var(--destructive)]' : 'border-pink-200'} bg-white text-[var(--text-primary)] focus:border-pink-400 focus:outline-none transition-colors`}
-                          placeholder="Quận 1"
-                        />
-                        {errors.district && (
-                          <p
-                            className="text-sm text-[var(--destructive)] mt-1"
-                            role="alert"
-                            aria-live="polite"
-                          >
-                            {errors.district}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Ward & Address row */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label
-                          htmlFor="ward"
-                          className="block text-sm font-semibold text-[var(--text-primary)] mb-1.5"
-                        >
-                          Phường/Xã <span className="text-pink-500">*</span>
-                        </label>
-                        <input
-                          id="ward"
-                          type="text"
-                          value={formData.ward}
-                          onChange={(e) => handleChange('ward', e.target.value)}
-                          className={`w-full px-4 py-3 rounded-xl border-2 ${errors.ward ? 'border-[var(--destructive)]' : 'border-pink-200'} bg-white text-[var(--text-primary)] focus:border-pink-400 focus:outline-none transition-colors`}
-                          placeholder="Phường Bến Nghé"
-                        />
-                        {errors.ward && (
-                          <p
-                            className="text-sm text-[var(--destructive)] mt-1"
-                            role="alert"
-                            aria-live="polite"
-                          >
-                            {errors.ward}
-                          </p>
-                        )}
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="address"
-                          className="block text-sm font-semibold text-[var(--text-primary)] mb-1.5"
-                        >
-                          Địa chỉ chi tiết <span className="text-pink-500">*</span>
-                        </label>
-                        <input
-                          id="address"
-                          type="text"
-                          value={formData.address}
-                          onChange={(e) => handleChange('address', e.target.value)}
-                          className={`w-full px-4 py-3 rounded-xl border-2 ${errors.address ? 'border-[var(--destructive)]' : 'border-pink-200'} bg-white text-[var(--text-primary)] focus:border-pink-400 focus:outline-none transition-colors`}
-                          placeholder="123 Đường ABC"
-                        />
-                        {errors.address && (
-                          <p
-                            className="text-sm text-[var(--destructive)] mt-1"
-                            role="alert"
-                            aria-live="polite"
-                          >
-                            {errors.address}
-                          </p>
-                        )}
-                      </div>
+                          {errors.address}
+                        </p>
+                      )}
                     </div>
 
                     {/* Notes */}
