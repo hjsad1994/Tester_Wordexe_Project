@@ -1,0 +1,123 @@
+{
+  "beadId": "bd-1ez",
+  "prdName": "checkout-autofill-address-simplification",
+  "tasks": [
+    {
+      "id": "backend-1",
+      "category": "backend",
+      "description": "Simplify Order customerInfo schema \u2014 single address field instead of province/district/ward/address, update order service validation",
+      "steps": [
+        "Backend starts without errors after schema change",
+        "POST /api/orders with { customerInfo: { fullName, phone, address, notes? } } creates order successfully",
+        "Old orders with province/district/ward fields still load without errors"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": [
+          "frontend-1"
+        ],
+        "files": [
+          "backend/src/models/Order.js",
+          "backend/src/services/orderService.js"
+        ]
+      }
+    },
+    {
+      "id": "frontend-1",
+      "category": "frontend",
+      "description": "Update OrderCustomerInfo and CreateOrderPayload TypeScript interfaces to use single address field (remove province/district/ward)",
+      "steps": [
+        "npx tsc --noEmit passes with no type errors",
+        "OrderCustomerInfo has fields: fullName, phone, address, notes?"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": [
+          "backend-1"
+        ],
+        "files": [
+          "frontend/src/lib/api.ts"
+        ]
+      }
+    },
+    {
+      "id": "frontend-2",
+      "category": "frontend",
+      "description": "Simplify checkout form to single address input + pre-fill fullName, phone, address from AuthContext when logged in",
+      "steps": [
+        "Checkout form renders with single address field",
+        "Logged-in user with profile data sees pre-filled form",
+        "Guest sees empty form",
+        "Form validation rejects empty required fields",
+        "Order submission works with COD and MoMo"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": [
+          "frontend-1"
+        ],
+        "parallel": false,
+        "conflicts_with": [],
+        "files": [
+          "frontend/src/app/checkout/page.tsx"
+        ]
+      }
+    },
+    {
+      "id": "frontend-3",
+      "category": "frontend",
+      "description": "Update admin orders panel to display single address for new orders and gracefully handle old orders with province/district/ward (concatenate for display)",
+      "steps": [
+        "Admin panel loads orders without errors",
+        "New orders show single address string",
+        "Old orders with province/district/ward still display correctly (concatenated)"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": [
+          "backend-1"
+        ],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": [
+          "frontend/src/components/admin/AdminOrdersPanel.tsx"
+        ]
+      }
+    }
+  ],
+  "context": {
+    "patterns": [
+      "Frontend uses AuthContext via useAuth() hook for user data",
+      "Checkout uses plain useState, no form library",
+      "Backend: Express + Mongoose, custom JWT with HTTP-only cookies",
+      "Admin panel already shows orders \u2014 just needs address format update"
+    ],
+    "keyFiles": [
+      "frontend/src/contexts/AuthContext.tsx",
+      "frontend/src/app/checkout/page.tsx",
+      "frontend/src/lib/api.ts",
+      "backend/src/models/Order.js",
+      "backend/src/services/orderService.js",
+      "frontend/src/components/admin/AdminOrdersPanel.tsx"
+    ],
+    "nonGoals": [
+      "Structured address with dropdown selectors",
+      "Address book (multiple saved addresses)",
+      "Guest checkout changes",
+      "Profile page changes",
+      "Payment method changes",
+      "Real MoMo integration"
+    ]
+  },
+  "beadMetadata": {
+    "depends_on": [],
+    "parallel": true,
+    "conflicts_with": [],
+    "blocks": [],
+    "estimated_hours": 3
+  }
+}

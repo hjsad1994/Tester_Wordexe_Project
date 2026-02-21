@@ -1,0 +1,16 @@
+# Progress Log
+
+Bead: bd-1ez
+Started: 2026-02-22
+
+## Codebase Patterns
+
+- AuthContext provides useAuth() hook with user.name, user.phone, user.address
+- Checkout form uses plain useState<CheckoutFormData> — no form library
+- Order model has customerInfo sub-document with province/district/ward/address
+- Order service validates and normalizes customerInfo fields
+- Admin panel shows order listing with customer name, phone, total, status
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
