@@ -218,11 +218,12 @@ class ProductService {
 			}
 		}
 
-		// Add all URLs to product
-		let updatedProduct = product;
-		for (const image of uploadedImages) {
-			updatedProduct = await productRepository.addImage(productId, image.url);
-		}
+		// Add all URLs to product atomically
+		const imageUrls = uploadedImages.map((img) => img.url);
+		const updatedProduct = await productRepository.addImages(
+			productId,
+			imageUrls,
+		);
 
 		return updatedProduct;
 	}
@@ -238,16 +239,19 @@ class ProductService {
 		}
 
 		// Extract public_id from Cloudinary URL
+		// Handles both versioned (upload/v123/folder/file.jpg) and
+		// non-versioned (upload/folder/file.jpg) URL formats
 		const urlParts = imageUrl.split("/");
 		const uploadIndex = urlParts.indexOf("upload");
 		if (uploadIndex !== -1) {
-			const pathAfterUpload = urlParts.slice(uploadIndex + 2).join("/");
+			// Check if next segment is a version (starts with 'v' followed by digits)
+			const nextSegment = urlParts[uploadIndex + 1];
+			const isVersioned = nextSegment && /^v\d+$/.test(nextSegment);
+			const startIndex = isVersioned ? uploadIndex + 2 : uploadIndex + 1;
+			const pathAfterUpload = urlParts.slice(startIndex).join("/");
 			const publicId = pathAfterUpload.replace(/\.[^.]+$/, "");
-			try {
-				await cloudinary.uploader.destroy(publicId);
-			} catch {
-				console.error(`Failed to delete Cloudinary image: ${publicId}`);
-			}
+
+			await cloudinary.uploader.destroy(publicId);
 		}
 
 		return productRepository.removeImage(productId, imageUrl);

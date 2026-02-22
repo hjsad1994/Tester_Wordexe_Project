@@ -409,25 +409,12 @@ export async function deleteProduct(id: string): Promise<void> {
 	}
 }
 
+/** @deprecated Use uploadProductImages() instead */
 export async function uploadProductImage(
 	id: string,
 	file: File,
 ): Promise<Product> {
-	const formData = new FormData();
-	formData.append("image", file);
-
-	const res = await fetch(`${API_BASE_URL}/api/products/${id}/images`, {
-		method: "POST",
-		credentials: "include",
-		body: formData,
-	});
-
-	if (!res.ok) {
-		throw new Error(await parseError(res, "Không thể tải ảnh sản phẩm"));
-	}
-
-	const body = (await res.json()) as ApiResponse<Product>;
-	return body.data;
+	return uploadProductImages(id, [file]);
 }
 
 export async function uploadProductImages(

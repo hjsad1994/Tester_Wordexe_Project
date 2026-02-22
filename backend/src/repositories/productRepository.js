@@ -139,6 +139,14 @@ class ProductRepository {
 		).populate("category", "name slug");
 	}
 
+	async addImages(id, imageUrls) {
+		return Product.findByIdAndUpdate(
+			id,
+			{ $push: { images: { $each: imageUrls } } },
+			{ new: true, runValidators: true },
+		).populate("category", "name slug");
+	}
+
 	async removeImage(id, imageUrl) {
 		return Product.findByIdAndUpdate(
 			id,

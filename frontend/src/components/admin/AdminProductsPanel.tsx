@@ -357,20 +357,49 @@ export default function AdminProductsPanel({
 			if (editingProductId) {
 				finalProduct = await updateProductApi(editingProductId, payload);
 
-				// Delete removed existing images
+				// Delete removed existing images (best-effort, continue on failure)
+				const deleteErrors: string[] = [];
 				for (const imageUrl of removedImages) {
-					finalProduct = await deleteProductImageApi(
-						editingProductId,
-						imageUrl,
-					);
+					try {
+						finalProduct = await deleteProductImageApi(
+							editingProductId,
+							imageUrl,
+						);
+					} catch {
+						deleteErrors.push(imageUrl);
+					}
 				}
 
 				// Upload new images
 				if (selectedImageFiles.length > 0) {
-					finalProduct = await uploadProductImagesApi(
-						editingProductId,
-						selectedImageFiles,
-					);
+					try {
+						finalProduct = await uploadProductImagesApi(
+							editingProductId,
+							selectedImageFiles,
+						);
+					} catch (uploadError) {
+						// Update UI with what we have so far, then report error
+						setAdminProducts((prev) =>
+							prev.map((product) =>
+								product._id === finalProduct._id ? finalProduct : product,
+							),
+						);
+						const msg =
+							uploadError instanceof Error
+								? uploadError.message
+								: "Không thể tải ảnh lên";
+						toast.error(msg);
+						if (deleteErrors.length > 0) {
+							toast.error(`Không thể xóa ${deleteErrors.length} ảnh cũ`);
+						}
+						setProductModalOpen(false);
+						resetProductForm();
+						return;
+					}
+				}
+
+				if (deleteErrors.length > 0) {
+					toast.warning(`Không thể xóa ${deleteErrors.length} ảnh cũ`);
 				}
 
 				setAdminProducts((prev) =>
