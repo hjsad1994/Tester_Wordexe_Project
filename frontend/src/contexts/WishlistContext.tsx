@@ -6,9 +6,11 @@ import {
   useReducer,
   useEffect,
   useCallback,
+  useRef,
   type ReactNode,
 } from 'react';
 import type { Product } from '@/components/ProductCard';
+import { useAuth } from './AuthContext';
 
 interface WishlistState {
   items: Product[];
@@ -51,32 +53,64 @@ interface WishlistContextValue {
 
 const WishlistContext = createContext<WishlistContextValue | null>(null);
 
-const STORAGE_KEY = 'baby-bliss-wishlist';
+const STORAGE_KEY_PREFIX = 'baby-bliss-wishlist';
+
+function getWishlistStorageKey(userId: string | null): string {
+  return userId ? `${STORAGE_KEY_PREFIX}-${userId}` : `${STORAGE_KEY_PREFIX}-guest`;
+}
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
+  const { user, isLoading: authLoading } = useAuth();
   const [state, dispatch] = useReducer(wishlistReducer, { items: [] });
+  const isHydrated = useRef(false);
+  const prevUserIdRef = useRef<string | null | undefined>(undefined);
 
-  // Hydrate from localStorage on mount
+  const userId = authLoading ? undefined : (user?.id ?? null);
+
+  // Hydrate/re-hydrate wishlist when user identity changes
   useEffect(() => {
+    if (userId === undefined) return; // Auth still loading
+
+    const prevUserId = prevUserIdRef.current;
+
+    // Skip if user hasn't actually changed
+    if (prevUserId !== undefined && prevUserId === userId) return;
+
+    // Load wishlist for current user
+    let items: Product[] = [];
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = localStorage.getItem(getWishlistStorageKey(userId));
       if (stored) {
-        const items = JSON.parse(stored) as Product[];
-        dispatch({ type: 'HYDRATE', payload: items });
+        const parsed = JSON.parse(stored) as Product[];
+        if (Array.isArray(parsed)) {
+          items = parsed;
+        }
       }
     } catch {
-      // Ignore parse errors
+      // Corrupted data — clear it
+      try {
+        localStorage.removeItem(getWishlistStorageKey(userId));
+      } catch {
+        // localStorage not available
+      }
     }
-  }, []);
 
-  // Persist to localStorage on change
+    dispatch({ type: 'HYDRATE', payload: items });
+    prevUserIdRef.current = userId;
+    isHydrated.current = true;
+  }, [userId]);
+
+  // Persist to localStorage using user-scoped key
   useEffect(() => {
+    if (!isHydrated.current) return;
+    if (userId === undefined) return; // Auth still loading
+
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
+      localStorage.setItem(getWishlistStorageKey(userId), JSON.stringify(state.items));
     } catch {
       // Ignore quota errors
     }
-  }, [state.items]);
+  }, [state.items, userId]);
 
   const wishlistCount = state.items.length;
 

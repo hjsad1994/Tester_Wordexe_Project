@@ -9,8 +9,13 @@ import {
   useReducer,
   useRef,
 } from 'react';
+import { useAuth } from './AuthContext';
 
-const STORAGE_KEY = 'baby-bliss-cart';
+const STORAGE_KEY_PREFIX = 'baby-bliss-cart';
+
+function getCartStorageKey(userId: string | null): string {
+  return userId ? `${STORAGE_KEY_PREFIX}-${userId}` : `${STORAGE_KEY_PREFIX}-guest`;
+}
 
 export interface CartItem {
   id: string;
@@ -105,21 +110,34 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { user, isLoading: authLoading } = useAuth();
   const [state, dispatch] = useReducer(cartReducer, {
     items: [],
     buyNowItem: null,
   });
   const isHydrated = useRef(false);
+  const prevUserIdRef = useRef<string | null | undefined>(undefined);
 
-  // Hydrate cart state from localStorage on mount
+  const userId = authLoading ? undefined : (user?.id ?? null);
+
+  // Hydrate/re-hydrate cart when user identity changes (login/logout)
   useEffect(() => {
+    if (userId === undefined) return; // Auth still loading
+
+    const prevUserId = prevUserIdRef.current;
+
+    // Skip if user hasn't actually changed
+    if (prevUserId !== undefined && prevUserId === userId) return;
+
+    // Load cart for current user
+    let items: CartItem[] = [];
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = localStorage.getItem(getCartStorageKey(userId));
       if (stored) {
         const parsed = JSON.parse(stored) as CartState;
         if (parsed && Array.isArray(parsed.items)) {
           // Validate each item has required numeric fields to prevent NaN propagation
-          const validItems = parsed.items.filter((item: unknown): item is CartItem => {
+          items = parsed.items.filter((item: unknown): item is CartItem => {
             const i = item as Record<string, unknown>;
             return (
               typeof i?.id === 'string' &&
@@ -130,34 +148,37 @@ export function CartProvider({ children }: { children: ReactNode }) {
               i.quantity > 0
             );
           });
-          // Only persist items — buyNowItem is session-scoped
-          dispatch({
-            type: 'HYDRATE',
-            payload: { items: validItems, buyNowItem: null },
-          });
         }
       }
     } catch {
       // Corrupted data — clear it and start fresh
       try {
-        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(getCartStorageKey(userId));
       } catch {
         // localStorage not available
       }
     }
-    isHydrated.current = true;
-  }, []);
 
-  // Sync cart items to localStorage on changes (buyNowItem excluded — session-scoped)
+    dispatch({
+      type: 'HYDRATE',
+      payload: { items, buyNowItem: null },
+    });
+    prevUserIdRef.current = userId;
+    isHydrated.current = true;
+  }, [userId]);
+
+  // Sync cart items to localStorage using user-scoped key (buyNowItem excluded — session-scoped)
   useEffect(() => {
     if (!isHydrated.current) return;
+    if (userId === undefined) return; // Auth still loading
+
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ items: state.items }));
+      localStorage.setItem(getCartStorageKey(userId), JSON.stringify({ items: state.items }));
     } catch {
       // Storage quota exceeded or localStorage not available
       console.warn('Failed to persist cart to localStorage');
     }
-  }, [state.items]);
+  }, [state.items, userId]);
 
   const cartCount = useMemo(
     () => state.items.reduce((sum, item) => sum + item.quantity, 0),
