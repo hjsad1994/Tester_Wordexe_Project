@@ -530,20 +530,14 @@ export default function ProductDetailPage() {
                         });
                       }
                     }}
-                    aria-label={
-                      liked ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'
-                    }
+                    aria-label={liked ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}
                     className={`absolute top-6 right-6 z-10 p-3 rounded-full transition-all shadow-lg ${
                       liked
                         ? 'bg-pink-500 text-white'
                         : 'bg-white text-pink-400 hover:bg-pink-500 hover:text-white'
                     }`}
                   >
-                    {liked ? (
-                      <HeartIcon size={24} />
-                    ) : (
-                      <HeartOutlineIcon size={24} />
-                    )}
+                    {liked ? <HeartIcon size={24} /> : <HeartOutlineIcon size={24} />}
                   </button>
 
                   {product.imageUrl ? (
