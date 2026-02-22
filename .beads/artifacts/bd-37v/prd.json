@@ -1,0 +1,66 @@
+{
+	"beadId": "bd-37v",
+	"prdName": "cart-persistence",
+	"tasks": [
+		{
+			"id": "bugfix-1",
+			"category": "bugfix",
+			"description": "Add HYDRATE action to CartContext reducer — CartContext reducer handles a HYDRATE action that replaces the entire cart state with persisted data from localStorage, following the same pattern as WishlistContext.",
+			"steps": [
+				"cd frontend && npx tsc --noEmit passes",
+				"HYDRATE action type exists in CartAction union",
+				"cartReducer handles HYDRATE case"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": [],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": ["frontend/src/contexts/CartContext.tsx"]
+			}
+		},
+		{
+			"id": "bugfix-2",
+			"category": "bugfix",
+			"description": "Add localStorage persistence to CartProvider — CartProvider includes two useEffects: one to hydrate state from localStorage on mount (read 'baby-bliss-cart' key, parse JSON, dispatch HYDRATE), and one to sync state to localStorage whenever state.items or state.buyNowItem changes, with try-catch for corrupted data and storage errors.",
+			"steps": [
+				"cd frontend && npx tsc --noEmit passes",
+				"Open app → add item to cart → check DevTools Application > localStorage > 'baby-bliss-cart' key exists with correct data",
+				"Reload page → cart items still present",
+				"Clear cart → reload → cart still empty",
+				"Set localStorage.setItem('baby-bliss-cart', 'invalid') in console → reload → cart initializes empty without crash"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["bugfix-1"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": ["frontend/src/contexts/CartContext.tsx"]
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"WishlistContext.tsx uses HYDRATE action + 2 useEffects (mount read + change write) for localStorage persistence",
+			"Storage key convention: 'baby-bliss-<feature>' (e.g., 'baby-bliss-wishlist', 'baby-bliss-cart')"
+		],
+		"keyFiles": [
+			"frontend/src/contexts/CartContext.tsx",
+			"frontend/src/contexts/WishlistContext.tsx"
+		],
+		"nonGoals": [
+			"Server-side cart sync (cart API backend)",
+			"Cross-device cart sync",
+			"Cart expiration/TTL",
+			"Cart merge on login",
+			"Cart UI/UX changes"
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": true,
+		"conflicts_with": [],
+		"blocks": [],
+		"estimated_hours": 1
+	}
+}

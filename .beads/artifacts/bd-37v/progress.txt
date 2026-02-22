@@ -1,0 +1,14 @@
+# Progress Log
+
+Bead: bd-37v
+Started: 2026-02-22
+
+## Codebase Patterns
+
+- WishlistContext.tsx: HYDRATE action + 2 useEffects for localStorage persistence
+- Storage key: "baby-bliss-cart" (matching "baby-bliss-wishlist" convention)
+- CartContext.tsx: Only file to modify — useReducer with CartState { items, buyNowItem }
+
+---
+
+<!-- Task logs below - APPEND ONLY -->

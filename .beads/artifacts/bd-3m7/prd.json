@@ -1,0 +1,131 @@
+{
+	"beadId": "bd-3m7",
+	"prdName": "add-to-cart-notification",
+	"tasks": [
+		{
+			"id": "setup-1",
+			"category": "setup",
+			"description": "Sonner toast library is installed and the <Toaster> component is rendered at the root layout level, positioned top-right with Vietnamese-locale-friendly styling.",
+			"steps": [
+				"cd frontend && cat package.json | grep sonner shows sonner in dependencies",
+				"grep -n 'Toaster' src/app/layout.tsx shows Toaster imported and rendered",
+				"cd frontend && npm run build completes without errors"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": ["frontend/package.json", "frontend/src/app/layout.tsx"]
+			}
+		},
+		{
+			"id": "core-1",
+			"category": "core",
+			"description": "The addToCart function in CartContext returns information about whether the item was newly added or its quantity was updated, enabling call sites to show differentiated toast messages.",
+			"steps": [
+				"grep -A5 'addToCart' frontend/src/contexts/CartContext.tsx shows return type includes isNew/isUpdate info",
+				"cd frontend && npx tsc --noEmit passes without type errors"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": ["frontend/src/contexts/CartContext.tsx"]
+			}
+		},
+		{
+			"id": "ui-1",
+			"category": "ui",
+			"description": "The Header cart badge plays a brief scale-bounce animation whenever the cart count changes, providing immediate visual feedback that the cart was updated.",
+			"steps": [
+				"grep 'cart-badge-pop' frontend/src/app/globals.css shows the keyframe defined",
+				"grep 'cart-badge' frontend/src/components/Header.tsx shows animation class applied",
+				"grep 'prefers-reduced-motion' frontend/src/app/globals.css covers the animation"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/app/globals.css",
+					"frontend/src/components/Header.tsx"
+				]
+			}
+		},
+		{
+			"id": "feature-1",
+			"category": "feature",
+			"description": "All 4 add-to-cart call sites (ProductCard, ProductDetailModal, Product Detail Page, Wishlist Page) fire a Sonner toast with product thumbnail, name, differentiated messaging (new vs updated), and a 'Xem giỏ hàng' action button linking to /cart.",
+			"steps": [
+				"grep -rn 'toast(' frontend/src/components/ProductCard.tsx frontend/src/components/ProductDetailModal.tsx frontend/src/app/products/\\[id\\]/page.tsx frontend/src/app/wishlist/page.tsx shows toast calls in all 4 files",
+				"grep 'Xem giỏ hàng' frontend/src/components/ProductCard.tsx shows action button text",
+				"cd frontend && npx tsc --noEmit passes without type errors",
+				"cd frontend && npm run build completes successfully"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["setup-1", "core-1"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/components/ProductCard.tsx",
+					"frontend/src/components/ProductDetailModal.tsx",
+					"frontend/src/app/products/[id]/page.tsx",
+					"frontend/src/app/wishlist/page.tsx"
+				]
+			}
+		},
+		{
+			"id": "qa-1",
+			"category": "qa",
+			"description": "All toast notifications render correctly, are accessible (role='status', aria-live='polite'), auto-dismiss after ~4s, pause on hover, and the cart badge animates on every add-to-cart action.",
+			"steps": [
+				"cd frontend && npm run build succeeds",
+				"cd frontend && npx tsc --noEmit passes",
+				"Manual: Add item from product listing → toast appears with 'Đã thêm vào giỏ hàng'",
+				"Manual: Add same item again → toast shows 'Đã cập nhật giỏ hàng' with quantity",
+				"Manual: Click 'Xem giỏ hàng' → navigates to /cart",
+				"Manual: Inspect toast element → role='status' present"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["feature-1", "ui-1"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": []
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"Cart state: React Context + useReducer in CartContext.tsx",
+			"Provider hierarchy: AuthProvider > CartProvider > WishlistProvider in layout.tsx",
+			"Existing CSS keyframes in globals.css (fade-in-up, etc.)",
+			"Design tokens: --success, --warning, --destructive in globals.css",
+			"Vietnamese UI text throughout app"
+		],
+		"keyFiles": [
+			"frontend/src/contexts/CartContext.tsx",
+			"frontend/src/components/Header.tsx",
+			"frontend/src/app/layout.tsx",
+			"frontend/src/app/globals.css"
+		],
+		"nonGoals": [
+			"Mini-cart drawer / slide-in panel",
+			"Cross-sell / upsell suggestions in toast",
+			"Replacing existing alert() calls in ProductReviews.tsx",
+			"Refactoring profile page's local Toast component",
+			"Toast notifications for other actions (wishlist, checkout, etc.)"
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": true,
+		"conflicts_with": ["bd-wqw"],
+		"blocks": [],
+		"estimated_hours": 4
+	}
+}

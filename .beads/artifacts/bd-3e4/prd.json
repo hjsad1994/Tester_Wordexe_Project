@@ -1,0 +1,123 @@
+{
+	"beadId": "bd-3e4",
+	"prdName": "fix-cart-data-leak",
+	"tasks": [
+		{
+			"id": "cart-1",
+			"category": "cart",
+			"description": "Refactor CartContext to support user-scoped localStorage keys. Use baby-bliss-cart-{userId} instead of baby-bliss-cart. Guest users use baby-bliss-cart-guest. Hydrate correct cart when user changes, sync to corresponding key.",
+			"steps": [
+				"npm run typecheck passes",
+				"Manual: Login User A → add items → logout → login User B → cart must be empty",
+				"Manual: Login User A again → cart items restored"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": [],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": ["frontend/src/contexts/CartContext.tsx"]
+			}
+		},
+		{
+			"id": "wishlist-1",
+			"category": "wishlist",
+			"description": "Refactor WishlistContext to support user-scoped localStorage keys. Use baby-bliss-wishlist-{userId} instead of baby-bliss-wishlist. Apply same hydrate/sync pattern as CartContext.",
+			"steps": [
+				"npm run typecheck passes",
+				"Manual: Login User A → add wishlist items → logout → login User B → wishlist must be empty"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": ["frontend/src/contexts/WishlistContext.tsx"]
+			}
+		},
+		{
+			"id": "auth-1",
+			"category": "auth",
+			"description": "Add logout callback to clear cart and wishlist state. AuthContext logout triggers cart and wishlist CLEAR dispatches. Ensure data is saved to user-scoped key before reset.",
+			"steps": [
+				"npm run typecheck passes",
+				"Manual: Login → add items to cart + wishlist → logout → verify cart badge shows 0, wishlist empty",
+				"Manual: Login again → verify cart + wishlist restored"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["cart-1", "wishlist-1"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/contexts/AuthContext.tsx",
+					"frontend/src/app/layout.tsx"
+				]
+			}
+		},
+		{
+			"id": "migration-1",
+			"category": "migration",
+			"description": "Add migration logic for existing localStorage data. On first login after update, if old key baby-bliss-cart / baby-bliss-wishlist exists, migrate data to user-scoped key and remove old key.",
+			"steps": [
+				"Manual: Set localStorage.setItem('baby-bliss-cart', JSON.stringify({items: [...]})) → login → verify items appear in cart → verify old key removed",
+				"npm run typecheck passes"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["cart-1"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/contexts/CartContext.tsx",
+					"frontend/src/contexts/WishlistContext.tsx"
+				]
+			}
+		},
+		{
+			"id": "testing-1",
+			"category": "testing",
+			"description": "End-to-end verification of user-scoped cart isolation. Full integration test: multiple users on same browser, cart isolation, persistence, and migration all working correctly.",
+			"steps": [
+				"npm run typecheck passes",
+				"npm run lint:fix passes",
+				"Manual E2E: User A login → add 3 items → logout → User B login → verify empty cart → add 2 items → logout → User A login → verify 3 items → logout → User B login → verify 2 items",
+				"Manual E2E: Guest adds items → login → verify guest cart untouched, user cart loaded"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["auth-1", "migration-1"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": []
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"Cart state: React Context + useReducer + localStorage hydrate/sync",
+			"Auth state: React Context + useState, JWT in httpOnly cookie",
+			"Provider tree: AuthProvider > CartProvider > WishlistProvider",
+			"isHydrated ref guard prevents writing empty state before hydration"
+		],
+		"keyFiles": [
+			"frontend/src/contexts/CartContext.tsx",
+			"frontend/src/contexts/WishlistContext.tsx",
+			"frontend/src/contexts/AuthContext.tsx",
+			"frontend/src/app/layout.tsx"
+		],
+		"nonGoals": [
+			"Server-side cart persistence",
+			"Cart merging (guest + user on login)",
+			"Cross-device cart sync",
+			"Wishlist hydration race condition fix"
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": true,
+		"conflicts_with": ["bd-3m7"],
+		"blocks": [],
+		"estimated_hours": 3
+	}
+}

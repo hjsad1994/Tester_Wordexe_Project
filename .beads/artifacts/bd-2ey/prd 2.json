@@ -1,0 +1,105 @@
+{
+	"beadId": "bd-2ey",
+	"prdName": "product-detail-cloudinary-image-fix",
+	"tasks": [
+		{
+			"id": "ui-1",
+			"category": "ui",
+			"title": "Render DB-backed product image on product detail",
+			"description": "Product detail page displays `product.imageUrl` (derived from `images[0]`) as the main media element whenever available.",
+			"steps": [
+				"cd /Users/trantai/Documents/testing_project/frontend && npm run dev then open a product detail page with seeded Cloudinary image and confirm the main media is not placeholder-only",
+				"cd /Users/trantai/Documents/testing_project/frontend && npm run typecheck"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": [],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": ["frontend/src/app/products/[id]/page.tsx"]
+			}
+		},
+		{
+			"id": "ui-2",
+			"category": "ui",
+			"title": "Preserve fallback for products without image data",
+			"description": "Product detail continues to render the existing illustration placeholder for products that do not provide `images[]`.",
+			"steps": [
+				"cd /Users/trantai/Documents/testing_project/frontend && npm run dev then validate a no-image product still shows placeholder and no broken image element",
+				"cd /Users/trantai/Documents/testing_project/frontend && npm run lint:fix"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["Render DB-backed product image on product detail"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": ["frontend/src/app/products/[id]/page.tsx"]
+			}
+		},
+		{
+			"id": "qa-1",
+			"category": "qa",
+			"title": "Add regression coverage for product detail image rendering",
+			"description": "Automated test coverage includes at least one scenario asserting that product detail renders DB-provided Cloudinary image URLs.",
+			"steps": [
+				"cd /Users/trantai/Documents/testing_project/playwright && npm run test -- --grep \"product detail\""
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["Render DB-backed product image on product detail"],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": ["playwright/tests/demo-user-12/test-cases.spec.ts"]
+			}
+		},
+		{
+			"id": "qa-2",
+			"category": "qa",
+			"title": "Execute verification gates for release readiness",
+			"description": "Frontend lint/typecheck and targeted Playwright checks pass with the bugfix in place.",
+			"steps": [
+				"cd /Users/trantai/Documents/testing_project/frontend && npm run lint:fix",
+				"cd /Users/trantai/Documents/testing_project/frontend && npm run typecheck",
+				"cd /Users/trantai/Documents/testing_project/playwright && npm run test -- --grep \"product detail\""
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": [
+					"Render DB-backed product image on product detail",
+					"Preserve fallback for products without image data",
+					"Add regression coverage for product detail image rendering"
+				],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": []
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"frontend/src/app/products/[id]/page.tsx maps imageUrl from product.images?.[0]",
+			"frontend/src/components/ProductCard.tsx uses Next.js Image with product.imageUrl",
+			"frontend/next.config.ts includes res.cloudinary.com remotePatterns"
+		],
+		"keyFiles": [
+			"frontend/src/app/products/[id]/page.tsx",
+			"frontend/src/components/ProductCard.tsx",
+			"frontend/src/lib/api.ts",
+			"frontend/next.config.ts",
+			"backend/src/models/Product.js"
+		],
+		"nonGoals": [
+			"Backend upload/storage changes for Cloudinary secure_url pipeline",
+			"Multi-image gallery redesign beyond first image behavior",
+			"Admin product management UX changes",
+			"Catalog-wide product detail visual redesign"
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": true,
+		"conflicts_with": [],
+		"blocks": [],
+		"estimated_hours": 1
+	}
+}

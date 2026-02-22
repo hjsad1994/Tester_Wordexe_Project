@@ -1,0 +1,22 @@
+# Progress Log
+
+Bead: bd-3m7
+Started: 2026-02-22
+
+## Decisions
+
+- Toast content: Thumbnail + product name only (no price) — per user decision
+- Workspace: Feature branch `feat/bd-3m7-cart-notification`
+
+## Codebase Patterns
+
+- Cart state: React Context + useReducer in CartContext.tsx
+- Provider hierarchy: AuthProvider > CartProvider > WishlistProvider in layout.tsx
+- Existing CSS keyframes in globals.css (fade-in-up, etc.)
+- Design tokens: --success, --warning, --destructive
+- Vietnamese UI text throughout app
+- Sonner chosen for toast library (~5KB, a11y defaults, action buttons)
+
+---
+
+<!-- Task logs below - APPEND ONLY -->

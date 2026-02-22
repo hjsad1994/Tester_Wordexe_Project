@@ -1,0 +1,112 @@
+{
+	"beadId": "bd-19l",
+	"prdName": "product-description-integration",
+	"tasks": [
+		{
+			"id": "backend-1",
+			"category": "backend",
+			"description": "Cập nhật seed data thêm mô tả cho tất cả 16 sản phẩm",
+			"steps": [
+				"grep 'description:' backend/src/seed.js | wc -l trả về >= 16",
+				"cd backend && node -e \"require('./src/seed.js')\" chạy không lỗi (syntax check)"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": ["backend/src/seed.js"]
+			}
+		},
+		{
+			"id": "frontend-1",
+			"category": "frontend",
+			"description": "Thay mock description trên product detail page (products/[id]/page.tsx) bằng API data",
+			"steps": [
+				"grep -c 'productDetails\\[' frontend/src/app/products/\\[id\\]/page.tsx giảm đáng kể hoặc về 0 cho phần description",
+				"grep 'product\\.description\\|product?.description\\|Chưa có mô tả' frontend/src/app/products/\\[id\\]/page.tsx trả về match",
+				"cd frontend && npx tsc --noEmit passes"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": ["frontend-2"],
+				"files": ["frontend/src/app/products/[id]/page.tsx"]
+			}
+		},
+		{
+			"id": "frontend-2",
+			"category": "frontend",
+			"description": "Thay mock description trong ProductDetailModal.tsx bằng API data",
+			"steps": [
+				"grep -c 'productDetails\\[' frontend/src/components/ProductDetailModal.tsx về 0 hoặc giảm",
+				"grep 'description\\|Chưa có mô tả' frontend/src/components/ProductDetailModal.tsx trả về match",
+				"cd frontend && npx tsc --noEmit passes"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": ["frontend-1"],
+				"files": ["frontend/src/components/ProductDetailModal.tsx"]
+			}
+		},
+		{
+			"id": "frontend-3",
+			"category": "frontend",
+			"description": "Thêm cột mô tả ngắn gọn (truncated, max 50 chars) vào admin product list",
+			"steps": [
+				"grep -i 'mô tả\\|description' frontend/src/components/admin/AdminProductsPanel.tsx | grep -i 'th>\\|td>\\|column\\|header\\|truncat\\|slice\\|substring' trả về match",
+				"cd frontend && npx tsc --noEmit passes"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": ["frontend/src/components/admin/AdminProductsPanel.tsx"]
+			}
+		},
+		{
+			"id": "verification-1",
+			"category": "verification",
+			"description": "Xác minh end-to-end flow: TypeScript, ESLint, no mock data remaining",
+			"steps": [
+				"cd frontend && npx tsc --noEmit passes",
+				"cd frontend && npx eslint src/app/products/\\[id\\]/page.tsx src/components/ProductDetailModal.tsx src/components/admin/AdminProductsPanel.tsx passes",
+				"Không còn mock description data trong product detail page và modal"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["backend-1", "frontend-1", "frontend-2", "frontend-3"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": []
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"Backend: Express routes → controllers → services → repositories → Mongoose models",
+			"Frontend: React Context API, custom fetch in lib/api.ts, Tailwind CSS 4",
+			"Admin form textarea for description already exists at AdminProductsPanel.tsx:780-794",
+			"Product type already has description?: string in api.ts:52"
+		],
+		"keyFiles": ["frontend/src/lib/api.ts", "backend/src/models/Product.js"],
+		"nonGoals": [
+			"Rich text editor",
+			"New fields (longDescription, features, specs)",
+			"Schema changes",
+			"Review/rating system",
+			"SEO meta description"
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": true,
+		"conflicts_with": [],
+		"blocks": [],
+		"estimated_hours": 3
+	}
+}

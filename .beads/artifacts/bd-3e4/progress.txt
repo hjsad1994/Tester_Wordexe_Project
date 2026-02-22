@@ -1,0 +1,16 @@
+# Progress Log
+
+Bead: bd-3e4
+Started: 2026-02-22
+
+## Codebase Patterns
+
+- Cart: React Context + useReducer + localStorage (CartContext.tsx)
+- Auth: React Context + useState, JWT httpOnly cookie (AuthContext.tsx)
+- Wishlist: Same pattern as Cart (WishlistContext.tsx)
+- Provider order: AuthProvider > CartProvider > WishlistProvider (layout.tsx:38-41)
+- isHydrated ref guard prevents empty-state writes during SSR/hydration
+
+---
+
+<!-- Task logs below - APPEND ONLY -->

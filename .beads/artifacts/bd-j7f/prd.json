@@ -1,0 +1,86 @@
+{
+	"beadId": "bd-j7f",
+	"prdName": "category-delete-modal",
+	"tasks": [
+		{
+			"id": "analysis-1",
+			"category": "analysis",
+			"description": "Inventory admin delete entry points — verify only category delete lacks modal confirmation",
+			"steps": [
+				"Confirm only category delete lacks a modal in current state",
+				"Confirm product delete and order archive already require modal confirmation"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": [
+					"frontend/src/components/admin/AdminProductsPanel.tsx",
+					"frontend/src/components/admin/AdminOrdersPanel.tsx",
+					"frontend/src/components/admin/AdminCategoriesPanel.tsx"
+				]
+			}
+		},
+		{
+			"id": "frontend-1",
+			"category": "frontend",
+			"description": "Add confirmation modal for category delete — modal must open on Xoa click, Huy cancels, confirm calls deleteCategory",
+			"steps": [
+				"npm run typecheck passes",
+				"Manual check on /admin/categories: click Xoa opens modal; click Huy keeps item; click confirm removes item"
+			],
+			"passes": true,
+			"metadata": {
+				"depends_on": ["analysis-1"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": ["frontend/src/components/admin/AdminCategoriesPanel.tsx"]
+			}
+		},
+		{
+			"id": "test-1",
+			"category": "test",
+			"description": "Add regression coverage for confirmation behavior — automated assertions for delete confirmation flows",
+			"steps": [
+				"bunx playwright test playwright/tests/rbac/admin-route-flow.spec.ts passes",
+				"bunx playwright test playwright/tests/rbac/admin-product-category.spec.ts passes"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["frontend-1"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"playwright/tests/rbac/admin-route-flow.spec.ts",
+					"playwright/tests/rbac/admin-product-category.spec.ts"
+				]
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"AdminProductsPanel: deletingProduct state -> confirmDeleteProduct() -> role=dialog modal",
+			"AdminOrdersPanel: deleteModalOrder state -> confirmArchive() -> role=dialog modal with reason textarea",
+			"API layer: deleteCategory/deleteProduct/softDeleteOrder with credentials:include"
+		],
+		"keyFiles": [
+			"frontend/src/components/admin/AdminCategoriesPanel.tsx",
+			"frontend/src/components/admin/AdminProductsPanel.tsx",
+			"frontend/src/components/admin/AdminOrdersPanel.tsx",
+			"frontend/src/lib/api.ts"
+		],
+		"nonGoals": [
+			"Backend API changes",
+			"UI theme redesign",
+			"Undo after delete mechanism"
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": true,
+		"conflicts_with": [],
+		"blocks": [],
+		"estimated_hours": 3
+	}
+}

@@ -1,0 +1,15 @@
+# Progress Log
+
+Bead: bd-19l
+Started: 2026-02-21
+
+## Codebase Patterns
+
+- Backend: Express + Mongoose, `description` field already in Product model (String, optional, max 2000 chars)
+- Frontend: Next.js 16 + React 19 + TS, `description?: string` in Product interface
+- Admin form textarea for description already exists
+- Mock data hardcoded in product detail page (lines 191-288) and ProductDetailModal (lines 29-60)
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
