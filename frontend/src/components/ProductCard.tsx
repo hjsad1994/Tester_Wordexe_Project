@@ -203,6 +203,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               name: product.name,
               price: product.price,
               image: product.illustration,
+              imageUrl: product.imageUrl,
             });
             toast.success(
               result.isNew

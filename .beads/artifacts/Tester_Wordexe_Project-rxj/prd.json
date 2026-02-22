@@ -1,0 +1,136 @@
+{
+  "beadId": "Tester_Wordexe_Project-rxj",
+  "prdName": "fix-product-images",
+  "tasks": [
+    {
+      "id": "data-model-1",
+      "category": "data-model",
+      "description": "The CartItem interface includes an optional imageUrl field for Cloudinary URLs, while preserving the existing image field for backward compatibility.",
+      "steps": [
+        "npm run typecheck passes",
+        "CartItem interface has imageUrl?: string field"
+      ],
+      "passes": false,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/contexts/CartContext.tsx"]
+      }
+    },
+    {
+      "id": "integration-1",
+      "category": "integration",
+      "description": "All addToCart() calls pass imageUrl: product.imageUrl (or product.images?.[0]) alongside the existing image field, so cart items carry real Cloudinary URLs when available.",
+      "steps": [
+        "npm run typecheck passes",
+        "Search all addToCart( calls — each includes imageUrl parameter"
+      ],
+      "passes": false,
+      "metadata": {
+        "depends_on": ["data-model-1"],
+        "parallel": false,
+        "conflicts_with": [],
+        "files": [
+          "frontend/src/components/ProductCard.tsx",
+          "frontend/src/app/products/[id]/page.tsx",
+          "frontend/src/app/wishlist/page.tsx"
+        ]
+      }
+    },
+    {
+      "id": "ui-1",
+      "category": "ui",
+      "description": "The wishlist page checks product.imageUrl first and renders via next/image <Image>, falling back to SVG illustration — matching ProductCard.tsx pattern.",
+      "steps": [
+        "npm run typecheck passes",
+        "Wishlist page renders <Image> for products with Cloudinary URLs"
+      ],
+      "passes": false,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/app/wishlist/page.tsx"]
+      }
+    },
+    {
+      "id": "ui-2",
+      "category": "ui",
+      "description": "The cart page checks item.imageUrl first and renders via next/image <Image>, falling back to SVG illustration via item.image.",
+      "steps": [
+        "npm run typecheck passes",
+        "Cart page renders <Image> for items with imageUrl"
+      ],
+      "passes": false,
+      "metadata": {
+        "depends_on": ["data-model-1"],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/app/cart/page.tsx"]
+      }
+    },
+    {
+      "id": "ui-3",
+      "category": "ui",
+      "description": "The checkout page checks item.imageUrl first and renders via next/image <Image>, falling back to SVG illustration via item.image.",
+      "steps": [
+        "npm run typecheck passes",
+        "Checkout page renders <Image> for items with imageUrl"
+      ],
+      "passes": false,
+      "metadata": {
+        "depends_on": ["data-model-1"],
+        "parallel": true,
+        "conflicts_with": ["Tester_Wordexe_Project-znh"],
+        "files": ["frontend/src/app/checkout/page.tsx"]
+      }
+    },
+    {
+      "id": "ui-4",
+      "category": "ui",
+      "description": "The order success page detects whether item.image is a URL (starts with http) or an illustration key, and renders accordingly — <Image> for URLs, SVG illustration for keys.",
+      "steps": [
+        "npm run typecheck passes",
+        "Success page renders <Image> for order items with Cloudinary URLs",
+        "Success page still renders SVG illustrations for old orders with illustration keys"
+      ],
+      "passes": false,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/app/checkout/success/page.tsx"]
+      }
+    }
+  ],
+  "context": {
+    "patterns": [
+      "Dual render pattern: check imageUrl first, fallback to IllustrationComponent (see ProductCard.tsx:150-162)",
+      "Product images stored as string[] in Product.images, mapped via mapApiProductToCard() to imageUrl",
+      "CartItem.image currently stores illustration key string, not URL",
+      "Backend orderService.js:93 already stores product.images[0] in orderItem.image",
+      "next/image requires res.cloudinary.com in next.config.ts remotePatterns (already configured)"
+    ],
+    "keyFiles": [
+      "frontend/src/components/ProductCard.tsx",
+      "frontend/src/contexts/CartContext.tsx",
+      "frontend/src/components/icons/ProductIllustrations.tsx",
+      "frontend/next.config.ts"
+    ],
+    "nonGoals": [
+      "Profile order history page (uses hardcoded sample data)",
+      "Admin orders panel",
+      "Cloudinary URL transformation/optimization",
+      "Deduplicating mapApiProductToCard()",
+      "Adding publicId tracking to Product images schema"
+    ]
+  },
+  "beadMetadata": {
+    "depends_on": [],
+    "parallel": true,
+    "conflicts_with": ["Tester_Wordexe_Project-znh"],
+    "blocks": [],
+    "estimated_hours": 3
+  }
+}

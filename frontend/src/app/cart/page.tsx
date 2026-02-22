@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
@@ -25,6 +27,7 @@ function formatPrice(price: number): string {
 export default function CartPage() {
   const { cartItems, cartCount, cartTotal, updateQuantity, removeFromCart, clearCart } = useCart();
   const router = useRouter();
+  const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
 
   return (
     <div className="min-h-screen bg-[var(--warm-white)]">
@@ -95,9 +98,18 @@ export default function CartPage() {
                       key={item.id}
                       className="bg-white rounded-2xl shadow-md border border-pink-50 p-4 sm:p-5 flex gap-4 sm:gap-5 items-center transition-all hover:shadow-lg"
                     >
-                      {/* Product Illustration */}
-                      <div className="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 rounded-xl bg-gradient-to-br from-pink-50 to-[var(--soft-cream)] flex items-center justify-center overflow-hidden">
-                        {IllustrationComponent ? (
+                      {/* Product Image */}
+                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 rounded-xl bg-gradient-to-br from-pink-50 to-[var(--soft-cream)] flex items-center justify-center overflow-hidden">
+                        {item.imageUrl && !imgErrors.has(item.id) ? (
+                          <Image
+                            src={item.imageUrl}
+                            alt={item.name}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 640px) 80px, 96px"
+                            onError={() => setImgErrors((prev) => new Set(prev).add(item.id))}
+                          />
+                        ) : IllustrationComponent ? (
                           <IllustrationComponent size={64} />
                         ) : (
                           <CartIcon size={32} className="text-pink-300" />
