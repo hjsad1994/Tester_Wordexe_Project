@@ -23,6 +23,7 @@ export interface CartItem {
   name: string;
   price: number;
   image: string;
+  imageUrl?: string;
   quantity: number;
 }
 
@@ -54,6 +55,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         const updatedItems = [...state.items];
         updatedItems[existingIndex] = {
           ...updatedItems[existingIndex],
+          imageUrl: action.payload.imageUrl ?? updatedItems[existingIndex].imageUrl,
           quantity: updatedItems[existingIndex].quantity + 1,
         };
         return { ...state, items: updatedItems };
@@ -163,6 +165,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
               Number.isFinite(i.price as number) &&
               (i.price as number) >= 0 &&
               typeof i?.image === 'string' &&
+              (i.imageUrl === undefined || typeof i.imageUrl === 'string') &&
               typeof i?.quantity === 'number' &&
               Number.isFinite(i.quantity as number) &&
               (i.quantity as number) > 0

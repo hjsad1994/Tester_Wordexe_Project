@@ -1,11 +1,12 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
-import { ArrowRightIcon, SparkleIcon, TruckIcon } from '@/components/icons';
+import { ArrowRightIcon, GiftIcon, SparkleIcon, TruckIcon } from '@/components/icons';
 import {
   type ProductIllustrationType,
   productIllustrations,
@@ -40,6 +41,7 @@ function CheckoutSuccessContent() {
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
 
   const estimatedDeliveryDate = useMemo(() => {
     if (!order?.createdAt) {
@@ -222,7 +224,10 @@ function CheckoutSuccessContent() {
             </h2>
             <div className="space-y-3 mb-4">
               {order.items.map((item) => {
-                const Illustration = productIllustrations[item.image as ProductIllustrationType];
+                const isImageUrl = item.image?.startsWith('http');
+                const Illustration = !isImageUrl
+                  ? productIllustrations[item.image as ProductIllustrationType]
+                  : null;
                 const key =
                   typeof item.product === 'string'
                     ? `${item.product}-${item.productName}`
@@ -230,11 +235,20 @@ function CheckoutSuccessContent() {
 
                 return (
                   <div key={key} className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-50 to-[var(--soft-cream)] flex items-center justify-center flex-shrink-0">
-                      {Illustration ? (
+                    <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-pink-50 to-[var(--soft-cream)] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      {isImageUrl && item.image && !imgErrors.has(key) ? (
+                        <Image
+                          src={item.image}
+                          alt={item.productName}
+                          fill
+                          className="object-cover"
+                          sizes="48px"
+                          onError={() => setImgErrors(prev => new Set(prev).add(key))}
+                        />
+                      ) : Illustration ? (
                         <Illustration size={32} />
                       ) : (
-                        <span className="text-pink-300 text-lg">🎁</span>
+                        <GiftIcon size={20} className="text-pink-300" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">

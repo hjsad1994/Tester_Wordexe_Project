@@ -748,6 +748,7 @@ export default function ProductDetailPage() {
                         name: product.name,
                         price: product.price,
                         image: product.illustration,
+                        imageUrl: product.imageUrl,
                       });
                       if (i === 0) isNew = result.isNew;
                       finalQuantity = result.newQuantity;
@@ -784,6 +785,7 @@ export default function ProductDetailPage() {
                       name: product.name,
                       price: product.price,
                       image: product.illustration,
+                      imageUrl: product.imageUrl,
                       quantity: selectedQuantity,
                     });
                     router.push('/checkout?buyNow=true');

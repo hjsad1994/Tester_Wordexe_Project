@@ -1,11 +1,12 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
-import { ArrowRightIcon, ShieldIcon, SparkleIcon, TruckIcon } from '@/components/icons';
+import { ArrowRightIcon, GiftIcon, ShieldIcon, SparkleIcon, TruckIcon } from '@/components/icons';
 import {
   type ProductIllustrationType,
   productIllustrations,
@@ -77,6 +78,7 @@ function CheckoutContent() {
   const [couponError, setCouponError] = useState<string | null>(null);
   const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState<ValidateCouponResponse | null>(null);
+  const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
   const [showCouponSection, setShowCouponSection] = useState(false);
 
   // Derived totals (after coupon state)
@@ -436,11 +438,20 @@ function CheckoutContent() {
                         productIllustrations[item.image as ProductIllustrationType];
                       return (
                         <div key={item.id} className="flex items-center gap-3">
-                          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-pink-50 to-[var(--soft-cream)] flex items-center justify-center flex-shrink-0 overflow-hidden">
-                            {Illustration ? (
+                          <div className="relative w-14 h-14 rounded-xl bg-gradient-to-br from-pink-50 to-[var(--soft-cream)] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            {item.imageUrl && !imgErrors.has(item.id) ? (
+                              <Image
+                                src={item.imageUrl}
+                                alt={item.name}
+                                fill
+                                className="object-cover"
+                                sizes="56px"
+                                onError={() => setImgErrors(prev => new Set(prev).add(item.id))}
+                              />
+                            ) : Illustration ? (
                               <Illustration size={36} />
                             ) : (
-                              <span className="text-pink-300 text-lg">🎁</span>
+                              <GiftIcon size={24} className="text-pink-300" />
                             )}
                           </div>
                           <div className="flex-1 min-w-0">

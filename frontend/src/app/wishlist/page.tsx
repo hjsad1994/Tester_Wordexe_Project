@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -8,6 +10,7 @@ import Header from '@/components/Header';
 import {
   ArrowRightIcon,
   CartIcon,
+  GiftIcon,
   HeartIcon,
   HeartOutlineIcon,
   SparkleIcon,
@@ -34,6 +37,7 @@ export default function WishlistPage() {
   const { wishlistItems, wishlistCount, removeFromWishlist, clearWishlist } = useWishlist();
   const { addToCart } = useCart();
   const router = useRouter();
+  const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
 
   return (
     <div className="min-h-screen bg-[var(--warm-white)]">
@@ -108,7 +112,7 @@ export default function WishlistPage() {
                   >
                     {/* Product Image */}
                     <Link href={productPath}>
-                      <div className="relative aspect-square bg-gradient-to-br from-pink-50 to-purple-50 flex items-center justify-center p-4">
+                      <div className="relative aspect-square bg-gradient-to-br from-pink-50 to-purple-50 flex items-center justify-center overflow-hidden">
                         {product.badge && (
                           <div
                             className={`absolute top-3 left-3 z-10 px-2 py-0.5 rounded-md text-[10px] font-bold ${
@@ -126,7 +130,20 @@ export default function WishlistPage() {
                                 : 'Hot'}
                           </div>
                         )}
-                        {IllustrationComponent && <IllustrationComponent size={120} />}
+                        {product.imageUrl && !imgErrors.has(product.id) ? (
+                          <Image
+                            src={product.imageUrl}
+                            alt={product.name}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 640px) 50vw, (max-width: 1280px) 25vw, 20vw"
+                            onError={() => setImgErrors(prev => new Set(prev).add(product.id))}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center p-4">
+                            {IllustrationComponent ? <IllustrationComponent size={120} /> : <GiftIcon size={40} className="text-pink-300" />}
+                          </div>
+                        )}
                       </div>
                     </Link>
 
@@ -159,6 +176,7 @@ export default function WishlistPage() {
                               name: product.name,
                               price: product.price,
                               image: product.illustration,
+                              imageUrl: product.imageUrl,
                             });
                             toast.success(
                               result.isNew

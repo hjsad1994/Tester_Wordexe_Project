@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -53,6 +54,8 @@ const productExtras: Record<string, { features: string[]; colors?: string[] }> =
 export default function ProductDetailModal({ product, isOpen, onClose }: ProductDetailModalProps) {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'details' | 'reviews'>('details');
+  const [imgErrorForProduct, setImgErrorForProduct] = useState<string | null>(null);
+  const imgError = imgErrorForProduct === product?.id;
   const { addToCart, setBuyNowItem } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const router = useRouter();
@@ -81,6 +84,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
         name: product.name,
         price: product.price,
         image: product.illustration,
+        imageUrl: product.imageUrl,
       });
       if (i === 0) isNew = result.isNew;
       finalQuantity = result.newQuantity;
@@ -183,9 +187,22 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
               {liked ? <HeartIcon size={18} /> : <HeartOutlineIcon size={18} />}
             </button>
 
-            {/* Product Illustration */}
+            {/* Product Image */}
             <div className="relative z-10 animate-scaleIn">
-              <IllustrationComponent size={200} />
+              {product.imageUrl && !imgError ? (
+                <div className="relative w-[200px] h-[200px] rounded-2xl overflow-hidden">
+                  <Image
+                    src={product.imageUrl}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                    sizes="200px"
+                    onError={() => setImgErrorForProduct(product.id)}
+                  />
+                </div>
+              ) : (
+                <IllustrationComponent size={200} />
+              )}
             </div>
           </div>
 
@@ -410,6 +427,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                   name: product.name,
                   price: product.price,
                   image: product.illustration,
+                  imageUrl: product.imageUrl,
                   quantity,
                 });
                 router.push('/checkout?buyNow=true');
