@@ -24,9 +24,19 @@ class CouponService {
     }
 
     const allowedFields = [
-      'code', 'name', 'description', 'discountType', 'discountValue',
-      'maximumDiscount', 'minimumOrderAmount', 'usageLimit', 'perUserLimit',
-      'isActive', 'validFrom', 'validUntil', 'createdBy',
+      'code',
+      'name',
+      'description',
+      'discountType',
+      'discountValue',
+      'maximumDiscount',
+      'minimumOrderAmount',
+      'usageLimit',
+      'perUserLimit',
+      'isActive',
+      'validFrom',
+      'validUntil',
+      'createdBy',
     ];
     const filtered = Object.fromEntries(
       Object.entries(data).filter(([k]) => allowedFields.includes(k))
@@ -52,9 +62,18 @@ class CouponService {
 
   async updateCoupon(id, data) {
     const allowedFields = [
-      'code', 'name', 'description', 'discountType', 'discountValue',
-      'maximumDiscount', 'minimumOrderAmount', 'usageLimit', 'perUserLimit',
-      'isActive', 'validFrom', 'validUntil',
+      'code',
+      'name',
+      'description',
+      'discountType',
+      'discountValue',
+      'maximumDiscount',
+      'minimumOrderAmount',
+      'usageLimit',
+      'perUserLimit',
+      'isActive',
+      'validFrom',
+      'validUntil',
     ];
     const filtered = Object.fromEntries(
       Object.entries(data).filter(([k]) => allowedFields.includes(k))
@@ -124,9 +143,7 @@ class CouponService {
     }
 
     if (userId && coupon.perUserLimit) {
-      const userUsageCount = coupon.usedBy.filter(
-        (uid) => String(uid) === String(userId)
-      ).length;
+      const userUsageCount = coupon.usedBy.filter((uid) => String(uid) === String(userId)).length;
       if (userUsageCount >= coupon.perUserLimit) {
         throw new ValidationError('Bạn đã sử dụng mã khuyến mãi này');
       }
@@ -189,10 +206,7 @@ class CouponService {
       isActive: true,
       $and: [
         {
-          $or: [
-            { usageLimit: null },
-            { $expr: { $lt: ['$usageCount', '$usageLimit'] } },
-          ],
+          $or: [{ usageLimit: null }, { $expr: { $lt: ['$usageCount', '$usageLimit'] } }],
         },
       ],
     };
@@ -224,11 +238,7 @@ class CouponService {
       });
     }
 
-    const coupon = await Coupon.findOneAndUpdate(
-      filter,
-      update,
-      { new: true }
-    );
+    const coupon = await Coupon.findOneAndUpdate(filter, update, { new: true });
 
     if (!coupon) {
       throw new ValidationError('Mã khuyến mãi đã hết lượt sử dụng');
@@ -253,14 +263,10 @@ class CouponService {
         { $or: [{ validFrom: null }, { validFrom: { $lte: now } }] },
         { $or: [{ validUntil: null }, { validUntil: { $gte: now } }] },
         {
-          $or: [
-            { usageLimit: null },
-            { $expr: { $lt: ['$usageCount', '$usageLimit'] } },
-          ],
+          $or: [{ usageLimit: null }, { $expr: { $lt: ['$usageCount', '$usageLimit'] } }],
         },
       ],
-    })
-      .sort('-createdAt');
+    }).sort('-createdAt');
   }
 }
 

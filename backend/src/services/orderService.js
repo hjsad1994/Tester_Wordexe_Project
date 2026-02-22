@@ -5,7 +5,6 @@ const Product = require('../models/Product');
 const { NotFoundError, ValidationError } = require('../errors');
 const couponService = require('./couponService');
 
-
 const DEFAULT_SHIPPING_FEE = 30000;
 const ORDER_STATUSES = ['pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'];
 const PAYMENT_METHODS = ['cod', 'momo'];
@@ -124,10 +123,7 @@ class OrderService {
       }
 
       // Atomic redemption
-      await couponService.redeemCoupon(
-        couponId,
-        context.userId || null
-      );
+      await couponService.redeemCoupon(couponId, context.userId || null);
     }
 
     const status = paymentMethod === 'momo' ? 'paid' : 'pending';
@@ -162,10 +158,7 @@ class OrderService {
       // Rollback coupon redemption if order creation fails
       if (couponId) {
         try {
-          await couponService.unredeemCoupon(
-            couponId,
-            context.userId || null
-          );
+          await couponService.unredeemCoupon(couponId, context.userId || null);
         } catch {
           // Best-effort rollback — log but don't mask original error
         }

@@ -87,26 +87,29 @@ export default function AdminCouponsPanel() {
 
   // ─── Focus Trap ─────────────────────────────────────────────────
 
-  const trapFocus = useCallback((e: KeyboardEvent, containerRef: React.RefObject<HTMLDivElement | null>) => {
-    if (e.key !== 'Tab' || !containerRef.current) return;
-    const focusable = containerRef.current.querySelectorAll<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    if (focusable.length === 0) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (e.shiftKey) {
-      if (document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
+  const trapFocus = useCallback(
+    (e: KeyboardEvent, containerRef: React.RefObject<HTMLDivElement | null>) => {
+      if (e.key !== 'Tab' || !containerRef.current) return;
+      const focusable = containerRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
-    } else {
-      if (document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    }
-  }, []);
+    },
+    []
+  );
 
   // ─── Data Loading ───────────────────────────────────────────────
 
@@ -303,9 +306,7 @@ export default function AdminCouponsPanel() {
         )}
 
         {coupons.length === 0 ? (
-          <p className="text-center text-[var(--text-secondary)] py-8">
-            Chưa có mã khuyến mãi nào
-          </p>
+          <p className="text-center text-[var(--text-secondary)] py-8">Chưa có mã khuyến mãi nào</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px] text-sm">
@@ -323,10 +324,7 @@ export default function AdminCouponsPanel() {
               </thead>
               <tbody>
                 {coupons.map((coupon) => (
-                  <tr
-                    key={coupon._id}
-                    className="border-b border-pink-50 last:border-b-0"
-                  >
+                  <tr key={coupon._id} className="border-b border-pink-50 last:border-b-0">
                     <td className="py-3 pr-3 font-mono font-semibold text-pink-600 uppercase">
                       {coupon.code}
                     </td>
@@ -410,7 +408,10 @@ export default function AdminCouponsPanel() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {/* Code */}
                 <div>
-                  <label htmlFor="coupon-code" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
+                  <label
+                    htmlFor="coupon-code"
+                    className="mb-1 block text-sm font-medium text-[var(--text-secondary)]"
+                  >
                     Mã khuyến mãi *
                   </label>
                   <input
@@ -427,7 +428,10 @@ export default function AdminCouponsPanel() {
 
                 {/* Name */}
                 <div>
-                  <label htmlFor="coupon-name" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
+                  <label
+                    htmlFor="coupon-name"
+                    className="mb-1 block text-sm font-medium text-[var(--text-secondary)]"
+                  >
                     Tên khuyến mãi *
                   </label>
                   <input
@@ -443,7 +447,10 @@ export default function AdminCouponsPanel() {
 
                 {/* Description */}
                 <div className="sm:col-span-2">
-                  <label htmlFor="coupon-description" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
+                  <label
+                    htmlFor="coupon-description"
+                    className="mb-1 block text-sm font-medium text-[var(--text-secondary)]"
+                  >
                     Mô tả
                   </label>
                   <input
@@ -458,13 +465,18 @@ export default function AdminCouponsPanel() {
 
                 {/* Discount Type */}
                 <div>
-                  <label htmlFor="coupon-type" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
+                  <label
+                    htmlFor="coupon-type"
+                    className="mb-1 block text-sm font-medium text-[var(--text-secondary)]"
+                  >
                     Loại giảm giá
                   </label>
                   <select
                     id="coupon-type"
                     value={formState.discountType}
-                    onChange={(e) => updateField('discountType', e.target.value as CouponDiscountType)}
+                    onChange={(e) =>
+                      updateField('discountType', e.target.value as CouponDiscountType)
+                    }
                     className="w-full rounded-xl border border-pink-200 px-3 py-2.5 text-sm focus:border-pink-400 focus:ring-2 focus:ring-pink-100 focus-visible:outline-none transition-colors bg-white"
                   >
                     {(Object.entries(discountTypeLabels) as [CouponDiscountType, string][]).map(
@@ -480,7 +492,10 @@ export default function AdminCouponsPanel() {
                 {/* Discount Value */}
                 {formState.discountType !== 'free_shipping' && (
                   <div>
-                    <label htmlFor="coupon-value" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
+                    <label
+                      htmlFor="coupon-value"
+                      className="mb-1 block text-sm font-medium text-[var(--text-secondary)]"
+                    >
                       Giá trị giảm {formState.discountType === 'percentage' ? '(%)' : '(đ)'}
                     </label>
                     <input
@@ -498,7 +513,10 @@ export default function AdminCouponsPanel() {
                 {/* Maximum Discount (percentage only) */}
                 {formState.discountType === 'percentage' && (
                   <div>
-                    <label htmlFor="coupon-max-discount" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
+                    <label
+                      htmlFor="coupon-max-discount"
+                      className="mb-1 block text-sm font-medium text-[var(--text-secondary)]"
+                    >
                       Giảm tối đa (đ)
                     </label>
                     <input
@@ -516,7 +534,10 @@ export default function AdminCouponsPanel() {
 
                 {/* Minimum Order Amount */}
                 <div>
-                  <label htmlFor="coupon-min-order" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
+                  <label
+                    htmlFor="coupon-min-order"
+                    className="mb-1 block text-sm font-medium text-[var(--text-secondary)]"
+                  >
                     Đơn tối thiểu (đ)
                   </label>
                   <input
@@ -532,7 +553,10 @@ export default function AdminCouponsPanel() {
 
                 {/* Usage Limit */}
                 <div>
-                  <label htmlFor="coupon-usage-limit" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
+                  <label
+                    htmlFor="coupon-usage-limit"
+                    className="mb-1 block text-sm font-medium text-[var(--text-secondary)]"
+                  >
                     Giới hạn sử dụng
                   </label>
                   <input
@@ -548,7 +572,10 @@ export default function AdminCouponsPanel() {
 
                 {/* Per User Limit */}
                 <div>
-                  <label htmlFor="coupon-per-user" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
+                  <label
+                    htmlFor="coupon-per-user"
+                    className="mb-1 block text-sm font-medium text-[var(--text-secondary)]"
+                  >
                     Giới hạn / người dùng
                   </label>
                   <input
@@ -563,7 +590,10 @@ export default function AdminCouponsPanel() {
 
                 {/* Valid From */}
                 <div>
-                  <label htmlFor="coupon-valid-from" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
+                  <label
+                    htmlFor="coupon-valid-from"
+                    className="mb-1 block text-sm font-medium text-[var(--text-secondary)]"
+                  >
                     Bắt đầu hiệu lực
                   </label>
                   <input
@@ -577,7 +607,10 @@ export default function AdminCouponsPanel() {
 
                 {/* Valid Until */}
                 <div>
-                  <label htmlFor="coupon-valid-until" className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
+                  <label
+                    htmlFor="coupon-valid-until"
+                    className="mb-1 block text-sm font-medium text-[var(--text-secondary)]"
+                  >
                     Kết thúc hiệu lực
                   </label>
                   <input
@@ -591,7 +624,10 @@ export default function AdminCouponsPanel() {
 
                 {/* Active Toggle */}
                 <div className="flex items-center gap-3 sm:col-span-2">
-                  <label htmlFor="coupon-active" className="text-sm font-medium text-[var(--text-secondary)] cursor-pointer">
+                  <label
+                    htmlFor="coupon-active"
+                    className="text-sm font-medium text-[var(--text-secondary)] cursor-pointer"
+                  >
                     Kích hoạt
                   </label>
                   <button

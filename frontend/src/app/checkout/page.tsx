@@ -501,9 +501,7 @@ function CheckoutContent() {
                             {isValidatingCoupon ? '...' : 'Áp dụng'}
                           </button>
                         </div>
-                        {couponError && (
-                          <p className="text-xs text-rose-500">{couponError}</p>
-                        )}
+                        {couponError && <p className="text-xs text-rose-500">{couponError}</p>}
                         <button
                           type="button"
                           onClick={() => {
@@ -526,14 +524,20 @@ function CheckoutContent() {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-[var(--text-secondary)]">Phí vận chuyển</span>
-                      <span className={`text-[var(--text-primary)] ${effectiveShippingFee === 0 ? 'line-through text-[var(--text-muted)]' : ''}`}>
-                        {effectiveShippingFee === 0 ? formatPrice(SHIPPING_FEE) : formatPrice(effectiveShippingFee)}
+                      <span
+                        className={`text-[var(--text-primary)] ${effectiveShippingFee === 0 ? 'line-through text-[var(--text-muted)]' : ''}`}
+                      >
+                        {effectiveShippingFee === 0
+                          ? formatPrice(SHIPPING_FEE)
+                          : formatPrice(effectiveShippingFee)}
                       </span>
                     </div>
                     {effectiveShippingFee === 0 && (
                       <div className="flex justify-between text-sm">
                         <span className="text-green-600">Miễn phí vận chuyển</span>
-                        <span className="text-green-600 font-medium">-{formatPrice(SHIPPING_FEE)}</span>
+                        <span className="text-green-600 font-medium">
+                          -{formatPrice(SHIPPING_FEE)}
+                        </span>
                       </div>
                     )}
                     {discountAmount > 0 && (
@@ -541,7 +545,9 @@ function CheckoutContent() {
                         <span className="text-green-600">
                           Giảm giá{appliedCoupon ? ` (${appliedCoupon.coupon.code})` : ''}
                         </span>
-                        <span className="text-green-600 font-medium">-{formatPrice(discountAmount)}</span>
+                        <span className="text-green-600 font-medium">
+                          -{formatPrice(discountAmount)}
+                        </span>
                       </div>
                     )}
                     <div className="flex justify-between text-base font-bold pt-2 border-t border-pink-100">
