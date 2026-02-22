@@ -220,7 +220,6 @@ const productExtras: Record<
       'Vạch chia ml rõ ràng',
       'Nắp đậy kín chống tràn',
     ],
-
   },
   '3': {
     features: [
@@ -231,7 +230,6 @@ const productExtras: Record<
       'Không rụng lông',
       'Đạt tiêu chuẩn EN71',
     ],
-
     colors: ['Nâu | #8B4513', 'Kem | #FFFDD0', 'Hồng | #FFB6C1'],
   },
   default: {
@@ -243,7 +241,6 @@ const productExtras: Record<
       'Bảo hành đổi trả',
       'Hỗ trợ 24/7',
     ],
-
   },
 };
 
@@ -420,6 +417,7 @@ export default function ProductDetailPage() {
     );
   }
 
+  const liked = isInWishlist(product.id);
   const IllustrationComponent = productIllustrations[product.illustration];
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -516,7 +514,7 @@ export default function ProductDetailPage() {
                   {/* Wishlist */}
                   <button
                     onClick={() => {
-                      if (isInWishlist(product.id)) {
+                      if (liked) {
                         removeFromWishlist(product.id);
                         toast('Đã xóa khỏi danh sách yêu thích', {
                           id: `wishlist-${product.id}`,
@@ -534,15 +532,15 @@ export default function ProductDetailPage() {
                       }
                     }}
                     aria-label={
-                      isInWishlist(product.id) ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'
+                      liked ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'
                     }
                     className={`absolute top-6 right-6 z-10 p-3 rounded-full transition-all shadow-lg ${
-                      isInWishlist(product.id)
+                      liked
                         ? 'bg-pink-500 text-white'
                         : 'bg-white text-pink-400 hover:bg-pink-500 hover:text-white'
                     }`}
                   >
-                    {isInWishlist(product.id) ? (
+                    {liked ? (
                       <HeartIcon size={24} />
                     ) : (
                       <HeartOutlineIcon size={24} />
