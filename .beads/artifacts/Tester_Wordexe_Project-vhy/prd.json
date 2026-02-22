@@ -1,0 +1,113 @@
+{
+  "beadId": "Tester_Wordexe_Project-vhy",
+  "prdName": "remove-specs-add-wishlist-toast",
+  "tasks": [
+    {
+      "id": "cleanup-1",
+      "category": "cleanup",
+      "description": "Remove specifications data from productExtras — remove the `specifications` field from the `productExtras` type and all product data objects",
+      "steps": [
+        "grep -n \"specifications\" frontend/src/app/products/[id]/page.tsx returns no matches",
+        "cd frontend && npx tsc --noEmit passes"
+      ],
+      "passes": false,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": ["cleanup-2"],
+        "files": ["frontend/src/app/products/[id]/page.tsx"]
+      }
+    },
+    {
+      "id": "cleanup-2",
+      "category": "cleanup",
+      "description": "Remove specs tab UI — remove 'specs' from activeTab union type, remove { id: 'specs', label: 'Thông số' } from tab list, remove {activeTab === 'specs' && ...} content block",
+      "steps": [
+        "grep -n \"specs\\|Thông số\" frontend/src/app/products/[id]/page.tsx returns no matches",
+        "cd frontend && npx tsc --noEmit passes",
+        "Navigate to /products/1 and confirm only 2 tabs visible"
+      ],
+      "passes": false,
+      "metadata": {
+        "depends_on": ["cleanup-1"],
+        "parallel": false,
+        "conflicts_with": [],
+        "files": ["frontend/src/app/products/[id]/page.tsx"]
+      }
+    },
+    {
+      "id": "feature-1",
+      "category": "feature",
+      "description": "Add wishlist toast to ProductCard — clicking heart icon triggers toast.success('Đã thêm vào danh sách yêu thích') on add with action button 'Xem danh sách' linking to /wishlist, and toast('Đã xóa khỏi danh sách yêu thích') on remove",
+      "steps": [
+        "cd frontend && npx tsc --noEmit passes",
+        "Click heart on product card → toast appears top-right"
+      ],
+      "passes": false,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/components/ProductCard.tsx"]
+      }
+    },
+    {
+      "id": "feature-2",
+      "category": "feature",
+      "description": "Add wishlist toast to ProductDetailModal — clicking heart icon triggers same toast pattern as ProductCard",
+      "steps": [
+        "cd frontend && npx tsc --noEmit passes",
+        "Open product modal → click heart → toast appears"
+      ],
+      "passes": false,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/components/ProductDetailModal.tsx"]
+      }
+    },
+    {
+      "id": "feature-3",
+      "category": "feature",
+      "description": "Add wishlist toast to product detail page — clicking heart icon on /products/[id] triggers same toast pattern as ProductCard",
+      "steps": [
+        "cd frontend && npx tsc --noEmit passes",
+        "Navigate to /products/1 → click heart → toast appears"
+      ],
+      "passes": false,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": ["cleanup-1", "cleanup-2"],
+        "files": ["frontend/src/app/products/[id]/page.tsx"]
+      }
+    }
+  ],
+  "context": {
+    "patterns": [
+      "Toast pattern: toast.success('message', { id: `key-${id}`, description: 'subtitle', action: { label: 'text', onClick: () => router.push('/path') } })",
+      "Wishlist: useWishlist() → addToWishlist(product) / removeFromWishlist(id) / isInWishlist(id)",
+      "Sonner already imported in all 3 target files"
+    ],
+    "keyFiles": [
+      "frontend/src/app/products/[id]/page.tsx",
+      "frontend/src/components/ProductCard.tsx",
+      "frontend/src/components/ProductDetailModal.tsx",
+      "frontend/src/contexts/WishlistContext.tsx"
+    ],
+    "nonGoals": [
+      "Modifying ProductDetailModal tabs (no specs tab exists there)",
+      "Adding E2E tests",
+      "Backend changes",
+      "Refactoring profile page toasts"
+    ]
+  },
+  "beadMetadata": {
+    "depends_on": [],
+    "parallel": true,
+    "conflicts_with": [],
+    "blocks": [],
+    "estimated_hours": 1
+  }
+}

@@ -1,0 +1,15 @@
+# Progress Log
+
+Bead: Tester_Wordexe_Project-vhy
+Started: 2026-02-22
+
+## Codebase Patterns
+
+- Toast: `toast.success('msg', { id, description, action: { label, onClick } })` from sonner
+- Wishlist: `useWishlist()` context with `addToWishlist`/`removeFromWishlist`/`isInWishlist`
+- Sonner already imported in all 3 target files
+- `useRouter` already available in all 3 components
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
