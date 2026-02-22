@@ -135,6 +135,8 @@ export interface Order {
   items: OrderItem[];
   subtotal: number;
   shippingFee: number;
+  couponCode: string | null;
+  discountAmount: number;
   total: number;
   customerInfo: OrderCustomerInfo;
   paymentMethod: 'cod' | 'momo';
@@ -153,6 +155,59 @@ export interface CreateOrderPayload {
   customerInfo: OrderCustomerInfo;
   paymentMethod: 'cod' | 'momo';
   shippingFee?: number;
+  couponCode?: string;
+}
+
+// ─── Coupons ────────────────────────────────────────────────────────
+
+export type CouponDiscountType = 'percentage' | 'fixed_amount' | 'free_shipping';
+
+export interface Coupon {
+  _id: string;
+  code: string;
+  name: string;
+  description: string;
+  discountType: CouponDiscountType;
+  discountValue: number;
+  maximumDiscount: number | null;
+  minimumOrderAmount: number;
+  usageLimit: number | null;
+  usageCount: number;
+  perUserLimit: number;
+  isActive: boolean;
+  validFrom: string | null;
+  validUntil: string | null;
+  isCurrentlyValid: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CouponPayload {
+  code: string;
+  name: string;
+  description?: string;
+  discountType: CouponDiscountType;
+  discountValue: number;
+  maximumDiscount?: number | null;
+  minimumOrderAmount?: number;
+  usageLimit?: number | null;
+  perUserLimit?: number;
+  isActive?: boolean;
+  validFrom?: string | null;
+  validUntil?: string | null;
+}
+
+export interface ValidateCouponResponse {
+  valid: boolean;
+  coupon: {
+    _id: string;
+    code: string;
+    name: string;
+    discountType: CouponDiscountType;
+    discountValue: number;
+    maximumDiscount: number | null;
+  };
+  discountAmount: number;
 }
 
 // ─── Reviews ────────────────────────────────────────────────────────
@@ -557,6 +612,101 @@ export async function softDeleteOrder(id: string, reason: string): Promise<Order
   }
 
   const body = (await res.json()) as ApiResponse<Order>;
+  return body.data;
+}
+
+// ─── Coupon API ─────────────────────────────────────────────────────
+
+export async function fetchCouponsApi(): Promise<Coupon[]> {
+  const res = await fetch(`${API_BASE_URL}/api/coupons`, {
+    credentials: 'include',
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể tải danh sách mã khuyến mãi'));
+  }
+
+  const body = (await res.json()) as ApiResponse<Coupon[]>;
+  return body.data;
+}
+
+export async function fetchAvailableCouponsApi(): Promise<Coupon[]> {
+  const res = await fetch(`${API_BASE_URL}/api/coupons/available`, {
+    credentials: 'include',
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể tải mã khuyến mãi'));
+  }
+
+  const body = (await res.json()) as ApiResponse<Coupon[]>;
+  return body.data;
+}
+
+export async function createCouponApi(payload: CouponPayload): Promise<Coupon> {
+  const res = await fetch(`${API_BASE_URL}/api/coupons`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể tạo mã khuyến mãi'));
+  }
+
+  const body = (await res.json()) as ApiResponse<Coupon>;
+  return body.data;
+}
+
+export async function updateCouponApi(
+  id: string,
+  payload: Partial<CouponPayload>
+): Promise<Coupon> {
+  const res = await fetch(`${API_BASE_URL}/api/coupons/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể cập nhật mã khuyến mãi'));
+  }
+
+  const body = (await res.json()) as ApiResponse<Coupon>;
+  return body.data;
+}
+
+export async function deleteCouponApi(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/api/coupons/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể xóa mã khuyến mãi'));
+  }
+}
+
+export async function validateCouponApi(
+  code: string,
+  subtotal: number
+): Promise<ValidateCouponResponse> {
+  const res = await fetch(`${API_BASE_URL}/api/coupons/validate`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code, subtotal }),
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Mã khuyến mãi không hợp lệ'));
+  }
+
+  const body = (await res.json()) as ApiResponse<ValidateCouponResponse>;
   return body.data;
 }
 
