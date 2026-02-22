@@ -160,9 +160,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
               typeof i?.id === 'string' &&
               typeof i?.name === 'string' &&
               typeof i?.price === 'number' &&
+              Number.isFinite(i.price as number) &&
+              (i.price as number) >= 0 &&
               typeof i?.image === 'string' &&
               typeof i?.quantity === 'number' &&
-              i.quantity > 0
+              Number.isFinite(i.quantity as number) &&
+              (i.quantity as number) > 0
             );
           });
         }

@@ -106,7 +106,14 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
               typeof i?.id === 'string' &&
               typeof i?.name === 'string' &&
               typeof i?.price === 'number' &&
-              typeof i?.category === 'string'
+              Number.isFinite(i.price as number) &&
+              (i.price as number) >= 0 &&
+              typeof i?.category === 'string' &&
+              typeof i?.illustration === 'string' &&
+              typeof i?.rating === 'number' &&
+              Number.isFinite(i.rating as number) &&
+              typeof i?.reviews === 'number' &&
+              Number.isFinite(i.reviews as number)
             );
           });
         }
