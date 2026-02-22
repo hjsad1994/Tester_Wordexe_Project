@@ -161,6 +161,93 @@ class ProductService {
     return productRepository.addImage(productId, result.secure_url);
   }
 
+  async uploadImages(productId, files) {
+    const product = await productRepository.findById(productId);
+    if (!product) {
+      throw new NotFoundError(`Product with id ${productId} not found`);
+    }
+
+    const currentCount = product.images ? product.images.length : 0;
+    if (currentCount + files.length > 4) {
+      throw new ValidationError(
+        `Sản phẩm chỉ được có tối đa 4 ảnh. Hiện tại: ${currentCount}, thêm: ${files.length}`
+      );
+    }
+
+    const uploadedImages = [];
+    for (const file of files) {
+      try {
+        const result = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            {
+              folder: 'products',
+              resource_type: 'image',
+              allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+            },
+            (error, uploadResult) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(uploadResult);
+            }
+          );
+          uploadStream.end(file.buffer);
+        });
+
+        uploadedImages.push({
+          publicId: result.public_id,
+          url: result.secure_url,
+        });
+      } catch {
+        // Rollback: delete already uploaded images
+        for (const uploaded of uploadedImages) {
+          try {
+            await cloudinary.uploader.destroy(uploaded.publicId);
+          } catch {
+            console.error(`Failed to cleanup Cloudinary image: ${uploaded.publicId}`);
+          }
+        }
+        throw new ValidationError('Tải ảnh lên thất bại. Vui lòng thử lại.');
+      }
+    }
+
+    // Add all URLs to product atomically
+    const imageUrls = uploadedImages.map((img) => img.url);
+    const updatedProduct = await productRepository.addImages(productId, imageUrls);
+
+    return updatedProduct;
+  }
+
+  async deleteImage(productId, imageUrl) {
+    const product = await productRepository.findById(productId);
+    if (!product) {
+      throw new NotFoundError(`Product with id ${productId} not found`);
+    }
+
+    if (!product.images || !product.images.includes(imageUrl)) {
+      throw new NotFoundError('Không tìm thấy ảnh trong sản phẩm');
+    }
+
+    // Extract public_id from Cloudinary URL
+    // Handles both versioned (upload/v123/folder/file.jpg) and
+    // non-versioned (upload/folder/file.jpg) URL formats
+    const urlParts = imageUrl.split('/');
+    const uploadIndex = urlParts.indexOf('upload');
+    if (uploadIndex !== -1) {
+      // Check if next segment is a version (starts with 'v' followed by digits)
+      const nextSegment = urlParts[uploadIndex + 1];
+      const isVersioned = nextSegment && /^v\d+$/.test(nextSegment);
+      const startIndex = isVersioned ? uploadIndex + 2 : uploadIndex + 1;
+      const pathAfterUpload = urlParts.slice(startIndex).join('/');
+      const publicId = pathAfterUpload.replace(/\.[^.]+$/, '');
+
+      await cloudinary.uploader.destroy(publicId);
+    }
+
+    return productRepository.removeImage(productId, imageUrl);
+  }
+
   async deleteProduct(id) {
     const product = await productRepository.delete(id);
     if (!product) {

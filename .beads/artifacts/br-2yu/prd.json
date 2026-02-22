@@ -1,0 +1,176 @@
+{
+	"beadId": "br-2yu",
+	"prdName": "multi-image-support",
+	"tasks": [
+		{
+			"id": "backend-1",
+			"category": "backend",
+			"description": "GIF MIME fix + multi-upload middleware: Add image/gif to multer fileFilter allowed MIME types. Add uploadProductImages export using upload.array('images', 4).",
+			"steps": [
+				"Upload a GIF file via POST /:id/images — backend accepts it (no 400 MIME error)",
+				"Upload 4 valid image files via POST /:id/images — all 4 accepted",
+				"Upload 5 files via POST /:id/images — rejected with max limit error"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": ["backend/src/middlewares/uploadMiddleware.js"]
+			}
+		},
+		{
+			"id": "backend-2",
+			"category": "backend",
+			"description": "Bulk upload + delete endpoints: Add uploadImages controller (validate req.files, loop Cloudinary upload with rollback). Add deleteImage controller (validate image URL, remove from array, delete from Cloudinary). Add removeImage(productId, imageUrl) to repository using $pull. Add DELETE /:id/images route with admin auth. Update POST /:id/images to use upload.array('images', 4) middleware.",
+			"steps": [
+				"POST /:id/images with 3 valid files — returns product with 3 new URLs in images[]",
+				"DELETE /:id/images with valid imageUrl body — returns product without that URL",
+				"DELETE /:id/images with invalid URL — returns 404 or appropriate error",
+				"POST /:id/images with one invalid file in batch — rollback, no partial uploads saved",
+				"POST /:id/images without admin auth — returns 401/403"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["backend-1"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": [
+					"backend/src/controllers/productController.js",
+					"backend/src/services/productService.js",
+					"backend/src/repositories/productRepository.js",
+					"backend/src/routes/productRoutes.js"
+				]
+			}
+		},
+		{
+			"id": "frontend-1",
+			"category": "frontend",
+			"description": "Frontend API — Multi-upload + delete functions: Add uploadProductImages(id, files) using FormData with 'images' field for each file. Add deleteProductImage(id, imageUrl) as DELETE request. Keep existing uploadProductImage() for backward compat.",
+			"steps": [
+				"uploadProductImages() sends FormData with multiple files and returns updated Product",
+				"deleteProductImage() sends DELETE request with imageUrl and resolves successfully",
+				"Existing uploadProductImage() still works (backward compat)"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["backend-2"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": ["frontend/src/lib/api.ts"]
+			}
+		},
+		{
+			"id": "frontend-2",
+			"category": "frontend",
+			"description": "Frontend — Product type update: Add imageUrls?: string[] to UI Product type interface in ProductCard.tsx.",
+			"steps": [
+				"Product type interface includes imageUrls?: string[] property",
+				"No TypeScript errors after type update (npm run typecheck passes)"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": [],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": ["frontend/src/components/ProductCard.tsx"]
+			}
+		},
+		{
+			"id": "frontend-3",
+			"category": "frontend",
+			"description": "Frontend — Admin multi-image upload modal: Replace single file state with File[]. Add existingImages[] and removedImages[] state. Multiple file input with cap at 4 total. 2x2 preview grid with remove buttons. Per-file MIME/size validation with toast. Disabled state at max. Submit flow: upload new via uploadProductImages(), delete removed via deleteProductImage(). Blob URL cleanup on unmount.",
+			"steps": [
+				"Admin create modal allows selecting up to 4 images with preview grid",
+				"Admin create modal rejects 5th image with 'max reached' message",
+				"Admin edit modal shows existing Cloudinary images in preview grid",
+				"Admin edit modal allows removing existing images (X button)",
+				"Admin edit modal allows adding new images alongside existing (total ≤ 4)",
+				"Invalid file (wrong MIME or >5MB) shows error toast, not added to grid",
+				"Submit creates product then uploads all images successfully",
+				"Submit in edit mode deletes removed images and uploads new ones",
+				"Blob URLs cleaned up on component unmount (no memory leak)"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["frontend-1", "frontend-2"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": ["frontend/src/components/admin/AdminProductsPanel.tsx"]
+			}
+		},
+		{
+			"id": "frontend-4",
+			"category": "frontend",
+			"description": "Frontend — Product detail dynamic thumbnails + image switching: Update data mapping to preserve full images array. Add selectedImageIndex state. Main image uses imageUrls[selectedImageIndex]. Replace hardcoded [1,2,3,4].map() with imageUrls.map(). Thumbnail onClick switches main image. Active thumbnail ring. Fallback: 0 images = SVG + no thumbnails, 1 image = image + no thumbnails.",
+			"steps": [
+				"Product with 3 images shows exactly 3 thumbnails (not 4 hardcoded)",
+				"Product with 0 images shows SVG illustration with no thumbnail strip",
+				"Product with 1 image shows image as main with no thumbnail strip",
+				"Clicking a thumbnail updates main image to that thumbnail's source",
+				"Selected thumbnail has visible active indicator (ring/border)",
+				"First image is selected by default on page load"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["frontend-2"],
+				"parallel": true,
+				"conflicts_with": [],
+				"files": ["frontend/src/app/products/[id]/page.tsx"]
+			}
+		},
+		{
+			"id": "verification-1",
+			"category": "verification",
+			"description": "End-to-end verification of all success criteria SC1-SC8. TypeScript typecheck. Lint fix. Edge case testing: 0 images, 1 image, 4 images, invalid files, large files.",
+			"steps": [
+				"SC1: Upload 3 images, product detail shows exactly 3 thumbnails",
+				"SC2: Click each thumbnail, main image changes to match",
+				"SC3: Product with 0 images shows SVG fallback, no thumbnails",
+				"SC4: Admin create modal accepts 4 images, all show preview, submit works",
+				"SC5: Edit mode with 3 existing + attempt 2 new → only 1 accepted",
+				"SC6: Edit modal shows existing images with remove buttons",
+				"SC7: Remove existing image, save, reopen → image gone",
+				"SC8: GIF upload accepted by backend and displays correctly",
+				"npm run typecheck passes with zero errors",
+				"npm run lint:fix passes with zero errors"
+			],
+			"passes": false,
+			"metadata": {
+				"depends_on": ["frontend-3", "frontend-4"],
+				"parallel": false,
+				"conflicts_with": [],
+				"files": []
+			}
+		}
+	],
+	"context": {
+		"patterns": [
+			"Multi-upload pattern: ProductReviews.tsx ImageUploadPreview component with grid, remove buttons, blob URL cleanup",
+			"Backend multi-upload: reviewService.js loops files, uploads to Cloudinary, rollback on failure",
+			"Multer config: upload.array('images', N) already used for reviews",
+			"Error handling: sonner toast for user-facing errors",
+			"Vietnamese locale for UI strings"
+		],
+		"keyFiles": [
+			"frontend/src/components/ProductReviews.tsx",
+			"backend/src/services/reviewService.js",
+			"backend/src/middlewares/uploadMiddleware.js"
+		],
+		"nonGoals": [
+			"Image cropping/editing within the modal",
+			"ProductDetailModal.tsx changes (quick-view stays single image)",
+			"Product card grid view changes",
+			"Image CDN optimization (Cloudinary handles it)",
+			"Zoom/lightbox functionality",
+			"Image reordering (v1: upload order = display order)"
+		]
+	},
+	"beadMetadata": {
+		"depends_on": [],
+		"parallel": true,
+		"conflicts_with": [],
+		"blocks": [],
+		"estimated_hours": 8
+	}
+}

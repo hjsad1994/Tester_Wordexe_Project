@@ -9,14 +9,14 @@ const upload = multer({
     fileSize: 5 * 1024 * 1024,
   },
   fileFilter: (_req, file, cb) => {
-    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
     if (allowedMimes.includes(file.mimetype)) {
       cb(null, true);
       return;
     }
 
-    cb(new ValidationError('Only JPEG, PNG, and WebP images are allowed'));
+    cb(new ValidationError('Only JPEG, PNG, WebP, and GIF images are allowed'));
   },
 });
 
@@ -66,6 +66,28 @@ const uploadReviewImages = (req, res, next) => {
   });
 };
 
+const uploadProductImages = (req, res, next) => {
+  upload.array('images', 4)(req, res, (error) => {
+    if (!error) {
+      next();
+      return;
+    }
+
+    if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
+      next(new ValidationError('Mỗi ảnh sản phẩm không được vượt quá 5MB'));
+      return;
+    }
+
+    if (error instanceof multer.MulterError && error.code === 'LIMIT_UNEXPECTED_FILE') {
+      next(new ValidationError('Chỉ được tải lên tối đa 4 ảnh'));
+      return;
+    }
+
+    next(error);
+  });
+};
+
 module.exports = uploadProductImage;
+module.exports.uploadProductImages = uploadProductImages;
 module.exports.uploadAvatarImage = uploadAvatarImage;
 module.exports.uploadReviewImages = uploadReviewImages;

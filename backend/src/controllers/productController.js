@@ -79,3 +79,22 @@ exports.uploadImage = asyncHandler(async (req, res) => {
   const product = await productService.uploadImage(req.params.id, req.file.buffer);
   sendSuccess(res, product, 'Image uploaded successfully');
 });
+
+exports.uploadImages = asyncHandler(async (req, res) => {
+  if (!req.files || req.files.length === 0) {
+    throw new ValidationError('Vui lòng chọn ít nhất 1 ảnh');
+  }
+
+  const product = await productService.uploadImages(req.params.id, req.files);
+  sendSuccess(res, product, 'Tải ảnh lên thành công');
+});
+
+exports.deleteImage = asyncHandler(async (req, res) => {
+  const { imageUrl } = req.body;
+  if (!imageUrl) {
+    throw new ValidationError('Image URL is required');
+  }
+
+  const product = await productService.deleteImage(req.params.id, imageUrl);
+  sendSuccess(res, product, 'Xóa ảnh thành công');
+});
