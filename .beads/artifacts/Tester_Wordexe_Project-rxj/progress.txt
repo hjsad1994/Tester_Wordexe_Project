@@ -1,0 +1,16 @@
+# Progress Log
+
+Bead: Tester_Wordexe_Project-rxj
+Started: 2026-02-22
+
+## Codebase Patterns
+
+- Dual render pattern: check `imageUrl` first → `<Image>`, fallback → `IllustrationComponent` (see `ProductCard.tsx:150-162`)
+- `CartItem.image` stores illustration key (e.g. `'teddy'`), not Cloudinary URL
+- Backend `orderService.js:93` already stores `product.images[0]` in `orderItem.image`
+- `next.config.ts` already allowlists `res.cloudinary.com` for `next/image`
+- `productIllustrations` map: 12 SVG keys (clothes, bottle, teddy, diaper, stroller, crib, skincare, shoes, pacifier, rattle, food, bow)
+
+---
+
+<!-- Task logs below - APPEND ONLY -->

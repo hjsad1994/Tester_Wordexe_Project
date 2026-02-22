@@ -200,8 +200,10 @@ export default function ProductDetailModal({ product, isOpen, onClose }: Product
                     onError={() => setImgErrorForProduct(product.id)}
                   />
                 </div>
-              ) : (
+              ) : IllustrationComponent ? (
                 <IllustrationComponent size={200} />
+              ) : (
+                <GiftIcon size={64} className="text-pink-300" />
               )}
             </div>
           </div>
