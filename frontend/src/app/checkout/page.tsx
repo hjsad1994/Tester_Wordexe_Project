@@ -446,7 +446,7 @@ function CheckoutContent() {
                                 fill
                                 className="object-cover"
                                 sizes="56px"
-                                onError={() => setImgErrors(prev => new Set(prev).add(item.id))}
+                                onError={() => setImgErrors((prev) => new Set(prev).add(item.id))}
                               />
                             ) : Illustration ? (
                               <Illustration size={36} />

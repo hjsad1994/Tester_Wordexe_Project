@@ -107,7 +107,7 @@ export default function CartPage() {
                             fill
                             className="object-cover"
                             sizes="(max-width: 640px) 80px, 96px"
-                            onError={() => setImgErrors(prev => new Set(prev).add(item.id))}
+                            onError={() => setImgErrors((prev) => new Set(prev).add(item.id))}
                           />
                         ) : IllustrationComponent ? (
                           <IllustrationComponent size={64} />

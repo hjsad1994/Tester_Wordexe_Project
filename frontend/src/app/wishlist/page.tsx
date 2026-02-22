@@ -137,11 +137,15 @@ export default function WishlistPage() {
                             fill
                             className="object-cover"
                             sizes="(max-width: 640px) 50vw, (max-width: 1280px) 25vw, 20vw"
-                            onError={() => setImgErrors(prev => new Set(prev).add(product.id))}
+                            onError={() => setImgErrors((prev) => new Set(prev).add(product.id))}
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center p-4">
-                            {IllustrationComponent ? <IllustrationComponent size={120} /> : <GiftIcon size={40} className="text-pink-300" />}
+                            {IllustrationComponent ? (
+                              <IllustrationComponent size={120} />
+                            ) : (
+                              <GiftIcon size={40} className="text-pink-300" />
+                            )}
                           </div>
                         )}
                       </div>

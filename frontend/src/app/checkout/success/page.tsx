@@ -243,7 +243,7 @@ function CheckoutSuccessContent() {
                           fill
                           className="object-cover"
                           sizes="48px"
-                          onError={() => setImgErrors(prev => new Set(prev).add(key))}
+                          onError={() => setImgErrors((prev) => new Set(prev).add(key))}
                         />
                       ) : Illustration ? (
                         <Illustration size={32} />
