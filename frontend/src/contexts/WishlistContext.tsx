@@ -54,6 +54,7 @@ interface WishlistContextValue {
 const WishlistContext = createContext<WishlistContextValue | null>(null);
 
 const STORAGE_KEY_PREFIX = 'baby-bliss-wishlist';
+const OLD_WISHLIST_KEY = 'baby-bliss-wishlist';
 
 function getWishlistStorageKey(userId: string | null): string {
   return userId ? `${STORAGE_KEY_PREFIX}-${userId}` : `${STORAGE_KEY_PREFIX}-guest`;
@@ -64,6 +65,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(wishlistReducer, { items: [] });
   const isHydrated = useRef(false);
   const prevUserIdRef = useRef<string | null | undefined>(undefined);
+  const justTransitionedRef = useRef(false);
 
   const userId = authLoading ? undefined : (user?.id ?? null);
 
@@ -76,6 +78,20 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     // Skip if user hasn't actually changed
     if (prevUserId !== undefined && prevUserId === userId) return;
 
+    // One-time migration from old unscoped key
+    try {
+      const oldData = localStorage.getItem(OLD_WISHLIST_KEY);
+      const newKey = getWishlistStorageKey(userId);
+      if (oldData && !localStorage.getItem(newKey)) {
+        localStorage.setItem(newKey, oldData);
+      }
+      if (oldData) {
+        localStorage.removeItem(OLD_WISHLIST_KEY);
+      }
+    } catch {
+      // localStorage not available
+    }
+
     // Load wishlist for current user
     let items: Product[] = [];
     try {
@@ -83,7 +99,16 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
       if (stored) {
         const parsed = JSON.parse(stored) as Product[];
         if (Array.isArray(parsed)) {
-          items = parsed;
+          // Validate each item has required fields to prevent crashes
+          items = parsed.filter((item: unknown): item is Product => {
+            const i = item as Record<string, unknown>;
+            return (
+              typeof i?.id === 'string' &&
+              typeof i?.name === 'string' &&
+              typeof i?.price === 'number' &&
+              typeof i?.category === 'string'
+            );
+          });
         }
       }
     } catch {
@@ -95,6 +120,8 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
       }
     }
 
+    // Signal transition — prevents sync effect from writing stale data before HYDRATE processes
+    justTransitionedRef.current = true;
     dispatch({ type: 'HYDRATE', payload: items });
     prevUserIdRef.current = userId;
     isHydrated.current = true;
@@ -104,6 +131,12 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isHydrated.current) return;
     if (userId === undefined) return; // Auth still loading
+
+    // Skip the first sync after a user transition — state.items is still stale
+    if (justTransitionedRef.current) {
+      justTransitionedRef.current = false;
+      return;
+    }
 
     try {
       localStorage.setItem(getWishlistStorageKey(userId), JSON.stringify(state.items));

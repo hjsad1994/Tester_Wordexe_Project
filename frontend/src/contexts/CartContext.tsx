@@ -12,6 +12,7 @@ import {
 import { useAuth } from './AuthContext';
 
 const STORAGE_KEY_PREFIX = 'baby-bliss-cart';
+const OLD_STORAGE_KEY = 'baby-bliss-cart';
 
 function getCartStorageKey(userId: string | null): string {
   return userId ? `${STORAGE_KEY_PREFIX}-${userId}` : `${STORAGE_KEY_PREFIX}-guest`;
@@ -117,6 +118,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   });
   const isHydrated = useRef(false);
   const prevUserIdRef = useRef<string | null | undefined>(undefined);
+  const justTransitionedRef = useRef(false);
 
   const userId = authLoading ? undefined : (user?.id ?? null);
 
@@ -128,6 +130,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     // Skip if user hasn't actually changed
     if (prevUserId !== undefined && prevUserId === userId) return;
+
+    // One-time migration from old unscoped key
+    try {
+      const oldData = localStorage.getItem(OLD_STORAGE_KEY);
+      const newKey = getCartStorageKey(userId);
+      if (oldData && !localStorage.getItem(newKey)) {
+        localStorage.setItem(newKey, oldData);
+      }
+      // Always remove old key to prevent re-migration
+      if (oldData) {
+        localStorage.removeItem(OLD_STORAGE_KEY);
+      }
+    } catch {
+      // localStorage not available
+    }
 
     // Load cart for current user
     let items: CartItem[] = [];
@@ -159,6 +176,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
     }
 
+    // Signal transition — prevents sync effect from writing stale data before HYDRATE processes
+    justTransitionedRef.current = true;
     dispatch({
       type: 'HYDRATE',
       payload: { items, buyNowItem: null },
@@ -171,6 +190,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isHydrated.current) return;
     if (userId === undefined) return; // Auth still loading
+
+    // Skip the first sync after a user transition — state.items is still stale
+    // (HYDRATE dispatch hasn't been processed yet in this render cycle)
+    if (justTransitionedRef.current) {
+      justTransitionedRef.current = false;
+      return;
+    }
 
     try {
       localStorage.setItem(getCartStorageKey(userId), JSON.stringify({ items: state.items }));
