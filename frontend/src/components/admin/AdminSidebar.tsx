@@ -8,6 +8,7 @@ const adminNavItems = [
   { label: 'Tồn kho', href: '/admin/inventory' },
   { label: 'Danh mục', href: '/admin/categories' },
   { label: 'Đơn hàng', href: '/admin/orders' },
+  { label: 'Khuyến mãi', href: '/admin/coupons' },
 ];
 
 export default function AdminSidebar() {

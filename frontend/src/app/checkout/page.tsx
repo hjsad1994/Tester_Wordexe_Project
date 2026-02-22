@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import { ArrowRightIcon, ShieldIcon, SparkleIcon, TruckIcon } from '@/components/icons';
@@ -12,7 +12,8 @@ import {
 } from '@/components/icons/ProductIllustrations';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
-import { createOrder as createOrderApi } from '@/lib/api';
+import { createOrder as createOrderApi, validateCouponApi } from '@/lib/api';
+import type { ValidateCouponResponse } from '@/lib/api';
 
 interface CheckoutFormData {
   fullName: string;
@@ -41,6 +42,7 @@ function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isBuyNow = searchParams.get('buyNow') === 'true';
+  const isOrderCompleteRef = useRef(false);
 
   const checkoutItems = useMemo(() => {
     if (isBuyNow && buyNowItem) return [buyNowItem];
@@ -51,10 +53,9 @@ function CheckoutContent() {
     () => checkoutItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [checkoutItems]
   );
-  const total = subtotal + SHIPPING_FEE;
 
   useEffect(() => {
-    if (checkoutItems.length === 0) {
+    if (checkoutItems.length === 0 && !isOrderCompleteRef.current) {
       router.push('/cart');
     }
   }, [checkoutItems, router]);
@@ -70,6 +71,19 @@ function CheckoutContent() {
   const [showMomoOverlay, setShowMomoOverlay] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Coupon state
+  const [couponCode, setCouponCode] = useState('');
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<ValidateCouponResponse | null>(null);
+  const [showCouponSection, setShowCouponSection] = useState(false);
+
+  // Derived totals (after coupon state)
+  const discountAmount = appliedCoupon?.discountAmount ?? 0;
+  const effectiveShippingFee =
+    appliedCoupon?.coupon.discountType === 'free_shipping' ? 0 : SHIPPING_FEE;
+  const total = subtotal - discountAmount + effectiveShippingFee;
 
   // Pre-fill form from user profile when logged in
   useEffect(() => {
@@ -103,6 +117,33 @@ function CheckoutContent() {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Coupon handlers
+  const handleApplyCoupon = async () => {
+    const code = couponCode.trim().toUpperCase();
+    if (!code) {
+      setCouponError('Vui lòng nhập mã khuyến mãi');
+      return;
+    }
+    try {
+      setIsValidatingCoupon(true);
+      setCouponError(null);
+      const result = await validateCouponApi(code, subtotal);
+      setAppliedCoupon(result);
+      setCouponError(null);
+    } catch (err) {
+      setCouponError(err instanceof Error ? err.message : 'Mã khuyến mãi không hợp lệ');
+      setAppliedCoupon(null);
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+    setCouponError(null);
+  };
+
   const completeOrder = async (method: PaymentMethod) => {
     setIsSubmitting(true);
     setSubmitError(null);
@@ -121,10 +162,13 @@ function CheckoutContent() {
         },
         paymentMethod: method,
         shippingFee: SHIPPING_FEE,
+        couponCode: appliedCoupon?.coupon.code,
       });
 
       sessionStorage.setItem('lastOrderId', createdOrder._id);
       sessionStorage.setItem('lastOrderToken', createdOrder.publicAccessToken || '');
+
+      isOrderCompleteRef.current = true;
 
       if (isBuyNow) {
         clearBuyNowItem();
@@ -412,6 +456,66 @@ function CheckoutContent() {
                       );
                     })}
                   </div>
+                  {/* Coupon Section */}
+                  <div className="border-t border-pink-100 pt-4 mb-1">
+                    {!showCouponSection && !appliedCoupon ? (
+                      <button
+                        type="button"
+                        onClick={() => setShowCouponSection(true)}
+                        className="text-sm text-pink-500 hover:text-pink-600 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded-lg px-1"
+                      >
+                        Bạn có mã khuyến mãi?
+                      </button>
+                    ) : appliedCoupon ? (
+                      <div className="flex items-center justify-between rounded-xl bg-green-50 border border-green-200 px-3 py-2">
+                        <div>
+                          <span className="text-sm font-medium text-green-700">
+                            🎉 {appliedCoupon.coupon.code}
+                          </span>
+                          <p className="text-xs text-green-600">{appliedCoupon.coupon.name}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleRemoveCoupon}
+                          className="text-xs text-green-600 hover:text-green-700 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 rounded px-1"
+                        >
+                          Xóa
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={couponCode}
+                            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                            placeholder="Nhập mã khuyến mãi"
+                            className="flex-1 rounded-xl border border-pink-200 px-3 py-2 text-sm font-mono uppercase focus:border-pink-400 focus:ring-2 focus:ring-pink-100 focus-visible:outline-none transition-colors"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => void handleApplyCoupon()}
+                            disabled={isValidatingCoupon}
+                            className="rounded-xl bg-pink-100 px-4 py-2 text-sm font-medium text-pink-600 hover:bg-pink-200 transition-colors focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {isValidatingCoupon ? '...' : 'Áp dụng'}
+                          </button>
+                        </div>
+                        {couponError && <p className="text-xs text-rose-500">{couponError}</p>}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowCouponSection(false);
+                            setCouponCode('');
+                            setCouponError(null);
+                          }}
+                          className="text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+                        >
+                          Ẩn
+                        </button>
+                      </div>
+                    )}
+                  </div>
                   {/* Totals */}
                   <div className="border-t border-pink-100 pt-4 space-y-2">
                     <div className="flex justify-between text-sm">
@@ -420,10 +524,32 @@ function CheckoutContent() {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-[var(--text-secondary)]">Phí vận chuyển</span>
-                      <span className="text-[var(--text-primary)]">
-                        {formatPrice(SHIPPING_FEE)}
+                      <span
+                        className={`text-[var(--text-primary)] ${effectiveShippingFee === 0 ? 'line-through text-[var(--text-muted)]' : ''}`}
+                      >
+                        {effectiveShippingFee === 0
+                          ? formatPrice(SHIPPING_FEE)
+                          : formatPrice(effectiveShippingFee)}
                       </span>
                     </div>
+                    {effectiveShippingFee === 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-green-600">Miễn phí vận chuyển</span>
+                        <span className="text-green-600 font-medium">
+                          -{formatPrice(SHIPPING_FEE)}
+                        </span>
+                      </div>
+                    )}
+                    {discountAmount > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-green-600">
+                          Giảm giá{appliedCoupon ? ` (${appliedCoupon.coupon.code})` : ''}
+                        </span>
+                        <span className="text-green-600 font-medium">
+                          -{formatPrice(discountAmount)}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex justify-between text-base font-bold pt-2 border-t border-pink-100">
                       <span className="text-[var(--text-primary)]">Tổng cộng</span>
                       <span className="text-pink-500">{formatPrice(total)}</span>

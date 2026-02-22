@@ -260,6 +260,16 @@ function CheckoutSuccessContent() {
                 <span className="text-[var(--text-secondary)]">Phí vận chuyển</span>
                 <span>{formatPrice(order.shippingFee)}</span>
               </div>
+              {order.discountAmount > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-green-600">
+                    Giảm giá{order.couponCode ? ` (${order.couponCode})` : ''}
+                  </span>
+                  <span className="text-green-600 font-medium">
+                    -{formatPrice(order.discountAmount)}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between font-bold text-base pt-2 border-t border-pink-100">
                 <span>Tổng cộng</span>
                 <span className="text-pink-500">{formatPrice(order.total)}</span>

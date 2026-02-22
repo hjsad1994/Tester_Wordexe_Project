@@ -1,0 +1,19 @@
+# Progress Log
+
+Bead: Tester_Wordexe_Project-znh
+Started: 2026-02-22
+
+## Codebase Patterns
+
+- Model: Category.js template (simple), Order.js (complex with sub-schemas)
+- Service: class-based singletons, validation + error throwing
+- Controller: thin asyncHandler wrappers
+- Routes: public GET, admin mutations with authMiddleware + requireRole('admin')
+- Route registry: router.use('/prefix', routes) in index.js
+- API client: fetch + credentials:'include', parseError()
+- Admin panels: inline form (Categories) or modal (Products) CRUD
+- Styling: pink pastel OKLCH, rounded-2xl/3xl, gradient buttons
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
