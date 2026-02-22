@@ -40,7 +40,8 @@ playwright/.cache/
 
 # Sisyphus
 .sisyphus/
-
+.beads/
+.beads
 # OpenCode
 .opencode/
 .opencode.bak-*/
