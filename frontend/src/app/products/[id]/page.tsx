@@ -347,10 +347,12 @@ export default function ProductDetailPage() {
 		};
 	}, [routeParam]);
 
-	// Reset selected image when product changes
-	useEffect(() => {
+	// Reset selected image when product changes (adjusting state during render — React-recommended pattern)
+	const [prevProductId, setPrevProductId] = useState(product?.id);
+	if (product?.id !== prevProductId) {
+		setPrevProductId(product?.id);
 		setSelectedImageIndex(0);
-	}, [product?.id]);
+	}
 
 	const extras = product
 		? productExtras[product.id] || productExtras.default
