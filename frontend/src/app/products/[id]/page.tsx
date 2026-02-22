@@ -207,7 +207,6 @@ const productExtras: Record<
       'Thiết kế thoáng mát cho mùa hè',
       'Co giãn 4 chiều thoải mái',
     ],
-
     colors: ['Trắng | #FFFFFF', 'Hồng nhạt | #FFC0CB', 'Xanh mint | #98FF98'],
     sizes: ['S (0-3M)', 'M (3-6M)', 'L (6-9M)', 'XL (9-12M)'],
   },
