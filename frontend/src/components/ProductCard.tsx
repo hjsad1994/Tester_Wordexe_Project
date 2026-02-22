@@ -21,6 +21,7 @@ export interface Product {
   originalPrice?: number;
   illustration: ProductIllustrationType;
   imageUrl?: string;
+  imageUrls?: string[];
   rating: number;
   reviews: number;
   badge?: 'new' | 'sale' | 'bestseller';

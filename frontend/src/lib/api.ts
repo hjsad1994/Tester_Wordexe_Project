@@ -392,9 +392,16 @@ export async function deleteProduct(id: string): Promise<void> {
   }
 }
 
+/** @deprecated Use uploadProductImages() instead */
 export async function uploadProductImage(id: string, file: File): Promise<Product> {
+  return uploadProductImages(id, [file]);
+}
+
+export async function uploadProductImages(id: string, files: File[]): Promise<Product> {
   const formData = new FormData();
-  formData.append('image', file);
+  for (const file of files) {
+    formData.append('images', file);
+  }
 
   const res = await fetch(`${API_BASE_URL}/api/products/${id}/images`, {
     method: 'POST',
@@ -404,6 +411,22 @@ export async function uploadProductImage(id: string, file: File): Promise<Produc
 
   if (!res.ok) {
     throw new Error(await parseError(res, 'Không thể tải ảnh sản phẩm'));
+  }
+
+  const body = (await res.json()) as ApiResponse<Product>;
+  return body.data;
+}
+
+export async function deleteProductImage(id: string, imageUrl: string): Promise<Product> {
+  const res = await fetch(`${API_BASE_URL}/api/products/${id}/images`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ imageUrl }),
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể xóa ảnh sản phẩm'));
   }
 
   const body = (await res.json()) as ApiResponse<Product>;

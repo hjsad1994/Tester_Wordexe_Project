@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: "20"
 
 jobs:
   # ============================================
@@ -28,11 +28,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: './backend/package-lock.json'
 
       - name: Install dependencies
-        run: npm ci || npm install
+        run: npm install
 
       - name: Run linting
         run: npm run lint
@@ -61,8 +59,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: './frontend/package-lock.json'
+          cache: "npm"
+          cache-dependency-path: "./frontend/package-lock.json"
 
       - name: Install dependencies
         run: npm ci || npm install
@@ -85,8 +83,8 @@ jobs:
   playwright-tests:
     name: Playwright Tests
     runs-on: ubuntu-latest
-    if: false  # Temporarily disabled
-    needs: [frontend-ci]  # Run after frontend builds successfully
+    if: false # Temporarily disabled
+    needs: [frontend-ci] # Run after frontend builds successfully
     defaults:
       run:
         working-directory: ./playwright
@@ -99,8 +97,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: './playwright/package-lock.json'
+          cache: "npm"
+          cache-dependency-path: "./playwright/package-lock.json"
 
       - name: Install Playwright dependencies
         run: npm ci || npm install

@@ -55,6 +55,7 @@ const mapApiProductToCard = (product: ApiProduct): Product => {
     price: product.price,
     quantity: product.quantity,
     imageUrl: product.images?.[0],
+    imageUrls: product.images ?? [],
     illustration: categoryIllustrationMap[categoryName] || 'teddy',
     rating: product.avgRating || 0,
     reviews: product.reviewCount || 0,
@@ -252,6 +253,7 @@ export default function ProductDetailPage() {
   const [activeTab, setActiveTab] = useState<'description' | 'reviews'>('description');
   const [selectedColor, setSelectedColor] = useState(0);
   const [selectedSize, setSelectedSize] = useState(0);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [product, setProduct] = useState<Product | null>(null);
   const [catalogProducts, setCatalogProducts] = useState<Product[]>(allProducts);
   const [isProductLoading, setIsProductLoading] = useState(true);
@@ -340,6 +342,13 @@ export default function ProductDetailPage() {
       cancelled = true;
     };
   }, [routeParam]);
+
+  // Reset selected image when product changes (adjusting state during render — React-recommended pattern)
+  const [prevProductId, setPrevProductId] = useState(product?.id);
+  if (product?.id !== prevProductId) {
+    setPrevProductId(product?.id);
+    setSelectedImageIndex(0);
+  }
 
   const extras = product
     ? productExtras[product.id] || productExtras.default
@@ -440,7 +449,6 @@ export default function ProductDetailPage() {
   return (
     <div className="min-h-screen bg-[var(--warm-white)]">
       <Header />
-
       {/* Breadcrumb */}
       <div className="bg-white border-b border-pink-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
@@ -472,7 +480,6 @@ export default function ProductDetailPage() {
           </nav>
         </div>
       </div>
-
       {/* Main Product Section */}
       <section className="py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -540,10 +547,14 @@ export default function ProductDetailPage() {
                     {liked ? <HeartIcon size={24} /> : <HeartOutlineIcon size={24} />}
                   </button>
 
-                  {product.imageUrl ? (
+                  {product.imageUrls && product.imageUrls.length > 0 ? (
                     <div className="absolute inset-0">
                       <Image
-                        src={product.imageUrl}
+                        src={
+                          product.imageUrls[
+                            Math.min(selectedImageIndex, product.imageUrls.length - 1)
+                          ]
+                        }
                         alt={product.name}
                         fill
                         sizes="(max-width: 1024px) 100vw, 50vw"
@@ -560,21 +571,30 @@ export default function ProductDetailPage() {
                   )}
                 </div>
 
-                {/* Thumbnail placeholder - could be expanded */}
-                <div className="flex gap-3 mt-4">
-                  {[1, 2, 3, 4].map((i) => (
-                    <button
-                      key={i}
-                      className={`w-20 h-20 rounded-xl border-2 transition-all overflow-hidden ${
-                        i === 1 ? 'border-pink-400' : 'border-pink-100 hover:border-pink-300'
-                      }`}
-                    >
-                      <div className="w-full h-full bg-gradient-to-br from-pink-50 to-purple-50 flex items-center justify-center">
-                        <IllustrationComponent size={50} />
-                      </div>
-                    </button>
-                  ))}
-                </div>
+                {/* Thumbnails — only shown when multiple images exist */}
+                {product.imageUrls && product.imageUrls.length > 1 && (
+                  <div className="flex gap-3 mt-4">
+                    {product.imageUrls.map((url, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setSelectedImageIndex(i)}
+                        className={`relative w-20 h-20 rounded-xl border-2 transition-all overflow-hidden cursor-pointer ${
+                          i === selectedImageIndex
+                            ? 'border-pink-400 ring-2 ring-pink-200'
+                            : 'border-pink-100 hover:border-pink-300'
+                        }`}
+                      >
+                        <Image
+                          src={url}
+                          alt={`${product.name} - ảnh ${i + 1}`}
+                          fill
+                          sizes="80px"
+                          className="object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -833,8 +853,6 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </section>
-
-      {/* Tabs Section */}
       <section className="py-8 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Tab Headers */}
@@ -903,8 +921,6 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </section>
-
-      {/* Related Products */}
       {relatedProducts.length > 0 && (
         <section className="py-12 bg-gradient-to-b from-white to-pink-50/30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -926,9 +942,7 @@ export default function ProductDetailPage() {
           </div>
         </section>
       )}
-
       <Footer />
-
       <style jsx>{`
         @keyframes fadeIn {
           from {
