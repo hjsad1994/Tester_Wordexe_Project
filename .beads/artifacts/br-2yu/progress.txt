@@ -1,0 +1,17 @@
+# Progress Log
+
+Bead: br-2yu
+Started: 2026-02-23
+
+## Codebase Patterns
+
+- Multi-upload exists in reviews: `upload.array('images', 3)` + `ImageUploadPreview` component
+- Backend: reviewService.js loops files → Cloudinary upload with rollback on failure
+- Frontend validation: MIME check (jpeg/png/webp/gif), 5MB max per file
+- UI locale: Vietnamese — all user-facing strings must be in Vietnamese
+- Product model already supports `images: [String]` array in MongoDB
+- Repository already has `addImage()` using `$push` — need matching `removeImage()` with `$pull`
+
+---
+
+<!-- Task logs below - APPEND ONLY -->
