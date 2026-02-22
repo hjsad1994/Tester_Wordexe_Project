@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const { NotFoundError, ValidationError } = require('../errors');
+const couponService = require('./couponService');
+
 
 const DEFAULT_SHIPPING_FEE = 30000;
 const ORDER_STATUSES = ['pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'];
@@ -100,6 +102,34 @@ class OrderService {
       throw new ValidationError('Shipping fee is invalid');
     }
 
+    // Coupon handling
+    let couponCode = null;
+    let discountAmount = 0;
+    let finalShippingFee = shippingFee;
+    let redeemedCoupon = null;
+
+    if (payload.couponCode) {
+      const validation = await couponService.validateCoupon(
+        payload.couponCode,
+        subtotal,
+        context.userId || null
+      );
+      couponCode = validation.coupon.code;
+      discountAmount = validation.discountAmount;
+
+      // Check if free_shipping type
+      const coupon = await couponService.getCouponById(validation.coupon._id);
+      if (coupon.discountType === 'free_shipping') {
+        finalShippingFee = 0;
+      }
+
+      // Atomic redemption
+      redeemedCoupon = await couponService.redeemCoupon(
+        validation.coupon._id,
+        context.userId || null
+      );
+    }
+
     const status = paymentMethod === 'momo' ? 'paid' : 'pending';
     const customerInfo = normalizeCustomerInfo(payload.customerInfo);
 
@@ -109,8 +139,10 @@ class OrderService {
       user: isObjectId(context.userId) ? context.userId : null,
       items: orderItems,
       subtotal,
-      shippingFee,
-      total: subtotal + shippingFee,
+      shippingFee: payload.couponCode ? finalShippingFee : shippingFee,
+      couponCode,
+      discountAmount,
+      total: subtotal - discountAmount + (payload.couponCode ? finalShippingFee : shippingFee),
       customerInfo,
       paymentMethod,
       status,
