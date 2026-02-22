@@ -3,7 +3,6 @@ const router = express.Router();
 const productController = require("../controllers/productController");
 const authMiddleware = require("../middlewares/authMiddleware");
 const requireRole = require("../middlewares/requireRole");
-const uploadProductImage = require("../middlewares/uploadMiddleware");
 const { uploadProductImages } = require("../middlewares/uploadMiddleware");
 const reviewController = require("../controllers/reviewController");
 const optionalAuthMiddleware = require("../middlewares/optionalAuthMiddleware");

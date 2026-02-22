@@ -203,7 +203,7 @@ class ProductService {
 					publicId: result.public_id,
 					url: result.secure_url,
 				});
-			} catch (error) {
+			} catch {
 				// Rollback: delete already uploaded images
 				for (const uploaded of uploadedImages) {
 					try {
