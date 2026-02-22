@@ -104,9 +104,9 @@ class OrderService {
 
     // Coupon handling
     let couponCode = null;
+    let couponId = null;
     let discountAmount = 0;
     let finalShippingFee = shippingFee;
-    let redeemedCoupon = null;
 
     if (payload.couponCode) {
       const validation = await couponService.validateCoupon(
@@ -115,17 +115,17 @@ class OrderService {
         context.userId || null
       );
       couponCode = validation.coupon.code;
+      couponId = validation.coupon._id;
       discountAmount = validation.discountAmount;
 
-      // Check if free_shipping type
-      const coupon = await couponService.getCouponById(validation.coupon._id);
-      if (coupon.discountType === 'free_shipping') {
+      // Check if free_shipping type (already in validation response)
+      if (validation.coupon.discountType === 'free_shipping') {
         finalShippingFee = 0;
       }
 
       // Atomic redemption
-      redeemedCoupon = await couponService.redeemCoupon(
-        validation.coupon._id,
+      await couponService.redeemCoupon(
+        couponId,
         context.userId || null
       );
     }
@@ -133,30 +133,45 @@ class OrderService {
     const status = paymentMethod === 'momo' ? 'paid' : 'pending';
     const customerInfo = normalizeCustomerInfo(payload.customerInfo);
 
-    const order = await Order.create({
-      orderNumber: generateOrderNumber(),
-      publicAccessToken: generatePublicAccessToken(),
-      user: isObjectId(context.userId) ? context.userId : null,
-      items: orderItems,
-      subtotal,
-      shippingFee: payload.couponCode ? finalShippingFee : shippingFee,
-      couponCode,
-      discountAmount,
-      total: subtotal - discountAmount + (payload.couponCode ? finalShippingFee : shippingFee),
-      customerInfo,
-      paymentMethod,
-      status,
-      statusHistory: [
-        {
-          from: null,
-          to: status,
-          changedBy: isObjectId(context.userId) ? context.userId : null,
-          note: 'Order created',
-        },
-      ],
-    });
+    try {
+      const order = await Order.create({
+        orderNumber: generateOrderNumber(),
+        publicAccessToken: generatePublicAccessToken(),
+        user: isObjectId(context.userId) ? context.userId : null,
+        items: orderItems,
+        subtotal,
+        shippingFee: payload.couponCode ? finalShippingFee : shippingFee,
+        couponCode,
+        discountAmount,
+        total: subtotal - discountAmount + (payload.couponCode ? finalShippingFee : shippingFee),
+        customerInfo,
+        paymentMethod,
+        status,
+        statusHistory: [
+          {
+            from: null,
+            to: status,
+            changedBy: isObjectId(context.userId) ? context.userId : null,
+            note: 'Order created',
+          },
+        ],
+      });
 
-    return this.getOrderById(order._id);
+      return this.getOrderById(order._id);
+    } catch (error) {
+      // Rollback coupon redemption if order creation fails
+      if (couponId) {
+        try {
+          await couponService.unredeemCoupon(
+            couponId,
+            context.userId || null
+          );
+        } catch {
+          // Best-effort rollback — log but don't mask original error
+        }
+      }
+      throw error;
+    }
   }
 
   async getOrderById(id, options = {}) {

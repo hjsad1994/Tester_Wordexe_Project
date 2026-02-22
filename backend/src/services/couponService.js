@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Coupon = require('../models/Coupon');
 const { NotFoundError, ValidationError } = require('../errors');
 
@@ -12,6 +13,9 @@ class CouponService {
     if (!data.discountType) {
       throw new ValidationError('Discount type is required');
     }
+    if (data.discountType === 'percentage' && data.discountValue > 100) {
+      throw new ValidationError('Percentage discount cannot exceed 100%');
+    }
 
     const normalizedCode = String(data.code).trim().toUpperCase();
     const exists = await Coupon.findOne({ code: normalizedCode });
@@ -19,14 +23,23 @@ class CouponService {
       throw new ValidationError(`Coupon with code '${normalizedCode}' already exists`);
     }
 
+    const allowedFields = [
+      'code', 'name', 'description', 'discountType', 'discountValue',
+      'maximumDiscount', 'minimumOrderAmount', 'usageLimit', 'perUserLimit',
+      'isActive', 'validFrom', 'validUntil', 'createdBy',
+    ];
+    const filtered = Object.fromEntries(
+      Object.entries(data).filter(([k]) => allowedFields.includes(k))
+    );
+
     return Coupon.create({
-      ...data,
+      ...filtered,
       code: normalizedCode,
     });
   }
 
   async getAllCoupons() {
-    return Coupon.find().sort('-createdAt').lean();
+    return Coupon.find().sort('-createdAt');
   }
 
   async getCouponById(id) {
@@ -38,15 +51,27 @@ class CouponService {
   }
 
   async updateCoupon(id, data) {
-    if (data.code) {
-      data.code = String(data.code).trim().toUpperCase();
-      const existing = await Coupon.findOne({ code: data.code, _id: { $ne: id } });
+    const allowedFields = [
+      'code', 'name', 'description', 'discountType', 'discountValue',
+      'maximumDiscount', 'minimumOrderAmount', 'usageLimit', 'perUserLimit',
+      'isActive', 'validFrom', 'validUntil',
+    ];
+    const filtered = Object.fromEntries(
+      Object.entries(data).filter(([k]) => allowedFields.includes(k))
+    );
+
+    if (filtered.code) {
+      filtered.code = String(filtered.code).trim().toUpperCase();
+      const existing = await Coupon.findOne({ code: filtered.code, _id: { $ne: id } });
       if (existing) {
-        throw new ValidationError(`Coupon with code '${data.code}' already exists`);
+        throw new ValidationError(`Coupon with code '${filtered.code}' already exists`);
       }
     }
+    if (filtered.discountType === 'percentage' && filtered.discountValue > 100) {
+      throw new ValidationError('Percentage discount cannot exceed 100%');
+    }
 
-    const coupon = await Coupon.findByIdAndUpdate(id, data, {
+    const coupon = await Coupon.findByIdAndUpdate(id, filtered, {
       new: true,
       runValidators: true,
     });
@@ -159,15 +184,48 @@ class CouponService {
       update.$push = { usedBy: userId };
     }
 
-    const coupon = await Coupon.findOneAndUpdate(
-      {
-        _id: couponId,
-        isActive: true,
+    const filter = {
+      _id: couponId,
+      isActive: true,
+      $and: [
+        {
+          $or: [
+            { usageLimit: null },
+            { $expr: { $lt: ['$usageCount', '$usageLimit'] } },
+          ],
+        },
+      ],
+    };
+
+    // Atomic per-user limit check to prevent race condition
+    if (userId) {
+      const userObjectId = new mongoose.Types.ObjectId(String(userId));
+      filter.$and.push({
         $or: [
-          { usageLimit: null },
-          { $expr: { $lt: ['$usageCount', '$usageLimit'] } },
+          { perUserLimit: null },
+          { perUserLimit: 0 },
+          {
+            $expr: {
+              $lt: [
+                {
+                  $size: {
+                    $filter: {
+                      input: '$usedBy',
+                      as: 'uid',
+                      cond: { $eq: ['$$uid', userObjectId] },
+                    },
+                  },
+                },
+                '$perUserLimit',
+              ],
+            },
+          },
         ],
-      },
+      });
+    }
+
+    const coupon = await Coupon.findOneAndUpdate(
+      filter,
       update,
       { new: true }
     );
@@ -177,6 +235,14 @@ class CouponService {
     }
 
     return coupon;
+  }
+
+  async unredeemCoupon(couponId, userId) {
+    const update = { $inc: { usageCount: -1 } };
+    if (userId) {
+      update.$pull = { usedBy: userId };
+    }
+    await Coupon.findByIdAndUpdate(couponId, update);
   }
 
   async getAvailableCoupons() {
@@ -194,8 +260,7 @@ class CouponService {
         },
       ],
     })
-      .sort('-createdAt')
-      .lean();
+      .sort('-createdAt');
   }
 }
 
