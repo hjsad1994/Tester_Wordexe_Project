@@ -2,15 +2,17 @@
 
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import {
   type Category as ApiCategory,
   type Product as ApiProduct,
   createProduct as createProductApi,
   deleteProduct as deleteProductApi,
+  deleteProductImage as deleteProductImageApi,
   fetchCategories as fetchCategoriesApi,
   fetchProducts as fetchProductsApi,
   updateProduct as updateProductApi,
-  uploadProductImage as uploadProductImageApi,
+  uploadProductImages as uploadProductImagesApi,
 } from '@/lib/api';
 
 type ProductFormState = {
@@ -23,6 +25,7 @@ type ProductFormState = {
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_PRODUCT_IMAGES = 4;
 
 const createEmptyProductForm = (categoryId = ''): ProductFormState => ({
   name: '',
@@ -50,10 +53,10 @@ export default function AdminProductsPanel({
   const [isDeletingProduct, setIsDeletingProduct] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [productForm, setProductForm] = useState<ProductFormState>(createEmptyProductForm());
-  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
-  const [selectedImagePreviewUrl, setSelectedImagePreviewUrl] = useState<string | null>(null);
+  const [selectedImageFiles, setSelectedImageFiles] = useState<File[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [removedImages, setRemovedImages] = useState<string[]>([]);
   const [imageUploadError, setImageUploadError] = useState<string | null>(null);
-  const [removeExistingImage, setRemoveExistingImage] = useState(false);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const productModalRef = useRef<HTMLDivElement | null>(null);
   const deleteModalRef = useRef<HTMLDivElement | null>(null);
@@ -74,19 +77,50 @@ export default function AdminProductsPanel({
     return [...adminProducts].sort((a, b) => (a.quantity ?? 0) - (b.quantity ?? 0));
   }, [adminProducts, isInventoryView]);
 
-  const editingProductImage = editingProduct?.images?.[0] || null;
-  const previewImageUrl =
-    selectedImagePreviewUrl || (removeExistingImage ? null : editingProductImage);
+  const visibleExistingImages = useMemo(
+    () => existingImages.filter((url) => !removedImages.includes(url)),
+    [existingImages, removedImages]
+  );
 
-  const clearSelectedImage = useCallback(() => {
-    setSelectedImageFile(null);
-    setImageUploadError(null);
-    setSelectedImagePreviewUrl((prev) => {
-      if (prev?.startsWith('blob:')) {
-        URL.revokeObjectURL(prev);
+  const totalImageCount = visibleExistingImages.length + selectedImageFiles.length;
+  const isAtMaxImages = totalImageCount >= MAX_PRODUCT_IMAGES;
+
+  // Stable blob URL cache: create once per file, revoke when file leaves the array
+  const blobUrlCacheRef = useRef<Map<File, string>>(new Map());
+
+  const newImagePreviewUrls = useMemo(() => {
+    const cache = blobUrlCacheRef.current;
+    const currentFiles = new Set(selectedImageFiles);
+
+    // Revoke URLs for files no longer in the list
+    for (const [file, url] of cache) {
+      if (!currentFiles.has(file)) {
+        URL.revokeObjectURL(url);
+        cache.delete(file);
       }
-      return null;
+    }
+
+    // Create URLs for new files
+    return selectedImageFiles.map((file) => {
+      let url = cache.get(file);
+      if (!url) {
+        url = URL.createObjectURL(file);
+        cache.set(file, url);
+      }
+      return url;
     });
+  }, [selectedImageFiles]);
+
+  const clearSelectedImages = useCallback(() => {
+    // Revoke all cached blob URLs
+    const cache = blobUrlCacheRef.current;
+    for (const url of cache.values()) {
+      URL.revokeObjectURL(url);
+    }
+    cache.clear();
+
+    setSelectedImageFiles([]);
+    setImageUploadError(null);
 
     if (imageInputRef.current) {
       imageInputRef.current.value = '';
@@ -165,12 +199,12 @@ export default function AdminProductsPanel({
 
   useEffect(
     () => () => {
-      setSelectedImagePreviewUrl((prev) => {
-        if (prev?.startsWith('blob:')) {
-          URL.revokeObjectURL(prev);
-        }
-        return null;
-      });
+      // Revoke all cached blob URLs on unmount
+      const cache = blobUrlCacheRef.current;
+      for (const url of cache.values()) {
+        URL.revokeObjectURL(url);
+      }
+      cache.clear();
     },
     []
   );
@@ -178,9 +212,10 @@ export default function AdminProductsPanel({
   const resetProductForm = useCallback(() => {
     setEditingProductId(null);
     setProductForm(createEmptyProductForm(adminCategories[0]?._id || ''));
-    setRemoveExistingImage(false);
-    clearSelectedImage();
-  }, [adminCategories, clearSelectedImage]);
+    setExistingImages([]);
+    setRemovedImages([]);
+    clearSelectedImages();
+  }, [adminCategories, clearSelectedImages]);
 
   const closeProductModal = useCallback(() => {
     if (isSubmittingProduct) {
@@ -282,7 +317,6 @@ export default function AdminProductsPanel({
         quantity: number;
         category: string;
         description?: string;
-        images?: string[];
       } = {
         name: productForm.name.trim(),
         price: parsedPrice,
@@ -291,37 +325,58 @@ export default function AdminProductsPanel({
         description: productForm.description.trim() || undefined,
       };
 
-      if (removeExistingImage && !selectedImageFile) {
-        payload.images = [];
-      }
+      let finalProduct: ApiProduct;
 
       if (editingProductId) {
-        let updated = await updateProductApi(editingProductId, payload);
-        if (selectedImageFile) {
-          const uploaded = await uploadProductImageApi(editingProductId, selectedImageFile);
+        finalProduct = await updateProductApi(editingProductId, payload);
 
-          if (removeExistingImage) {
-            const newestImage = uploaded.images?.[uploaded.images.length - 1];
-            updated = newestImage
-              ? await updateProductApi(editingProductId, {
-                  images: [newestImage],
-                })
-              : uploaded;
-          } else {
-            updated = uploaded;
+        // Delete removed existing images (best-effort, continue on failure)
+        const deleteErrors: string[] = [];
+        for (const imageUrl of removedImages) {
+          try {
+            finalProduct = await deleteProductImageApi(editingProductId, imageUrl);
+          } catch {
+            deleteErrors.push(imageUrl);
           }
         }
 
-        setAdminProducts((prev) =>
-          prev.map((product) => (product._id === updated._id ? updated : product))
-        );
-      } else {
-        let created = await createProductApi(payload);
-        if (selectedImageFile) {
-          created = await uploadProductImageApi(created._id, selectedImageFile);
+        // Upload new images
+        if (selectedImageFiles.length > 0) {
+          try {
+            finalProduct = await uploadProductImagesApi(editingProductId, selectedImageFiles);
+          } catch (uploadError) {
+            // Update UI with what we have so far, then report error
+            setAdminProducts((prev) =>
+              prev.map((product) => (product._id === finalProduct._id ? finalProduct : product))
+            );
+            const msg =
+              uploadError instanceof Error ? uploadError.message : 'Không thể tải ảnh lên';
+            toast.error(msg);
+            if (deleteErrors.length > 0) {
+              toast.error(`Không thể xóa ${deleteErrors.length} ảnh cũ`);
+            }
+            setProductModalOpen(false);
+            resetProductForm();
+            return;
+          }
         }
 
-        setAdminProducts((prev) => [created, ...prev]);
+        if (deleteErrors.length > 0) {
+          toast.warning(`Không thể xóa ${deleteErrors.length} ảnh cũ`);
+        }
+
+        setAdminProducts((prev) =>
+          prev.map((product) => (product._id === finalProduct._id ? finalProduct : product))
+        );
+      } else {
+        finalProduct = await createProductApi(payload);
+
+        // Upload new images for newly created product
+        if (selectedImageFiles.length > 0) {
+          finalProduct = await uploadProductImagesApi(finalProduct._id, selectedImageFiles);
+        }
+
+        setAdminProducts((prev) => [finalProduct, ...prev]);
       }
 
       setProductModalOpen(false);
@@ -344,8 +399,9 @@ export default function AdminProductsPanel({
       category: typeof product.category === 'string' ? product.category : product.category._id,
       description: product.description || '',
     });
-    setRemoveExistingImage(false);
-    clearSelectedImage();
+    setExistingImages(product.images ?? []);
+    setRemovedImages([]);
+    clearSelectedImages();
   };
 
   const confirmDeleteProduct = async () => {
@@ -373,36 +429,61 @@ export default function AdminProductsPanel({
   };
 
   const handleImageFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) {
+    const files = event.target.files;
+    if (!files || files.length === 0) {
       return;
     }
 
-    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      setImageUploadError('Chỉ hỗ trợ JPEG, PNG, WebP hoặc GIF');
+    const currentCount = visibleExistingImages.length + selectedImageFiles.length;
+    const slotsAvailable = MAX_PRODUCT_IMAGES - currentCount;
+
+    if (slotsAvailable <= 0) {
+      toast.error('Tối đa 4 ảnh cho mỗi sản phẩm');
       event.target.value = '';
       return;
     }
 
-    if (file.size > MAX_IMAGE_SIZE_BYTES) {
-      setImageUploadError('Dung lượng ảnh phải nhỏ hơn hoặc bằng 5MB');
-      event.target.value = '';
-      return;
+    const validFiles: File[] = [];
+    let hasError = false;
+
+    for (const file of Array.from(files)) {
+      if (validFiles.length >= slotsAvailable) {
+        toast.error('Tối đa 4 ảnh cho mỗi sản phẩm');
+        break;
+      }
+
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        setImageUploadError('Chỉ hỗ trợ JPEG, PNG, WebP hoặc GIF');
+        hasError = true;
+        continue;
+      }
+
+      if (file.size > MAX_IMAGE_SIZE_BYTES) {
+        setImageUploadError('Dung lượng ảnh phải nhỏ hơn hoặc bằng 5MB');
+        hasError = true;
+        continue;
+      }
+
+      validFiles.push(file);
     }
 
-    clearSelectedImage();
-    setSelectedImageFile(file);
-    setImageUploadError(null);
-    setSelectedImagePreviewUrl(URL.createObjectURL(file));
-
-    if (editingProductImage) {
-      setRemoveExistingImage(true);
+    if (validFiles.length > 0) {
+      setSelectedImageFiles((prev) => [...prev, ...validFiles]);
+      if (!hasError) {
+        setImageUploadError(null);
+      }
     }
+
+    event.target.value = '';
   };
 
-  const handleRemoveImage = () => {
-    clearSelectedImage();
-    setRemoveExistingImage(true);
+  const handleRemoveExistingImage = (imageUrl: string) => {
+    setRemovedImages((prev) => [...prev, imageUrl]);
+  };
+
+  const handleRemoveNewImage = (index: number) => {
+    setSelectedImageFiles((prev) => prev.filter((_, i) => i !== index));
+    // Blob URL cleanup is handled by the useMemo cache on next recomputation
   };
 
   useEffect(() => {
@@ -810,26 +891,30 @@ export default function AdminProductsPanel({
                     <div className="mb-2 flex items-center justify-between gap-2">
                       <h4 className="text-sm font-semibold text-[var(--text-primary)]">
                         Ảnh sản phẩm
+                        <span className="ml-1.5 text-xs font-normal text-[var(--text-muted)]">
+                          ({totalImageCount}/{MAX_PRODUCT_IMAGES})
+                        </span>
                       </h4>
-                      {(previewImageUrl || selectedImageFile || editingProductImage) && (
-                        <button
-                          type="button"
-                          onClick={handleRemoveImage}
-                          className="min-h-[32px] rounded-lg border border-rose-300 px-3 py-1 text-xs font-medium text-rose-600 transition-colors hover:bg-rose-50"
-                        >
-                          Gỡ ảnh
-                        </button>
-                      )}
                     </div>
 
-                    <label className="mb-3 flex min-h-[48px] cursor-pointer items-center justify-center rounded-xl border border-dashed border-pink-300 bg-white px-3 py-2 text-sm font-medium text-pink-600 transition-colors hover:bg-pink-50">
-                      Chọn ảnh (JPEG/PNG/WebP/GIF, tối đa 5MB)
+                    <label
+                      className={`mb-3 flex min-h-[48px] cursor-pointer items-center justify-center rounded-xl border border-dashed border-pink-300 bg-white px-3 py-2 text-sm font-medium transition-colors ${
+                        isAtMaxImages
+                          ? 'cursor-not-allowed border-pink-200 text-pink-300 opacity-60'
+                          : 'text-pink-600 hover:bg-pink-50'
+                      }`}
+                    >
+                      {isAtMaxImages
+                        ? 'Đã đạt tối đa 4 ảnh'
+                        : 'Chọn ảnh (JPEG/PNG/WebP/GIF, tối đa 5MB)'}
                       <input
                         ref={imageInputRef}
                         data-testid="product-image-input"
                         type="file"
+                        multiple
                         accept="image/jpeg,image/png,image/webp,image/gif"
                         onChange={handleImageFileChange}
+                        disabled={isAtMaxImages}
                         className="sr-only"
                       />
                     </label>
@@ -838,19 +923,57 @@ export default function AdminProductsPanel({
                       <p className="mb-2 text-sm text-rose-600">{imageUploadError}</p>
                     )}
 
-                    {previewImageUrl ? (
-                      <div className="relative h-44 w-full overflow-hidden rounded-2xl border border-pink-200 bg-white">
-                        <Image
-                          src={previewImageUrl}
-                          alt="Ảnh xem trước"
-                          fill
-                          className="object-cover"
-                          unoptimized
-                        />
+                    {totalImageCount > 0 ? (
+                      <div className="grid grid-cols-2 gap-2">
+                        {visibleExistingImages.map((url) => (
+                          <div
+                            key={url}
+                            className="group relative aspect-square overflow-hidden rounded-lg border border-pink-200 bg-white"
+                          >
+                            <Image
+                              src={url}
+                              alt="Ảnh sản phẩm hiện tại"
+                              fill
+                              className="object-cover"
+                              unoptimized
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveExistingImage(url)}
+                              className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-rose-500 text-xs font-bold text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100"
+                              aria-label="Gỡ ảnh hiện tại"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+
+                        {selectedImageFiles.map((file, index) => (
+                          <div
+                            key={`new-${file.name}-${file.size}-${index}`}
+                            className="group relative aspect-square overflow-hidden rounded-lg border border-pink-200 bg-white"
+                          >
+                            <Image
+                              src={newImagePreviewUrls[index]}
+                              alt={`Ảnh mới ${index + 1}`}
+                              fill
+                              className="object-cover"
+                              unoptimized
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveNewImage(index)}
+                              className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-rose-500 text-xs font-bold text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100"
+                              aria-label="Gỡ ảnh mới"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
                       </div>
                     ) : (
                       <p className="text-xs text-[var(--text-muted)]">
-                        Chưa chọn ảnh mới. Bạn có thể thay ảnh hiện tại hoặc giữ nguyên khi lưu.
+                        Chưa có ảnh nào. Bạn có thể thêm tối đa 4 ảnh cho sản phẩm.
                       </p>
                     )}
                   </div>
