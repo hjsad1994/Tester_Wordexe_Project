@@ -14,48 +14,24 @@ router.get('/search', productController.searchProducts);
 router.get('/category/:categoryId', productController.getProductsByCategory);
 router.get('/slug/:slug', productController.getProductBySlug);
 // Product reviews (nested under /products/:productId)
-router.get(
-	'/:productId/reviews',
-	optionalAuthMiddleware,
-	reviewController.getReviews,
-);
+router.get('/:productId/reviews', optionalAuthMiddleware, reviewController.getReviews);
 router.post(
-	'/:productId/reviews',
-	authMiddleware,
-	uploadReviewImages,
-	reviewController.createReview,
+  '/:productId/reviews',
+  authMiddleware,
+  uploadReviewImages,
+  reviewController.createReview
 );
 router.get('/:id', productController.getProductById);
+router.post('/', authMiddleware, requireRole('admin'), productController.createProduct);
 router.post(
-	'/',
-	authMiddleware,
-	requireRole('admin'),
-	productController.createProduct,
+  '/:id/images',
+  authMiddleware,
+  requireRole('admin'),
+  uploadProductImages,
+  productController.uploadImages
 );
-router.post(
-	'/:id/images',
-	authMiddleware,
-	requireRole('admin'),
-	uploadProductImages,
-	productController.uploadImages,
-);
-router.delete(
-	'/:id/images',
-	authMiddleware,
-	requireRole('admin'),
-	productController.deleteImage,
-);
-router.put(
-	'/:id',
-	authMiddleware,
-	requireRole('admin'),
-	productController.updateProduct,
-);
-router.delete(
-	'/:id',
-	authMiddleware,
-	requireRole('admin'),
-	productController.deleteProduct,
-);
+router.delete('/:id/images', authMiddleware, requireRole('admin'), productController.deleteImage);
+router.put('/:id', authMiddleware, requireRole('admin'), productController.updateProduct);
+router.delete('/:id', authMiddleware, requireRole('admin'), productController.deleteProduct);
 
 module.exports = router;
