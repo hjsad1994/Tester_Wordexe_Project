@@ -194,7 +194,6 @@ const productExtras: Record<
   string,
   {
     features: string[];
-    specifications: Record<string, string>;
     colors?: string[];
     sizes?: string[];
   }
@@ -208,12 +207,7 @@ const productExtras: Record<
       'Thiết kế thoáng mát cho mùa hè',
       'Co giãn 4 chiều thoải mái',
     ],
-    specifications: {
-      'Chất liệu': '100% Cotton Organic',
-      'Xuất xứ': 'Việt Nam',
-      'Độ tuổi': '0-12 tháng',
-      'Bảo hành': '30 ngày đổi trả',
-    },
+
     colors: ['Trắng | #FFFFFF', 'Hồng nhạt | #FFC0CB', 'Xanh mint | #98FF98'],
     sizes: ['S (0-3M)', 'M (3-6M)', 'L (6-9M)', 'XL (9-12M)'],
   },
@@ -226,12 +220,7 @@ const productExtras: Record<
       'Vạch chia ml rõ ràng',
       'Nắp đậy kín chống tràn',
     ],
-    specifications: {
-      'Dung tích': '240ml',
-      'Chất liệu': 'Nhựa PP cao cấp',
-      'Xuất xứ': 'Nhật Bản',
-      'Độ tuổi': '0+ tháng',
-    },
+
   },
   '3': {
     features: [
@@ -242,12 +231,7 @@ const productExtras: Record<
       'Không rụng lông',
       'Đạt tiêu chuẩn EN71',
     ],
-    specifications: {
-      'Kích thước': '35cm',
-      'Chất liệu': 'Plush + PP Cotton',
-      'Xuất xứ': 'Việt Nam',
-      'Độ tuổi': '0+ tháng',
-    },
+
     colors: ['Nâu | #8B4513', 'Kem | #FFFDD0', 'Hồng | #FFB6C1'],
   },
   default: {
@@ -259,11 +243,7 @@ const productExtras: Record<
       'Bảo hành đổi trả',
       'Hỗ trợ 24/7',
     ],
-    specifications: {
-      'Chất lượng': 'Cao cấp',
-      'Bảo hành': '30 ngày',
-      'Xuất xứ': 'Chính hãng',
-    },
+
   },
 };
 
@@ -273,7 +253,7 @@ export default function ProductDetailPage() {
   const routeParam = decodeURIComponent((params.id as string) || '');
 
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description');
+  const [activeTab, setActiveTab] = useState<'description' | 'reviews'>('description');
   const [selectedColor, setSelectedColor] = useState(0);
   const [selectedSize, setSelectedSize] = useState(0);
   const [product, setProduct] = useState<Product | null>(null);
@@ -538,8 +518,19 @@ export default function ProductDetailPage() {
                     onClick={() => {
                       if (isInWishlist(product.id)) {
                         removeFromWishlist(product.id);
+                        toast('Đã xóa khỏi danh sách yêu thích', {
+                          id: `wishlist-${product.id}`,
+                        });
                       } else {
                         addToWishlist(product);
+                        toast.success('Đã thêm vào danh sách yêu thích', {
+                          id: `wishlist-${product.id}`,
+                          description: product.name,
+                          action: {
+                            label: 'Xem danh sách',
+                            onClick: () => router.push('/wishlist'),
+                          },
+                        });
                       }
                     }}
                     aria-label={
@@ -857,7 +848,6 @@ export default function ProductDetailPage() {
           <div className="flex gap-1 border-b border-pink-100 mb-8">
             {[
               { id: 'description', label: 'Mô tả sản phẩm' },
-              { id: 'specs', label: 'Thông số' },
               { id: 'reviews', label: `Đánh giá (${product.reviews})` },
             ].map((tab) => (
               <button
@@ -908,21 +898,6 @@ export default function ProductDetailPage() {
                       </div>
                     ))}
                   </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'specs' && (
-              <div className="animate-fadeIn">
-                <div className="rounded-2xl border border-pink-100 overflow-hidden">
-                  {Object.entries(extras.specifications).map(([label, value], i) => (
-                    <div key={i} className={`flex ${i % 2 === 0 ? 'bg-pink-50/50' : 'bg-white'}`}>
-                      <div className="w-1/3 px-6 py-4 font-medium text-[var(--text-primary)]">
-                        {label}
-                      </div>
-                      <div className="flex-1 px-6 py-4 text-[var(--text-secondary)]">{value}</div>
-                    </div>
-                  ))}
                 </div>
               </div>
             )}
