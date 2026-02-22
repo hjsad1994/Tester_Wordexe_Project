@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const { NotFoundError, ValidationError } = require('../errors');
+const couponService = require('./couponService');
 
 const DEFAULT_SHIPPING_FEE = 30000;
 const ORDER_STATUSES = ['pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'];
@@ -100,31 +101,70 @@ class OrderService {
       throw new ValidationError('Shipping fee is invalid');
     }
 
+    // Coupon handling
+    let couponCode = null;
+    let couponId = null;
+    let discountAmount = 0;
+    let finalShippingFee = shippingFee;
+
+    if (payload.couponCode) {
+      const validation = await couponService.validateCoupon(
+        payload.couponCode,
+        subtotal,
+        context.userId || null
+      );
+      couponCode = validation.coupon.code;
+      couponId = validation.coupon._id;
+      discountAmount = validation.discountAmount;
+
+      // Check if free_shipping type (already in validation response)
+      if (validation.coupon.discountType === 'free_shipping') {
+        finalShippingFee = 0;
+      }
+
+      // Atomic redemption
+      await couponService.redeemCoupon(couponId, context.userId || null);
+    }
+
     const status = paymentMethod === 'momo' ? 'paid' : 'pending';
     const customerInfo = normalizeCustomerInfo(payload.customerInfo);
 
-    const order = await Order.create({
-      orderNumber: generateOrderNumber(),
-      publicAccessToken: generatePublicAccessToken(),
-      user: isObjectId(context.userId) ? context.userId : null,
-      items: orderItems,
-      subtotal,
-      shippingFee,
-      total: subtotal + shippingFee,
-      customerInfo,
-      paymentMethod,
-      status,
-      statusHistory: [
-        {
-          from: null,
-          to: status,
-          changedBy: isObjectId(context.userId) ? context.userId : null,
-          note: 'Order created',
-        },
-      ],
-    });
+    try {
+      const order = await Order.create({
+        orderNumber: generateOrderNumber(),
+        publicAccessToken: generatePublicAccessToken(),
+        user: isObjectId(context.userId) ? context.userId : null,
+        items: orderItems,
+        subtotal,
+        shippingFee: payload.couponCode ? finalShippingFee : shippingFee,
+        couponCode,
+        discountAmount,
+        total: subtotal - discountAmount + (payload.couponCode ? finalShippingFee : shippingFee),
+        customerInfo,
+        paymentMethod,
+        status,
+        statusHistory: [
+          {
+            from: null,
+            to: status,
+            changedBy: isObjectId(context.userId) ? context.userId : null,
+            note: 'Order created',
+          },
+        ],
+      });
 
-    return this.getOrderById(order._id);
+      return this.getOrderById(order._id);
+    } catch (error) {
+      // Rollback coupon redemption if order creation fails
+      if (couponId) {
+        try {
+          await couponService.unredeemCoupon(couponId, context.userId || null);
+        } catch {
+          // Best-effort rollback — log but don't mask original error
+        }
+      }
+      throw error;
+    }
   }
 
   async getOrderById(id, options = {}) {

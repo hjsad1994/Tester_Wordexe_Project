@@ -1,0 +1,228 @@
+{
+  "beadId": "Tester_Wordexe_Project-znh",
+  "prdName": "coupon-system-checkout-fix",
+  "tasks": [
+    {
+      "id": "backend-1",
+      "category": "backend",
+      "description": "Create Coupon Mongoose model at backend/src/models/Coupon.js with fields: code (unique, uppercase, trimmed), name, description, discountType (enum: percentage/fixed_amount/free_shipping), discountValue, maximumDiscount, minimumOrderAmount, usageLimit, usageCount, perUserLimit, usedBy[], isActive, validFrom, validUntil, createdBy, with timestamps, indexes, and isCurrentlyValid virtual.",
+      "steps": [
+        "node -e \"const m = require('./backend/src/models/Coupon'); console.log(Object.keys(m.schema.paths).join(', '))\" lists all expected fields",
+        "node -e \"const m = require('./backend/src/models/Coupon'); console.log(m.schema.path('code').options.unique)\" returns true"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["backend/src/models/Coupon.js"]
+      }
+    },
+    {
+      "id": "backend-2",
+      "category": "backend",
+      "description": "Create couponService.js at backend/src/services/couponService.js with methods: createCoupon, getAllCoupons, getCouponById, updateCoupon, deleteCoupon, validateCoupon(code, subtotal, userId), redeemCoupon(couponId, userId), getAvailableCoupons(). Validation checks: active status, date range, usage limits, per-user limit, minimum order amount. Redemption uses atomic findOneAndUpdate with $inc.",
+      "steps": [
+        "node -e \"require('./backend/src/services/couponService')\" loads without errors",
+        "node -e \"const s = require('./backend/src/services/couponService'); console.log(Object.getOwnPropertyNames(Object.getPrototypeOf(s)).filter(m => m !== 'constructor').join(', '))\" lists all expected methods"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["backend-1"],
+        "parallel": false,
+        "conflicts_with": [],
+        "files": ["backend/src/services/couponService.js"]
+      }
+    },
+    {
+      "id": "backend-3",
+      "category": "backend",
+      "description": "Create couponController.js and couponRoutes.js, register routes in index.js. Routes: GET /api/coupons (admin: list all), GET /api/coupons/available (auth: list valid coupons for user), POST /api/coupons (admin: create), PUT /api/coupons/:id (admin: update), DELETE /api/coupons/:id (admin: delete), POST /api/coupons/validate (auth: validate code against cart).",
+      "steps": [
+        "grep \"coupons\" backend/src/routes/index.js returns match",
+        "curl http://localhost:3001/api/coupons returns 401 (requires auth)",
+        "curl -X POST http://localhost:3001/api/coupons/validate returns 401 (requires auth)"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["backend-2"],
+        "parallel": false,
+        "conflicts_with": [],
+        "files": [
+          "backend/src/controllers/couponController.js",
+          "backend/src/routes/couponRoutes.js",
+          "backend/src/routes/index.js"
+        ]
+      }
+    },
+    {
+      "id": "backend-4",
+      "category": "backend",
+      "description": "Extend Order model at backend/src/models/Order.js with new optional fields: couponCode (String, default null), discountAmount (Number, default 0, min 0). Total calculation: total = subtotal - discountAmount + shippingFee.",
+      "steps": [
+        "node -e \"const m = require('./backend/src/models/Order'); console.log(m.schema.path('couponCode').instance, m.schema.path('discountAmount').instance)\" outputs String Number"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["backend/src/models/Order.js"]
+      }
+    },
+    {
+      "id": "backend-5",
+      "category": "backend",
+      "description": "Integrate coupon into orderService.createOrder(). If couponCode provided: validate server-side, calculate discount, redeem atomically, store couponCode + discountAmount on order with total = subtotal - discountAmount + shippingFee. If free_shipping type, set shippingFee to 0. Backward compatible without coupon.",
+      "steps": [
+        "Create test coupon via API, then create order with couponCode — verify discountAmount > 0 and total is correct",
+        "Create order WITHOUT coupon — verify backward compatibility (discountAmount: 0)"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["backend-2", "backend-4"],
+        "parallel": false,
+        "conflicts_with": [],
+        "files": [
+          "backend/src/services/orderService.js",
+          "backend/src/controllers/orderController.js"
+        ]
+      }
+    },
+    {
+      "id": "frontend-1",
+      "category": "frontend",
+      "description": "Add Coupon TypeScript interfaces (Coupon, CouponPayload, ValidateCouponResponse) and API functions (fetchCouponsApi, fetchAvailableCouponsApi, createCouponApi, updateCouponApi, deleteCouponApi, validateCouponApi) to frontend/src/lib/api.ts. Extend Order and CreateOrderPayload interfaces with couponCode and discountAmount.",
+      "steps": [
+        "npx tsc --noEmit passes without type errors in api.ts",
+        "grep -c \"coupon\\|Coupon\" frontend/src/lib/api.ts returns count > 0"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["backend-3"],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/lib/api.ts"]
+      }
+    },
+    {
+      "id": "frontend-2",
+      "category": "frontend",
+      "description": "Fix checkout redirect bug in frontend/src/app/checkout/page.tsx. Add isOrderCompleteRef (useRef) set to true before clearCart() in completeOrder(). Cart-empty useEffect guard skips redirect to /cart when isOrderCompleteRef.current is true.",
+      "steps": [
+        "Manual test: Add items to cart → checkout → submit order (COD) → verify landing on /checkout/success (NOT /cart)",
+        "Manual test: Same flow with MoMo payment method"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": [],
+        "parallel": true,
+        "conflicts_with": ["frontend-3"],
+        "files": ["frontend/src/app/checkout/page.tsx"]
+      }
+    },
+    {
+      "id": "frontend-3",
+      "category": "frontend",
+      "description": "Add coupon input to checkout page order summary: collapsible 'Bạn có mã khuyến mãi?' section with text input + 'Áp dụng' button, available coupons list as selectable cards (logged-in users), applied coupon badge with remove ✕, 'Giảm giá' line in green, updated total. Coupon code sent in completeOrder() API call. Pink pastel styling.",
+      "steps": [
+        "Visual: Coupon input renders in order summary below price breakdown, above submit button",
+        "Functional: Entering valid code shows discount; entering invalid code shows error in Vietnamese",
+        "Functional: Selecting available coupon auto-applies it",
+        "Functional: Order submitted with coupon code in payload"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["frontend-1", "frontend-2"],
+        "parallel": false,
+        "conflicts_with": [],
+        "files": ["frontend/src/app/checkout/page.tsx"]
+      }
+    },
+    {
+      "id": "frontend-4",
+      "category": "frontend",
+      "description": "Update checkout success page at frontend/src/app/checkout/success/page.tsx to show 'Giảm giá' line between subtotal and shipping fee when order.discountAmount > 0, displaying coupon code and negative discount in green. Backward compatible when discountAmount is 0.",
+      "steps": [
+        "Manual test: Create order with coupon → success page shows 'Giảm giá: -{amount}đ' in green",
+        "Manual test: Create order without coupon → success page shows no discount line"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["frontend-1"],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": ["frontend/src/app/checkout/success/page.tsx"]
+      }
+    },
+    {
+      "id": "frontend-5",
+      "category": "frontend",
+      "description": "Create AdminCouponsPanel at frontend/src/components/admin/AdminCouponsPanel.tsx with: table listing all coupons, create/edit modal (AdminProductsPanel pattern with focus trap, escape-to-close), delete modal (usageCount === 0 only), active/inactive toggle. Page wrapper at frontend/src/app/admin/coupons/page.tsx. Add 'Khuyến mãi' nav item to AdminSidebar.tsx. Match existing admin pink pastel styling.",
+      "steps": [
+        "Visual: /admin/coupons renders with consistent admin panel styling",
+        "Functional: Create → coupon appears; Edit → changes reflected; Delete → removed (if unused)",
+        "Sidebar: 'Khuyến mãi' link visible and active-highlighted on /admin/coupons",
+        "Accessibility: Modal has role='dialog', aria-modal='true', focus trap, escape-to-close"
+      ],
+      "passes": true,
+      "metadata": {
+        "depends_on": ["frontend-1"],
+        "parallel": true,
+        "conflicts_with": [],
+        "files": [
+          "frontend/src/components/admin/AdminCouponsPanel.tsx",
+          "frontend/src/app/admin/coupons/page.tsx",
+          "frontend/src/components/admin/AdminSidebar.tsx"
+        ]
+      }
+    }
+  ],
+  "context": {
+    "patterns": [
+      "Model pattern: backend/src/models/Category.js — Mongoose model with timestamps, indexes",
+      "Service pattern: backend/src/services/categoryService.js — class-based singleton with CRUD",
+      "Controller pattern: backend/src/controllers/categoryController.js — thin asyncHandler wrappers",
+      "Route pattern: backend/src/routes/categoryRoutes.js — public GET, admin mutations with authMiddleware + requireRole('admin')",
+      "Route registry: backend/src/routes/index.js — router.use('/prefix', routes)",
+      "API client: frontend/src/lib/api.ts — fetch + credentials:'include', parseError()",
+      "Admin panel: AdminCategoriesPanel — inline form + delete modal, useState CRUD",
+      "Admin modal: AdminProductsPanel — full modal with focus trap, escape-to-close",
+      "Admin sidebar: AdminSidebar.tsx — nav items array at lines 6-11",
+      "Checkout summary: checkout/page.tsx — right column sticky sidebar, lines 382-442",
+      "Panel wrapper: rounded-3xl border border-pink-200 bg-white p-5 shadow-sm sm:p-6",
+      "Delete modal: z-50, bg-slate-900/45 backdrop, rounded-3xl border border-rose-200",
+      "Button: bg-gradient-to-r from-pink-400 to-pink-500, rounded-2xl",
+      "Race prevention: atomic findOneAndUpdate with $inc for usage count"
+    ],
+    "keyFiles": [
+      "backend/src/models/Category.js",
+      "backend/src/models/Order.js",
+      "backend/src/services/categoryService.js",
+      "backend/src/services/orderService.js",
+      "backend/src/routes/index.js",
+      "frontend/src/lib/api.ts",
+      "frontend/src/app/checkout/page.tsx",
+      "frontend/src/app/checkout/success/page.tsx",
+      "frontend/src/components/admin/AdminSidebar.tsx",
+      "frontend/src/components/admin/AdminCategoriesPanel.tsx",
+      "frontend/src/components/admin/AdminProductsPanel.tsx"
+    ],
+    "nonGoals": [
+      "Payment gateway integration",
+      "Auto-apply best coupon",
+      "Coupon stacking (multiple per order)",
+      "Referral/affiliate codes",
+      "Email notifications for coupons",
+      "Coupon analytics dashboard",
+      "Product/category-specific targeting UI"
+    ]
+  },
+  "beadMetadata": {
+    "depends_on": [],
+    "parallel": true,
+    "conflicts_with": [],
+    "blocks": [],
+    "estimated_hours": 16
+  }
+}

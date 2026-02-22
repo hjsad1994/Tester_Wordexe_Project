@@ -116,8 +116,19 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               e.stopPropagation();
               if (liked) {
                 removeFromWishlist(product.id);
+                toast('Đã xóa khỏi danh sách yêu thích', {
+                  id: `wishlist-${product.id}`,
+                });
               } else {
                 addToWishlist(product);
+                toast.success('Đã thêm vào danh sách yêu thích', {
+                  id: `wishlist-${product.id}`,
+                  description: product.name,
+                  action: {
+                    label: 'Xem danh sách',
+                    onClick: () => router.push('/wishlist'),
+                  },
+                });
               }
             }}
             aria-label={liked ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}

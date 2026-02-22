@@ -101,6 +101,17 @@ const orderSchema = new mongoose.Schema(
       required: true,
       min: [0, 'Shipping fee cannot be negative'],
     },
+    couponCode: {
+      type: String,
+      default: null,
+      trim: true,
+      uppercase: true,
+    },
+    discountAmount: {
+      type: Number,
+      default: 0,
+      min: [0, 'Discount amount cannot be negative'],
+    },
     total: {
       type: Number,
       required: true,

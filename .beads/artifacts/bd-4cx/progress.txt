@@ -1,0 +1,2 @@
+2026-02-22 10:00 — Created bead bd-4cx: Fix cart/wishlist localStorage data leakage between users
+2026-02-22 10:00 — PRD drafted

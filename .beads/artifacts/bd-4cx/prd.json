@@ -1,0 +1,87 @@
+{
+  "bead_id": "bd-4cx",
+  "title": "Fix cart/wishlist localStorage data leakage between users",
+  "type": "bug",
+  "priority": 1,
+  "estimated_hours": 3,
+  "created_at": "2026-02-22",
+  "status": "draft",
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Add user-scoped storage key to CartContext",
+      "tag": "state",
+      "depends_on": [],
+      "parallel": true,
+      "conflicts_with": [2],
+      "files": ["frontend/src/contexts/CartContext.tsx"],
+      "verification": [
+        "localStorage key changes based on logged-in user",
+        "Cart re-hydrates when user changes",
+        "cd frontend && npx tsc --noEmit"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Add user-scoped storage key to WishlistContext",
+      "tag": "state",
+      "depends_on": [],
+      "parallel": true,
+      "conflicts_with": [1],
+      "files": ["frontend/src/contexts/WishlistContext.tsx"],
+      "verification": [
+        "localStorage key changes based on logged-in user",
+        "Wishlist re-hydrates when user changes",
+        "cd frontend && npx tsc --noEmit"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Add logout cleanup to AuthContext",
+      "tag": "integration",
+      "depends_on": [1, 2],
+      "parallel": false,
+      "conflicts_with": [],
+      "files": ["frontend/src/contexts/AuthContext.tsx"],
+      "verification": [
+        "Logout clears cart and wishlist from React state and localStorage",
+        "No circular dependency errors",
+        "cd frontend && npx tsc --noEmit",
+        "cd frontend && npm run build"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Verify end-to-end user isolation",
+      "tag": "checkpoint:human-verify",
+      "depends_on": [3],
+      "parallel": false,
+      "conflicts_with": [],
+      "files": [],
+      "verification": [
+        "Login as User A, add items to cart and wishlist",
+        "Logout as User A",
+        "Login as User B, verify cart and wishlist are empty",
+        "Check localStorage in DevTools",
+        "cd frontend && npm run build"
+      ]
+    }
+  ],
+  "success_criteria": [
+    "User A cart NOT visible to User B after A logs out and B logs in",
+    "Logout clears cart state and localStorage",
+    "Logout clears wishlist state and localStorage",
+    "Guest cart is separate from authenticated user cart",
+    "Login restores user-specific cart",
+    "Cart state updates use user-scoped key",
+    "Wishlist state updates use user-scoped key",
+    "No regression in existing cart functionality",
+    "TypeScript compiles without errors",
+    "Build succeeds"
+  ],
+  "affected_files": [
+    "frontend/src/contexts/CartContext.tsx",
+    "frontend/src/contexts/WishlistContext.tsx",
+    "frontend/src/contexts/AuthContext.tsx"
+  ]
+}
