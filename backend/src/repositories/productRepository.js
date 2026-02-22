@@ -1,13 +1,13 @@
-const Product = require("../models/Product");
+const Product = require('../models/Product');
 
 class ProductRepository {
 	async findAll(options = {}) {
-		const { page = 1, limit = 10, sort = "-createdAt" } = options;
+		const { page = 1, limit = 10, sort = '-createdAt' } = options;
 		const skip = (page - 1) * limit;
 
 		const [products, total] = await Promise.all([
 			Product.find()
-				.populate("category", "name slug")
+				.populate('category', 'name slug')
 				.sort(sort)
 				.skip(skip)
 				.limit(limit),
@@ -26,20 +26,20 @@ class ProductRepository {
 	}
 
 	async findById(id) {
-		return Product.findById(id).populate("category", "name slug");
+		return Product.findById(id).populate('category', 'name slug');
 	}
 
 	async findBySlug(slug) {
-		return Product.findOne({ slug }).populate("category", "name slug");
+		return Product.findOne({ slug }).populate('category', 'name slug');
 	}
 
 	async findByCategory(categoryId, options = {}) {
-		const { page = 1, limit = 10, sort = "-createdAt" } = options;
+		const { page = 1, limit = 10, sort = '-createdAt' } = options;
 		const skip = (page - 1) * limit;
 
 		const [products, total] = await Promise.all([
 			Product.find({ category: categoryId })
-				.populate("category", "name slug")
+				.populate('category', 'name slug')
 				.sort(sort)
 				.skip(skip)
 				.limit(limit),
@@ -58,12 +58,12 @@ class ProductRepository {
 	}
 
 	async findActive(options = {}) {
-		const { page = 1, limit = 10, sort = "-createdAt" } = options;
+		const { page = 1, limit = 10, sort = '-createdAt' } = options;
 		const skip = (page - 1) * limit;
 
 		const [products, total] = await Promise.all([
 			Product.find({ isActive: true })
-				.populate("category", "name slug")
+				.populate('category', 'name slug')
 				.sort(sort)
 				.skip(skip)
 				.limit(limit),
@@ -85,7 +85,7 @@ class ProductRepository {
 		const { page = 1, limit = 10 } = options;
 		const skip = (page - 1) * limit;
 
-		const searchRegex = new RegExp(query, "i");
+		const searchRegex = new RegExp(query, 'i');
 		const filter = {
 			$or: [
 				{ name: searchRegex },
@@ -96,8 +96,8 @@ class ProductRepository {
 
 		const [products, total] = await Promise.all([
 			Product.find(filter)
-				.populate("category", "name slug")
-				.sort("-createdAt")
+				.populate('category', 'name slug')
+				.sort('-createdAt')
 				.skip(skip)
 				.limit(limit),
 			Product.countDocuments(filter),
@@ -117,14 +117,14 @@ class ProductRepository {
 	async create(data) {
 		const product = new Product(data);
 		await product.save();
-		return product.populate("category", "name slug");
+		return product.populate('category', 'name slug');
 	}
 
 	async update(id, data) {
 		return Product.findByIdAndUpdate(id, data, {
 			new: true,
 			runValidators: true,
-		}).populate("category", "name slug");
+		}).populate('category', 'name slug');
 	}
 
 	async delete(id) {
@@ -136,7 +136,7 @@ class ProductRepository {
 			id,
 			{ $push: { images: imageUrl } },
 			{ new: true, runValidators: true },
-		).populate("category", "name slug");
+		).populate('category', 'name slug');
 	}
 
 	async addImages(id, imageUrls) {
@@ -144,7 +144,7 @@ class ProductRepository {
 			id,
 			{ $push: { images: { $each: imageUrls } } },
 			{ new: true, runValidators: true },
-		).populate("category", "name slug");
+		).populate('category', 'name slug');
 	}
 
 	async removeImage(id, imageUrl) {
@@ -152,7 +152,7 @@ class ProductRepository {
 			id,
 			{ $pull: { images: imageUrl } },
 			{ new: true, runValidators: true },
-		).populate("category", "name slug");
+		).populate('category', 'name slug');
 	}
 
 	async existsBySku(sku, excludeId = null) {

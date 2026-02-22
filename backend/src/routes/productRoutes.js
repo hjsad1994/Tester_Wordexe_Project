@@ -1,60 +1,60 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const productController = require("../controllers/productController");
-const authMiddleware = require("../middlewares/authMiddleware");
-const requireRole = require("../middlewares/requireRole");
-const { uploadProductImages } = require("../middlewares/uploadMiddleware");
-const reviewController = require("../controllers/reviewController");
-const optionalAuthMiddleware = require("../middlewares/optionalAuthMiddleware");
-const { uploadReviewImages } = require("../middlewares/uploadMiddleware");
+const productController = require('../controllers/productController');
+const authMiddleware = require('../middlewares/authMiddleware');
+const requireRole = require('../middlewares/requireRole');
+const { uploadProductImages } = require('../middlewares/uploadMiddleware');
+const reviewController = require('../controllers/reviewController');
+const optionalAuthMiddleware = require('../middlewares/optionalAuthMiddleware');
+const { uploadReviewImages } = require('../middlewares/uploadMiddleware');
 
-router.get("/", productController.getAllProducts);
-router.get("/active", productController.getActiveProducts);
-router.get("/search", productController.searchProducts);
-router.get("/category/:categoryId", productController.getProductsByCategory);
-router.get("/slug/:slug", productController.getProductBySlug);
+router.get('/', productController.getAllProducts);
+router.get('/active', productController.getActiveProducts);
+router.get('/search', productController.searchProducts);
+router.get('/category/:categoryId', productController.getProductsByCategory);
+router.get('/slug/:slug', productController.getProductBySlug);
 // Product reviews (nested under /products/:productId)
 router.get(
-	"/:productId/reviews",
+	'/:productId/reviews',
 	optionalAuthMiddleware,
 	reviewController.getReviews,
 );
 router.post(
-	"/:productId/reviews",
+	'/:productId/reviews',
 	authMiddleware,
 	uploadReviewImages,
 	reviewController.createReview,
 );
-router.get("/:id", productController.getProductById);
+router.get('/:id', productController.getProductById);
 router.post(
-	"/",
+	'/',
 	authMiddleware,
-	requireRole("admin"),
+	requireRole('admin'),
 	productController.createProduct,
 );
 router.post(
-	"/:id/images",
+	'/:id/images',
 	authMiddleware,
-	requireRole("admin"),
+	requireRole('admin'),
 	uploadProductImages,
 	productController.uploadImages,
 );
 router.delete(
-	"/:id/images",
+	'/:id/images',
 	authMiddleware,
-	requireRole("admin"),
+	requireRole('admin'),
 	productController.deleteImage,
 );
 router.put(
-	"/:id",
+	'/:id',
 	authMiddleware,
-	requireRole("admin"),
+	requireRole('admin'),
 	productController.updateProduct,
 );
 router.delete(
-	"/:id",
+	'/:id',
 	authMiddleware,
-	requireRole("admin"),
+	requireRole('admin'),
 	productController.deleteProduct,
 );
 
