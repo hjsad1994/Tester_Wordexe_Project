@@ -1,18 +1,18 @@
-const express = require("express");
-const userController = require("../controllers/userController");
-const authMiddleware = require("../middlewares/authMiddleware");
-const uploadMiddleware = require("../middlewares/uploadMiddleware");
+const express = require('express');
+const userController = require('../controllers/userController');
+const authMiddleware = require('../middlewares/authMiddleware');
+const uploadMiddleware = require('../middlewares/uploadMiddleware');
 
 const router = express.Router();
 
-router.get("/me", authMiddleware, userController.getMe);
-router.patch("/me", authMiddleware, userController.updateMe);
+router.get('/me', authMiddleware, userController.getMe);
+router.patch('/me', authMiddleware, userController.updateMe);
 router.post(
-	"/me/avatar",
-	authMiddleware,
-	uploadMiddleware.uploadAvatarImage,
-	userController.uploadAvatar,
+  '/me/avatar',
+  authMiddleware,
+  uploadMiddleware.uploadAvatarImage,
+  userController.uploadAvatar
 );
-router.patch("/me/password", authMiddleware, userController.changePassword);
+router.patch('/me/password', authMiddleware, userController.changePassword);
 
 module.exports = router;
