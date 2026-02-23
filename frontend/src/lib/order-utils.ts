@@ -18,11 +18,13 @@ export const statusStyles: Record<OrderStatus, string> = {
 	cancelled: "bg-red-100 text-red-700 border-red-200",
 };
 
+const currencyFormatter = new Intl.NumberFormat("vi-VN", {
+	style: "currency",
+	currency: "VND",
+});
+
 export function formatCurrency(amount: number): string {
-	return new Intl.NumberFormat("vi-VN", {
-		style: "currency",
-		currency: "VND",
-	}).format(amount);
+	return currencyFormatter.format(amount);
 }
 
 export function formatDate(dateStr: string): string {

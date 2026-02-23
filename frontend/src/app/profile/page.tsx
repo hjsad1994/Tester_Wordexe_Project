@@ -34,7 +34,12 @@ import {
 	updateMyProfile,
 	uploadAvatar,
 } from "@/lib/api";
-import { formatCurrency, statusLabels, statusStyles } from "@/lib/order-utils";
+import {
+	formatCurrency,
+	formatDate,
+	statusLabels,
+	statusStyles,
+} from "@/lib/order-utils";
 
 type Tab = "profile" | "password" | "orders";
 
@@ -396,13 +401,6 @@ export default function ProfilePage() {
 			setPasswordErrors({ submit: message });
 		}
 	};
-
-	const formatDate = (dateStr: string) =>
-		new Date(dateStr).toLocaleDateString("vi-VN", {
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-		});
 
 	if (isAuthLoading || isProfileLoading) {
 		return (
