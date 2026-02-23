@@ -5,8 +5,9 @@ const requireRole = require('../middlewares/requireRole');
 
 const router = express.Router();
 
-router.post('/', orderController.createOrder);
+router.post('/', authMiddleware, orderController.createOrder);
 router.get('/', authMiddleware, requireRole('admin'), orderController.getAdminOrders);
+router.get('/my', authMiddleware, orderController.getMyOrders);
 router.get('/:id', orderController.getOrderById);
 router.patch(
   '/:id/status',

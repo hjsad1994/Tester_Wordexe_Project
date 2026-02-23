@@ -22,6 +22,15 @@ exports.getOrderById = asyncHandler(async (req, res) => {
   sendSuccess(res, order, 'Order retrieved successfully');
 });
 
+exports.getMyOrders = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const result = await orderService.getOrdersByUserId(req.userId, {
+    page: page ? parseInt(page) : 1,
+    limit: limit ? parseInt(limit) : 10,
+  });
+  sendSuccess(res, result, 'Orders retrieved successfully');
+});
+
 exports.getAdminOrders = asyncHandler(async (req, res) => {
   const { page, limit, status, includeDeleted } = req.query;
   const result = await orderService.listOrders({

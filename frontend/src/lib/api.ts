@@ -263,7 +263,7 @@ export interface ReviewListData {
   summary: ReviewSummary;
 }
 
-interface OrderListData {
+export interface OrderListData {
   orders: Order[];
   pagination: {
     page: number;
@@ -546,6 +546,22 @@ export async function uploadAvatar(file: File): Promise<UserProfile> {
   return body.data;
 }
 
+export async function changePassword(payload: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/api/users/me/password`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể đổi mật khẩu'));
+  }
+}
+
 export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
   const res = await fetch(`${API_BASE_URL}/api/orders`, {
     method: 'POST',
@@ -600,6 +616,28 @@ export async function fetchAdminOrders(params?: {
 
   if (!res.ok) {
     throw new Error(await parseError(res, 'Không thể tải danh sách đơn hàng'));
+  }
+
+  const body = (await res.json()) as ApiResponse<OrderListData>;
+  return body.data;
+}
+
+export async function fetchMyOrders(params?: {
+  page?: number;
+  limit?: number;
+}): Promise<OrderListData> {
+  const query = new URLSearchParams();
+  if (params?.page) query.set('page', String(params.page));
+  if (params?.limit) query.set('limit', String(params.limit));
+
+  const suffix = query.toString() ? `?${query.toString()}` : '';
+  const res = await fetch(`${API_BASE_URL}/api/orders/my${suffix}`, {
+    credentials: 'include',
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể tải lịch sử đơn hàng'));
   }
 
   const body = (await res.json()) as ApiResponse<OrderListData>;

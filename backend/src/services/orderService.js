@@ -223,6 +223,28 @@ class OrderService {
     };
   }
 
+  async getOrdersByUserId(userId, { page = 1, limit = 10 } = {}) {
+    requireObjectId(userId, 'userId');
+
+    const skip = (page - 1) * limit;
+    const filter = { user: userId, deletedAt: null };
+
+    const [orders, total] = await Promise.all([
+      Order.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Order.countDocuments(filter),
+    ]);
+
+    return {
+      orders,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    };
+  }
+
   async updateOrderStatus(id, nextStatus, context = {}) {
     requireObjectId(id, 'orderId');
 

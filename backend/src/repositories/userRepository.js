@@ -20,6 +20,8 @@ const createUser = (data) =>
 
 const findById = (id) => User.findById(id).exec();
 
+const findByIdWithPassword = (id) => User.findById(id).select('+password').exec();
+
 const updateById = (id, data) =>
   User.findByIdAndUpdate(id, data, {
     new: true,
@@ -31,5 +33,6 @@ module.exports = {
   existsByEmail,
   createUser,
   findById,
+  findByIdWithPassword,
   updateById,
 };

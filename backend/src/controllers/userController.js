@@ -21,3 +21,9 @@ exports.uploadAvatar = asyncHandler(async (req, res) => {
   const user = await userService.uploadAvatar(req.userId, req.file.buffer);
   sendSuccess(res, user, 'Cập nhật ảnh đại diện thành công');
 });
+
+exports.changePassword = asyncHandler(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  await userService.changePassword(req.userId, currentPassword, newPassword);
+  sendSuccess(res, null, 'Đổi mật khẩu thành công');
+});

@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const cloudinary = require('../config/cloudinary');
 const userRepository = require('../repositories/userRepository');
 const { UnauthorizedError, ValidationError } = require('../errors');
@@ -104,6 +105,29 @@ class UserService {
     }
 
     return toUserResponse(user);
+  }
+
+  async changePassword(userId, currentPassword, newPassword) {
+    if (!currentPassword || !newPassword) {
+      throw new ValidationError('Vui lòng nhập mật khẩu hiện tại và mật khẩu mới');
+    }
+
+    if (newPassword.length < 6) {
+      throw new ValidationError('Mật khẩu mới phải có ít nhất 6 ký tự');
+    }
+
+    const user = await userRepository.findByIdWithPassword(userId);
+    if (!user) {
+      throw new ValidationError('Không tìm thấy người dùng');
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      throw new UnauthorizedError('Mật khẩu hiện tại không đúng');
+    }
+
+    user.password = newPassword; // pre-save hook will hash
+    await user.save();
   }
 }
 

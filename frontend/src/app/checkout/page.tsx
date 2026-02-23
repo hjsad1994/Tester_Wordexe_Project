@@ -13,8 +13,8 @@ import {
 } from '@/components/icons/ProductIllustrations';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
-import { createOrder as createOrderApi, validateCouponApi } from '@/lib/api';
 import type { ValidateCouponResponse } from '@/lib/api';
+import { createOrder as createOrderApi, validateCouponApi } from '@/lib/api';
 
 interface CheckoutFormData {
   fullName: string;
@@ -39,7 +39,7 @@ function formatPrice(price: number): string {
 
 function CheckoutContent() {
   const { cartItems, clearCart, buyNowItem, clearBuyNowItem } = useCart();
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const isBuyNow = searchParams.get('buyNow') === 'true';
@@ -89,6 +89,7 @@ function CheckoutContent() {
 
   // Pre-fill form from user profile when logged in
   useEffect(() => {
+    if (isLoading) return;
     if (user) {
       setFormData((prev) => ({
         ...prev,
@@ -97,7 +98,7 @@ function CheckoutContent() {
         address: prev.address || user.address || '',
       }));
     }
-  }, [user]);
+  }, [user, isLoading]);
 
   const handleChange = (field: keyof CheckoutFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -206,6 +207,14 @@ function CheckoutContent() {
 
     await completeOrder('cod');
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[var(--warm-white)] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500"></div>
+      </div>
+    );
+  }
 
   if (checkoutItems.length === 0) {
     return null;
@@ -554,7 +563,8 @@ function CheckoutContent() {
                     {discountAmount > 0 && (
                       <div className="flex justify-between text-sm">
                         <span className="text-green-600">
-                          Giảm giá{appliedCoupon ? ` (${appliedCoupon.coupon.code})` : ''}
+                          Giảm giá
+                          {appliedCoupon ? ` (${appliedCoupon.coupon.code})` : ''}
                         </span>
                         <span className="text-green-600 font-medium">
                           -{formatPrice(discountAmount)}

@@ -13,5 +13,6 @@ router.post(
   uploadMiddleware.uploadAvatarImage,
   userController.uploadAvatar
 );
+router.patch('/me/password', authMiddleware, userController.changePassword);
 
 module.exports = router;

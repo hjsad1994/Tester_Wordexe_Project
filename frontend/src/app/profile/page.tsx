@@ -17,57 +17,16 @@ import {
   UserIcon,
 } from '@/components/icons';
 import { useAuth } from '@/contexts/AuthContext';
-import { fetchMyProfile, type UserProfile, updateMyProfile, uploadAvatar } from '@/lib/api';
-
-interface OrderItem {
-  name: string;
-  quantity: number;
-  price: number;
-  image: string;
-}
-
-interface Order {
-  id: string;
-  date: string;
-  status: 'Đang xử lý' | 'Đang giao' | 'Hoàn thành' | 'Đã hủy';
-  total: number;
-  items: OrderItem[];
-}
-
-const orderHistorySamples: Order[] = [
-  {
-    id: 'DH001',
-    date: '2026-02-10',
-    status: 'Đang giao',
-    total: 850000,
-    items: [
-      { name: 'Bộ quần áo sơ sinh', quantity: 2, price: 250000, image: '👶' },
-      { name: 'Bình sữa chống sặc', quantity: 1, price: 350000, image: '🍼' },
-    ],
-  },
-  {
-    id: 'DH002',
-    date: '2026-02-05',
-    status: 'Hoàn thành',
-    total: 1200000,
-    items: [{ name: 'Xe đẩy em bé', quantity: 1, price: 1200000, image: '🛒' }],
-  },
-  {
-    id: 'DH003',
-    date: '2026-01-28',
-    status: 'Đang xử lý',
-    total: 450000,
-    items: [
-      { name: 'Gấu bông nhồi bông', quantity: 1, price: 200000, image: '🧸' },
-      {
-        name: 'Tã bỉm Huggies size M',
-        quantity: 1,
-        price: 250000,
-        image: '👶',
-      },
-    ],
-  },
-];
+import {
+  changePassword,
+  fetchMyOrders,
+  fetchMyProfile,
+  type Order,
+  type OrderStatus,
+  type UserProfile,
+  updateMyProfile,
+  uploadAvatar,
+} from '@/lib/api';
 
 type Tab = 'profile' | 'password' | 'orders';
 
@@ -111,19 +70,30 @@ function Toast({ message, onClose }: { message: string; onClose: () => void }) {
   );
 }
 
-function StatusBadge({ status }: { status: Order['status'] }) {
-  const styles: Record<Order['status'], string> = {
-    'Đang xử lý': 'bg-yellow-100 text-yellow-700 border-yellow-200',
-    'Đang giao': 'bg-blue-100 text-blue-700 border-blue-200',
-    'Hoàn thành': 'bg-green-100 text-green-700 border-green-200',
-    'Đã hủy': 'bg-red-100 text-red-700 border-red-200',
-  };
+const statusLabels: Record<OrderStatus, string> = {
+  pending: 'Chờ xác nhận',
+  paid: 'Đã thanh toán',
+  processing: 'Đang xử lý',
+  shipped: 'Đang giao',
+  delivered: 'Hoàn thành',
+  cancelled: 'Đã hủy',
+};
 
+const statusStyles: Record<OrderStatus, string> = {
+  pending: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+  paid: 'bg-blue-100 text-blue-700 border-blue-200',
+  processing: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+  shipped: 'bg-blue-100 text-blue-700 border-blue-200',
+  delivered: 'bg-green-100 text-green-700 border-green-200',
+  cancelled: 'bg-red-100 text-red-700 border-red-200',
+};
+
+function StatusBadge({ status }: { status: OrderStatus }) {
   return (
     <span
-      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${styles[status]}`}
+      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${statusStyles[status] ?? 'bg-gray-100 text-gray-700 border-gray-200'}`}
     >
-      {status}
+      {statusLabels[status] ?? status}
     </span>
   );
 }
@@ -162,7 +132,12 @@ export default function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isOrdersLoading, setIsOrdersLoading] = useState(false);
+  const [ordersError, setOrdersError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -207,6 +182,39 @@ export default function ProfilePage() {
     };
   }, [isAuthLoading, isAuthenticated, router, syncUser]);
 
+  useEffect(() => {
+    if (activeTab !== 'orders' || !isAuthenticated || isAuthLoading) return;
+
+    let cancelled = false;
+
+    const loadOrders = async () => {
+      setIsOrdersLoading(true);
+      setOrdersError(null);
+
+      try {
+        const data = await fetchMyOrders({ limit: 20 });
+        if (!cancelled) {
+          setOrders(data.orders);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          const message = error instanceof Error ? error.message : 'Không thể tải lịch sử đơn hàng';
+          setOrdersError(message);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsOrdersLoading(false);
+        }
+      }
+    };
+
+    void loadOrders();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab, isAuthenticated, isAuthLoading]);
+
   const showToast = (message: string) => {
     setToast(message);
     setTimeout(() => setToast(null), 3000);
@@ -216,7 +224,7 @@ export default function ProfilePage() {
     fileInputRef.current?.click();
   };
 
-  const handleAvatarChange = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) {
       return;
@@ -237,21 +245,46 @@ export default function ProfilePage() {
       return;
     }
 
+    if (avatarPreview) {
+      URL.revokeObjectURL(avatarPreview);
+    }
+    setAvatarPreview(URL.createObjectURL(file));
+    setAvatarFile(file);
+    e.target.value = '';
+  };
+
+  const handleAvatarUpload = async () => {
+    if (!avatarFile || !user) return;
+
     setIsUploadingAvatar(true);
+    setAvatarError(null);
 
     try {
-      const updatedUser = await uploadAvatar(file);
+      const updatedUser = await uploadAvatar(avatarFile);
       setUser(updatedUser);
       setProfileForm(toProfileForm(updatedUser));
       syncUser(updatedUser);
       showToast('Đã cập nhật ảnh đại diện');
+      if (avatarPreview) {
+        URL.revokeObjectURL(avatarPreview);
+      }
+      setAvatarPreview(null);
+      setAvatarFile(null);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Không thể tải ảnh đại diện';
       setAvatarError(message);
     } finally {
       setIsUploadingAvatar(false);
-      e.target.value = '';
     }
+  };
+
+  const handleAvatarCancel = () => {
+    if (avatarPreview) {
+      URL.revokeObjectURL(avatarPreview);
+    }
+    setAvatarPreview(null);
+    setAvatarFile(null);
+    setAvatarError(null);
   };
 
   const validateProfileForm = () => {
@@ -317,21 +350,33 @@ export default function ProfilePage() {
     return Object.keys(errors).length === 0;
   };
 
-  const handlePasswordSubmit = (e: FormEvent) => {
+  const handlePasswordSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!validatePasswordForm()) {
       return;
     }
 
-    setPasswordForm({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: '',
-    });
-    setShowCurrentPassword(false);
-    setShowNewPassword(false);
-    setShowConfirmPassword(false);
-    showToast('Đổi mật khẩu thành công');
+    setPasswordErrors({});
+
+    try {
+      await changePassword({
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+      });
+
+      setPasswordForm({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
+      setShowCurrentPassword(false);
+      setShowNewPassword(false);
+      setShowConfirmPassword(false);
+      showToast('Đổi mật khẩu thành công');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Không thể đổi mật khẩu';
+      setPasswordErrors({ submit: message });
+    }
   };
 
   const formatPrice = (price: number) =>
@@ -403,7 +448,16 @@ export default function ProfilePage() {
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <div className="relative group">
                 <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white shadow-lg bg-pink-100 flex items-center justify-center">
-                  {user.avatar ? (
+                  {avatarPreview ? (
+                    <Image
+                      src={avatarPreview}
+                      alt="Xem trước ảnh đại diện"
+                      width={128}
+                      height={128}
+                      className="w-full h-full object-cover"
+                      unoptimized
+                    />
+                  ) : user.avatar ? (
                     <Image
                       src={user.avatar}
                       alt="Ảnh đại diện"
@@ -439,7 +493,27 @@ export default function ProfilePage() {
                   {user.name}
                 </h1>
                 <p className="text-[var(--text-secondary)] mt-1">{user.email}</p>
-                {isUploadingAvatar && (
+                {avatarPreview && (
+                  <div className="flex items-center gap-2 mt-3">
+                    <button
+                      type="button"
+                      onClick={handleAvatarUpload}
+                      disabled={isUploadingAvatar}
+                      className="btn-primary text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {isUploadingAvatar ? 'Đang tải lên...' : 'Cập nhật ảnh đại diện'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleAvatarCancel}
+                      disabled={isUploadingAvatar}
+                      className="px-4 py-2 text-sm rounded-xl border-2 border-pink-200 text-[var(--text-secondary)] hover:bg-pink-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      Hủy
+                    </button>
+                  </div>
+                )}
+                {isUploadingAvatar && !avatarPreview && (
                   <p className="text-[var(--text-muted)] text-sm mt-2">Đang tải ảnh lên...</p>
                 )}
                 {avatarError && (
@@ -784,6 +858,12 @@ export default function ProfilePage() {
                       )}
                     </div>
 
+                    {passwordErrors.submit && (
+                      <p className="text-red-500 text-sm animate-fade-in-up">
+                        {passwordErrors.submit}
+                      </p>
+                    )}
+
                     <button type="submit" className="btn-primary text-sm">
                       Đổi mật khẩu
                     </button>
@@ -797,7 +877,23 @@ export default function ProfilePage() {
                     Lịch sử đơn hàng
                   </h2>
 
-                  {orderHistorySamples.length === 0 ? (
+                  {isOrdersLoading ? (
+                    <div className="bg-white rounded-2xl shadow-sm border border-pink-100 p-12 text-center">
+                      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-pink-500 mx-auto mb-4" />
+                      <p className="text-[var(--text-muted)]">Đang tải đơn hàng...</p>
+                    </div>
+                  ) : ordersError ? (
+                    <div className="bg-white rounded-2xl shadow-sm border border-red-100 p-12 text-center">
+                      <p className="text-red-500 font-semibold">{ordersError}</p>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('orders')}
+                        className="mt-3 text-sm text-pink-600 hover:text-pink-700 underline"
+                      >
+                        Thử lại
+                      </button>
+                    </div>
+                  ) : orders.length === 0 ? (
                     <div className="bg-white rounded-2xl shadow-sm border border-pink-100 p-12 text-center">
                       <PackageIcon size={48} className="text-pink-300 mx-auto mb-4" />
                       <p className="text-lg font-semibold text-[var(--text-primary)]">
@@ -808,25 +904,26 @@ export default function ProfilePage() {
                       </p>
                     </div>
                   ) : (
-                    orderHistorySamples.map((order) => (
+                    orders.map((order) => (
                       <div
-                        key={order.id}
+                        key={order._id}
                         className="bg-white rounded-2xl shadow-sm border border-pink-100 overflow-hidden transition-shadow hover:shadow-md"
                       >
                         <button
+                          type="button"
                           onClick={() =>
-                            setExpandedOrder(expandedOrder === order.id ? null : order.id)
+                            setExpandedOrder(expandedOrder === order._id ? null : order._id)
                           }
                           className="w-full flex items-center justify-between p-5 text-left"
-                          aria-expanded={expandedOrder === order.id}
-                          aria-controls={`order-details-${order.id}`}
+                          aria-expanded={expandedOrder === order._id}
+                          aria-controls={`order-details-${order._id}`}
                         >
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
                             <span className="font-bold text-[var(--text-primary)]">
-                              #{order.id}
+                              #{order.orderNumber}
                             </span>
                             <span className="text-sm text-[var(--text-muted)]">
-                              {formatDate(order.date)}
+                              {formatDate(order.createdAt)}
                             </span>
                             <StatusBadge status={order.status} />
                           </div>
@@ -834,7 +931,7 @@ export default function ProfilePage() {
                             <span className="font-bold text-pink-600 hidden sm:inline">
                               {formatPrice(order.total)}
                             </span>
-                            {expandedOrder === order.id ? (
+                            {expandedOrder === order._id ? (
                               <ChevronUpIcon size={20} className="text-[var(--text-muted)]" />
                             ) : (
                               <ChevronDownIcon size={20} className="text-[var(--text-muted)]" />
@@ -842,19 +939,31 @@ export default function ProfilePage() {
                           </div>
                         </button>
 
-                        {expandedOrder === order.id && (
+                        {expandedOrder === order._id && (
                           <div
-                            id={`order-details-${order.id}`}
+                            id={`order-details-${order._id}`}
                             className="border-t border-pink-100 p-5 bg-pink-50/30"
                           >
                             <div className="space-y-3">
                               {order.items.map((item, idx) => (
                                 <div key={idx} className="flex items-center justify-between py-2">
                                   <div className="flex items-center gap-3">
-                                    <span className="text-2xl">{item.image}</span>
+                                    {item.image ? (
+                                      <Image
+                                        src={item.image}
+                                        alt={item.productName}
+                                        width={40}
+                                        height={40}
+                                        className="w-10 h-10 rounded-lg object-cover"
+                                      />
+                                    ) : (
+                                      <div className="w-10 h-10 rounded-lg bg-pink-100 flex items-center justify-center">
+                                        <PackageIcon size={20} className="text-pink-400" />
+                                      </div>
+                                    )}
                                     <div>
                                       <p className="font-medium text-[var(--text-primary)]">
-                                        {item.name}
+                                        {item.productName}
                                       </p>
                                       <p className="text-sm text-[var(--text-muted)]">
                                         x{item.quantity}
@@ -862,7 +971,7 @@ export default function ProfilePage() {
                                     </div>
                                   </div>
                                   <span className="font-semibold text-[var(--text-primary)]">
-                                    {formatPrice(item.price)}
+                                    {formatPrice(item.productPrice * item.quantity)}
                                   </span>
                                 </div>
                               ))}
