@@ -229,8 +229,15 @@ class OrderService {
     const skip = (page - 1) * limit;
     const filter = { user: userId, deletedAt: null };
 
+    const clampedLimit = Math.min(Math.max(1, limit), 100);
+
     const [orders, total] = await Promise.all([
-      Order.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Order.find(filter)
+        .select('-publicAccessToken')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(clampedLimit)
+        .lean(),
       Order.countDocuments(filter),
     ]);
 
@@ -243,6 +250,27 @@ class OrderService {
         pages: Math.ceil(total / limit),
       },
     };
+  }
+
+  async getMyOrderById(orderId, userId) {
+    requireObjectId(orderId, 'orderId');
+    requireObjectId(userId, 'userId');
+
+    const order = await Order.findOne({
+      _id: orderId,
+      user: userId,
+      deletedAt: null,
+    })
+      .select('-publicAccessToken')
+      .populate('items.product', 'name slug')
+      .populate('user', 'name email')
+      .lean();
+
+    if (!order) {
+      throw new NotFoundError('Order not found');
+    }
+
+    return order;
   }
 
   async updateOrderStatus(id, nextStatus, context = {}) {

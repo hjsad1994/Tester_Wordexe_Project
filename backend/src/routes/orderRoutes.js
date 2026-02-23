@@ -8,6 +8,7 @@ const router = express.Router();
 router.post('/', authMiddleware, orderController.createOrder);
 router.get('/', authMiddleware, requireRole('admin'), orderController.getAdminOrders);
 router.get('/my', authMiddleware, orderController.getMyOrders);
+router.get('/my/:id', authMiddleware, orderController.getMyOrderById);
 router.get('/:id', orderController.getOrderById);
 router.patch(
   '/:id/status',

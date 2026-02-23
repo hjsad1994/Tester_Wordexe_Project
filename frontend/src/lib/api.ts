@@ -120,6 +120,14 @@ export interface OrderCustomerInfo {
   notes?: string;
 }
 
+export interface StatusHistoryEntry {
+  from: OrderStatus | null;
+  to: OrderStatus;
+  changedAt?: string;
+  changedBy?: string | null;
+  note?: string;
+}
+
 export interface Order {
   _id: string;
   orderNumber: string;
@@ -141,6 +149,7 @@ export interface Order {
   customerInfo: OrderCustomerInfo;
   paymentMethod: 'cod' | 'momo';
   status: OrderStatus;
+  statusHistory?: StatusHistoryEntry[];
   deletedAt: string | null;
   deleteReason?: string;
   createdAt: string;
@@ -641,6 +650,20 @@ export async function fetchMyOrders(params?: {
   }
 
   const body = (await res.json()) as ApiResponse<OrderListData>;
+  return body.data;
+}
+
+export async function fetchMyOrderById(orderId: string): Promise<Order> {
+  const res = await fetch(`${API_BASE_URL}/api/orders/my/${encodeURIComponent(orderId)}`, {
+    credentials: 'include',
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, 'Không thể tải chi tiết đơn hàng'));
+  }
+
+  const body = (await res.json()) as ApiResponse<Order>;
   return body.data;
 }
 

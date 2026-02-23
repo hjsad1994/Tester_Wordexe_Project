@@ -112,8 +112,8 @@ class UserService {
       throw new ValidationError('Vui lòng nhập mật khẩu hiện tại và mật khẩu mới');
     }
 
-    if (newPassword.length < 6) {
-      throw new ValidationError('Mật khẩu mới phải có ít nhất 6 ký tự');
+    if (newPassword.length < 8) {
+      throw new ValidationError('Mật khẩu mới phải có ít nhất 8 ký tự');
     }
 
     const user = await userRepository.findByIdWithPassword(userId);

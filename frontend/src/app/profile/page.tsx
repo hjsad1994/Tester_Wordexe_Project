@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type ChangeEvent, type FormEvent, useEffect, useRef, useState } from 'react';
 import Footer from '@/components/Footer';
@@ -27,6 +28,7 @@ import {
   updateMyProfile,
   uploadAvatar,
 } from '@/lib/api';
+import { formatCurrency, formatDate, statusLabels, statusStyles } from '@/lib/order-utils';
 
 type Tab = 'profile' | 'password' | 'orders';
 
@@ -70,24 +72,6 @@ function Toast({ message, onClose }: { message: string; onClose: () => void }) {
   );
 }
 
-const statusLabels: Record<OrderStatus, string> = {
-  pending: 'Chờ xác nhận',
-  paid: 'Đã thanh toán',
-  processing: 'Đang xử lý',
-  shipped: 'Đang giao',
-  delivered: 'Hoàn thành',
-  cancelled: 'Đã hủy',
-};
-
-const statusStyles: Record<OrderStatus, string> = {
-  pending: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-  paid: 'bg-blue-100 text-blue-700 border-blue-200',
-  processing: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-  shipped: 'bg-blue-100 text-blue-700 border-blue-200',
-  delivered: 'bg-green-100 text-green-700 border-green-200',
-  cancelled: 'bg-red-100 text-red-700 border-red-200',
-};
-
 function StatusBadge({ status }: { status: OrderStatus }) {
   return (
     <span
@@ -112,6 +96,15 @@ export default function ProfilePage() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>('profile');
   const [toast, setToast] = useState<string | null>(null);
+
+  // Handle tab query param for back navigation from order detail
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const tab = searchParams.get('tab');
+    if (tab === 'orders') {
+      setActiveTab('orders');
+    }
+  }, []);
 
   const [profileForm, setProfileForm] = useState<ProfileFormState>(emptyProfileForm);
   const [profileErrors, setProfileErrors] = useState<Record<string, string>>({});
@@ -378,19 +371,6 @@ export default function ProfilePage() {
       setPasswordErrors({ submit: message });
     }
   };
-
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-    }).format(price);
-
-  const formatDate = (dateStr: string) =>
-    new Date(dateStr).toLocaleDateString('vi-VN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
 
   if (isAuthLoading || isProfileLoading) {
     return (
@@ -929,7 +909,7 @@ export default function ProfilePage() {
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="font-bold text-pink-600 hidden sm:inline">
-                              {formatPrice(order.total)}
+                              {formatCurrency(order.total)}
                             </span>
                             {expandedOrder === order._id ? (
                               <ChevronUpIcon size={20} className="text-[var(--text-muted)]" />
@@ -971,7 +951,7 @@ export default function ProfilePage() {
                                     </div>
                                   </div>
                                   <span className="font-semibold text-[var(--text-primary)]">
-                                    {formatPrice(item.productPrice * item.quantity)}
+                                    {formatCurrency(item.productPrice * item.quantity)}
                                   </span>
                                 </div>
                               ))}
@@ -981,8 +961,31 @@ export default function ProfilePage() {
                                 Tổng cộng
                               </span>
                               <span className="text-lg font-bold text-pink-600">
-                                {formatPrice(order.total)}
+                                {formatCurrency(order.total)}
                               </span>
+                            </div>
+                            <div className="mt-5 flex justify-end">
+                              <Link
+                                href={`/profile/orders/${order._id}`}
+                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-pink-500 text-white text-sm font-semibold rounded-xl hover:bg-pink-600 active:scale-95 transition-all shadow-sm hover:shadow-md"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                Xem chi tiết
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <path d="M5 12h14" />
+                                  <path d="m12 5 7 7-7 7" />
+                                </svg>
+                              </Link>
                             </div>
                           </div>
                         )}

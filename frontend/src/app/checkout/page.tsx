@@ -56,6 +56,14 @@ function CheckoutContent() {
   );
 
   useEffect(() => {
+    if (isLoading) return;
+    if (!user) {
+      router.replace('/login');
+      return;
+    }
+  }, [user, isLoading, router]);
+
+  useEffect(() => {
     if (checkoutItems.length === 0 && !isOrderCompleteRef.current) {
       router.push('/cart');
     }
