@@ -129,9 +129,9 @@ export interface OrderCustomerInfo {
 }
 
 export interface StatusHistoryEntry {
-	from: string | null;
-	to: string;
-	timestamp?: string;
+	from: OrderStatus | null;
+	to: OrderStatus;
+	changedAt?: string;
 	changedBy?: string | null;
 	note?: string;
 }
@@ -684,7 +684,7 @@ export async function fetchMyOrders(params?: {
 	return body.data;
 }
 
-export async function fetchOrderDetail(orderId: string): Promise<Order> {
+export async function fetchMyOrderById(orderId: string): Promise<Order> {
 	const res = await fetch(
 		`${API_BASE_URL}/api/orders/my/${encodeURIComponent(orderId)}`,
 		{
