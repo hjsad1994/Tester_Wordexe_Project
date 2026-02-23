@@ -1,31 +1,21 @@
-const express = require("express");
-const orderController = require("../controllers/orderController");
-const authMiddleware = require("../middlewares/authMiddleware");
-const requireRole = require("../middlewares/requireRole");
+const express = require('express');
+const orderController = require('../controllers/orderController');
+const authMiddleware = require('../middlewares/authMiddleware');
+const requireRole = require('../middlewares/requireRole');
 
 const router = express.Router();
 
-router.post("/", authMiddleware, orderController.createOrder);
-router.get(
-	"/",
-	authMiddleware,
-	requireRole("admin"),
-	orderController.getAdminOrders,
-);
-router.get("/my", authMiddleware, orderController.getMyOrders);
-router.get("/my/:id", authMiddleware, orderController.getMyOrderById);
-router.get("/:id", orderController.getOrderById);
+router.post('/', authMiddleware, orderController.createOrder);
+router.get('/', authMiddleware, requireRole('admin'), orderController.getAdminOrders);
+router.get('/my', authMiddleware, orderController.getMyOrders);
+router.get('/my/:id', authMiddleware, orderController.getMyOrderById);
+router.get('/:id', orderController.getOrderById);
 router.patch(
-	"/:id/status",
-	authMiddleware,
-	requireRole("admin"),
-	orderController.updateOrderStatus,
+  '/:id/status',
+  authMiddleware,
+  requireRole('admin'),
+  orderController.updateOrderStatus
 );
-router.delete(
-	"/:id",
-	authMiddleware,
-	requireRole("admin"),
-	orderController.softDeleteOrder,
-);
+router.delete('/:id', authMiddleware, requireRole('admin'), orderController.softDeleteOrder);
 
 module.exports = router;

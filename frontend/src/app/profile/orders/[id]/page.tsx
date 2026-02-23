@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import Footer from "@/components/Footer";
-import Header from "@/components/Header";
-import { useAuth } from "@/contexts/AuthContext";
-import { fetchMyOrderById, type Order, type OrderStatus } from "@/lib/api";
-import { formatCurrency, formatDate, statusLabels, statusStyles } from "@/lib/order-utils";
+import Image from 'next/image';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
+import Footer from '@/components/Footer';
+import Header from '@/components/Header';
+import { useAuth } from '@/contexts/AuthContext';
+import { fetchMyOrderById, type Order, type OrderStatus } from '@/lib/api';
+import { formatCurrency, formatDate, statusLabels, statusStyles } from '@/lib/order-utils';
 
 const paymentLabels: Record<string, string> = {
-  cod: "Thanh toán khi nhận hàng (COD)",
-  momo: "Ví MoMo",
+  cod: 'Thanh toán khi nhận hàng (COD)',
+  momo: 'Ví MoMo',
 };
 
 // ─── Loading Skeleton ───────────────────────────────────────────────
@@ -86,7 +86,7 @@ export default function OrderDetailPage() {
       const data = await fetchMyOrderById(id);
       setOrder(data);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Có lỗi xảy ra");
+      setError(err instanceof Error ? err.message : 'Có lỗi xảy ra');
     } finally {
       setLoading(false);
     }
@@ -95,7 +95,7 @@ export default function OrderDetailPage() {
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
-      router.replace("/login");
+      router.replace('/login');
       return;
     }
     if (!orderId) return;
@@ -103,7 +103,7 @@ export default function OrderDetailPage() {
   }, [orderId, user, authLoading, router, loadOrder]);
 
   if (authLoading || loading) return <OrderDetailSkeleton />;
-  if (error || !order) return <OrderDetailError message={error || "Đơn hàng không tồn tại"} />;
+  if (error || !order) return <OrderDetailError message={error || 'Đơn hàng không tồn tại'} />;
 
   return (
     <>
@@ -186,14 +186,14 @@ export default function OrderDetailPage() {
                 <div className="flex justify-between text-[var(--text-secondary)]">
                   <span>Phí vận chuyển</span>
                   <span>
-                    {order.shippingFee === 0 ? "Miễn phí" : formatCurrency(order.shippingFee)}
+                    {order.shippingFee === 0 ? 'Miễn phí' : formatCurrency(order.shippingFee)}
                   </span>
                 </div>
                 {order.discountAmount > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span>
                       Giảm giá
-                      {order.couponCode ? ` (${order.couponCode})` : ""}
+                      {order.couponCode ? ` (${order.couponCode})` : ''}
                     </span>
                     <span>-{formatCurrency(order.discountAmount)}</span>
                   </div>
@@ -237,7 +237,7 @@ export default function OrderDetailPage() {
                         order.customerInfo.province,
                       ]
                         .filter(Boolean)
-                        .join(", ")}
+                        .join(', ')}
                     </span>
                   </div>
                 )}
@@ -282,8 +282,8 @@ export default function OrderDetailPage() {
                         <div
                           className={`absolute -left-4 top-1.5 w-3 h-3 rounded-full border-2 ${
                             index === order.statusHistory!.length - 1
-                              ? "bg-pink-500 border-pink-500"
-                              : "bg-white border-pink-300"
+                              ? 'bg-pink-500 border-pink-500'
+                              : 'bg-white border-pink-300'
                           }`}
                         />
                         <div className="flex-1">

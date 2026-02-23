@@ -1,19 +1,19 @@
-const crypto = require("crypto");
-const mongoose = require("mongoose");
-const Order = require("../models/Order");
-const Product = require("../models/Product");
-const { NotFoundError, ValidationError } = require("../errors");
-const couponService = require("./couponService");
+const crypto = require('crypto');
+const mongoose = require('mongoose');
+const Order = require('../models/Order');
+const Product = require('../models/Product');
+const { NotFoundError, ValidationError } = require('../errors');
+const couponService = require('./couponService');
 
 const DEFAULT_SHIPPING_FEE = 30000;
-const ORDER_STATUSES = ["pending", "paid", "processing", "shipped", "delivered", "cancelled"];
-const PAYMENT_METHODS = ["cod", "momo"];
+const ORDER_STATUSES = ['pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'];
+const PAYMENT_METHODS = ['cod', 'momo'];
 
 const STATUS_TRANSITIONS = {
-  pending: ["paid", "processing", "cancelled"],
-  paid: ["processing", "cancelled"],
-  processing: ["shipped", "cancelled"],
-  shipped: ["delivered"],
+  pending: ['paid', 'processing', 'cancelled'],
+  paid: ['processing', 'cancelled'],
+  processing: ['shipped', 'cancelled'],
+  shipped: ['delivered'],
   delivered: [],
   cancelled: [],
 };
@@ -33,47 +33,47 @@ const ensureRequiredText = (value, fieldName) => {
 };
 
 const normalizeCustomerInfo = (customerInfo = {}) => {
-  ensureRequiredText(customerInfo.fullName, "fullName");
-  ensureRequiredText(customerInfo.phone, "phone");
-  ensureRequiredText(customerInfo.address, "address");
+  ensureRequiredText(customerInfo.fullName, 'fullName');
+  ensureRequiredText(customerInfo.phone, 'phone');
+  ensureRequiredText(customerInfo.address, 'address');
 
   return {
     fullName: String(customerInfo.fullName).trim(),
     phone: String(customerInfo.phone).trim(),
     address: String(customerInfo.address).trim(),
-    notes: customerInfo.notes ? String(customerInfo.notes).trim() : "",
+    notes: customerInfo.notes ? String(customerInfo.notes).trim() : '',
   };
 };
 
 const generateOrderNumber = () => {
   const timestamp = Date.now().toString(36).toUpperCase();
-  const suffix = crypto.randomBytes(2).toString("hex").toUpperCase();
+  const suffix = crypto.randomBytes(2).toString('hex').toUpperCase();
   return `BB-${timestamp}-${suffix}`;
 };
 
-const generatePublicAccessToken = () => crypto.randomBytes(16).toString("hex");
+const generatePublicAccessToken = () => crypto.randomBytes(16).toString('hex');
 
 class OrderService {
   async createOrder(payload = {}, context = {}) {
     if (!Array.isArray(payload.items) || payload.items.length === 0) {
-      throw new ValidationError("Order must contain at least one item");
+      throw new ValidationError('Order must contain at least one item');
     }
 
-    const paymentMethod = payload.paymentMethod || "cod";
+    const paymentMethod = payload.paymentMethod || 'cod';
     if (!PAYMENT_METHODS.includes(paymentMethod)) {
-      throw new ValidationError("Payment method is invalid");
+      throw new ValidationError('Payment method is invalid');
     }
 
     const productIds = payload.items.map((item) => item.productId || item.id);
     if (productIds.some((id) => !isObjectId(id))) {
-      throw new ValidationError("One or more product IDs are invalid");
+      throw new ValidationError('One or more product IDs are invalid');
     }
 
     const products = await Product.find({ _id: { $in: productIds } }).lean();
     const productById = new Map(products.map((product) => [String(product._id), product]));
 
     const orderItems = payload.items.map((inputItem) => {
-      const productId = String(inputItem.productId || inputItem.id || "");
+      const productId = String(inputItem.productId || inputItem.id || '');
       const product = productById.get(productId);
 
       if (!product) {
@@ -90,7 +90,7 @@ class OrderService {
         productName: product.name,
         productPrice: Number(product.price),
         quantity,
-        image: product.images?.[0] || "",
+        image: product.images?.[0] || '',
       };
     });
 
@@ -98,7 +98,7 @@ class OrderService {
     const shippingFee =
       payload.shippingFee === undefined ? DEFAULT_SHIPPING_FEE : Number(payload.shippingFee);
     if (!Number.isFinite(shippingFee) || shippingFee < 0) {
-      throw new ValidationError("Shipping fee is invalid");
+      throw new ValidationError('Shipping fee is invalid');
     }
 
     // Coupon handling
@@ -111,14 +111,14 @@ class OrderService {
       const validation = await couponService.validateCoupon(
         payload.couponCode,
         subtotal,
-        context.userId || null,
+        context.userId || null
       );
       couponCode = validation.coupon.code;
       couponId = validation.coupon._id;
       discountAmount = validation.discountAmount;
 
       // Check if free_shipping type (already in validation response)
-      if (validation.coupon.discountType === "free_shipping") {
+      if (validation.coupon.discountType === 'free_shipping') {
         finalShippingFee = 0;
       }
 
@@ -126,7 +126,7 @@ class OrderService {
       await couponService.redeemCoupon(couponId, context.userId || null);
     }
 
-    const status = paymentMethod === "momo" ? "paid" : "pending";
+    const status = paymentMethod === 'momo' ? 'paid' : 'pending';
     const customerInfo = normalizeCustomerInfo(payload.customerInfo);
 
     try {
@@ -148,7 +148,7 @@ class OrderService {
             from: null,
             to: status,
             changedBy: isObjectId(context.userId) ? context.userId : null,
-            note: "Order created",
+            note: 'Order created',
           },
         ],
       });
@@ -168,17 +168,17 @@ class OrderService {
   }
 
   async getOrderById(id, options = {}) {
-    requireObjectId(id, "orderId");
+    requireObjectId(id, 'orderId');
 
-    const { includeDeleted = false, accessToken = "" } = options;
+    const { includeDeleted = false, accessToken = '' } = options;
     const query = includeDeleted ? { _id: id } : { _id: id, deletedAt: null };
     if (accessToken) {
       query.publicAccessToken = accessToken;
     }
 
     const order = await Order.findOne(query)
-      .populate("items.product", "name slug")
-      .populate("user", "name email")
+      .populate('items.product', 'name slug')
+      .populate('user', 'name email')
       .lean();
 
     if (!order) {
@@ -197,17 +197,17 @@ class OrderService {
     const filter = includeDeleted ? {} : { deletedAt: null };
     if (options.status) {
       if (!ORDER_STATUSES.includes(options.status)) {
-        throw new ValidationError("Status filter is invalid");
+        throw new ValidationError('Status filter is invalid');
       }
       filter.status = options.status;
     }
 
     const [orders, total] = await Promise.all([
       Order.find(filter)
-        .sort("-createdAt")
+        .sort('-createdAt')
         .skip(skip)
         .limit(limit)
-        .populate("user", "name email")
+        .populate('user', 'name email')
         .lean(),
       Order.countDocuments(filter),
     ]);
@@ -224,7 +224,7 @@ class OrderService {
   }
 
   async getOrdersByUserId(userId, { page = 1, limit = 10 } = {}) {
-    requireObjectId(userId, "userId");
+    requireObjectId(userId, 'userId');
 
     const skip = (page - 1) * limit;
     const filter = { user: userId, deletedAt: null };
@@ -233,7 +233,7 @@ class OrderService {
 
     const [orders, total] = await Promise.all([
       Order.find(filter)
-        .select("-publicAccessToken")
+        .select('-publicAccessToken')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(clampedLimit)
@@ -253,31 +253,31 @@ class OrderService {
   }
 
   async getMyOrderById(orderId, userId) {
-    requireObjectId(orderId, "orderId");
-    requireObjectId(userId, "userId");
+    requireObjectId(orderId, 'orderId');
+    requireObjectId(userId, 'userId');
 
     const order = await Order.findOne({
       _id: orderId,
       user: userId,
       deletedAt: null,
     })
-      .select("-publicAccessToken")
-      .populate("items.product", "name slug")
-      .populate("user", "name email")
+      .select('-publicAccessToken')
+      .populate('items.product', 'name slug')
+      .populate('user', 'name email')
       .lean();
 
     if (!order) {
-      throw new NotFoundError("Order not found");
+      throw new NotFoundError('Order not found');
     }
 
     return order;
   }
 
   async updateOrderStatus(id, nextStatus, context = {}) {
-    requireObjectId(id, "orderId");
+    requireObjectId(id, 'orderId');
 
     if (!ORDER_STATUSES.includes(nextStatus)) {
-      throw new ValidationError("Order status is invalid");
+      throw new ValidationError('Order status is invalid');
     }
 
     const order = await Order.findOne({ _id: id, deletedAt: null });
@@ -285,8 +285,8 @@ class OrderService {
       throw new NotFoundError(`Order with id ${id} not found`);
     }
 
-    if (order.status === "delivered") {
-      throw new ValidationError("Delivered orders are locked and cannot change status");
+    if (order.status === 'delivered') {
+      throw new ValidationError('Delivered orders are locked and cannot change status');
     }
 
     const allowedTransitions = STATUS_TRANSITIONS[order.status] || [];
@@ -300,7 +300,7 @@ class OrderService {
       from: previousStatus,
       to: nextStatus,
       changedBy: isObjectId(context.userId) ? context.userId : null,
-      note: "Admin status update",
+      note: 'Admin status update',
     });
 
     await order.save();
@@ -308,11 +308,11 @@ class OrderService {
   }
 
   async softDeleteOrder(id, context = {}) {
-    requireObjectId(id, "orderId");
+    requireObjectId(id, 'orderId');
 
-    const reason = String(context.reason || "").trim();
+    const reason = String(context.reason || '').trim();
     if (!reason) {
-      throw new ValidationError("Delete reason is required");
+      throw new ValidationError('Delete reason is required');
     }
 
     const order = await Order.findOne({ _id: id, deletedAt: null });
