@@ -245,6 +245,26 @@ class OrderService {
     };
   }
 
+  async getMyOrderById(orderId, userId) {
+    requireObjectId(orderId, 'orderId');
+    requireObjectId(userId, 'userId');
+
+    const order = await Order.findOne({
+      _id: orderId,
+      user: userId,
+      deletedAt: null,
+    })
+      .populate('items.product', 'name slug')
+      .populate('user', 'name email')
+      .lean();
+
+    if (!order) {
+      throw new NotFoundError('Order not found');
+    }
+
+    return order;
+  }
+
   async updateOrderStatus(id, nextStatus, context = {}) {
     requireObjectId(id, 'orderId');
 
