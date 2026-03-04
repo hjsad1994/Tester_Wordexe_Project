@@ -33,8 +33,7 @@ function CouponCard({ coupon }: { coupon: Coupon }) {
   };
 
   const validUntil = formatDate(coupon.validUntil);
-  const remaining =
-    coupon.usageLimit != null ? coupon.usageLimit - coupon.usageCount : null;
+  const remaining = coupon.usageLimit != null ? coupon.usageLimit - coupon.usageCount : null;
 
   return (
     <div className="group relative rounded-2xl border border-pink-200 bg-white shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col">
@@ -80,16 +79,26 @@ function CouponCard({ coupon }: { coupon: Coupon }) {
         {/* Conditions */}
         <div className="space-y-1 mb-4 text-xs text-[var(--text-secondary)] flex-1">
           {coupon.minimumOrderAmount > 0 && (
-            <p>• Đơn tối thiểu: <span className="font-medium">{formatPrice(coupon.minimumOrderAmount)}</span></p>
+            <p>
+              • Đơn tối thiểu:{' '}
+              <span className="font-medium">{formatPrice(coupon.minimumOrderAmount)}</span>
+            </p>
           )}
           {coupon.maximumDiscount != null && coupon.discountType === 'percentage' && (
-            <p>• Giảm tối đa: <span className="font-medium">{formatPrice(coupon.maximumDiscount)}</span></p>
+            <p>
+              • Giảm tối đa:{' '}
+              <span className="font-medium">{formatPrice(coupon.maximumDiscount)}</span>
+            </p>
           )}
           {validUntil && (
-            <p>• Hết hạn: <span className="font-medium">{validUntil}</span></p>
+            <p>
+              • Hết hạn: <span className="font-medium">{validUntil}</span>
+            </p>
           )}
           {remaining != null && (
-            <p>• Còn lại: <span className="font-medium text-pink-500">{remaining} lượt</span></p>
+            <p>
+              • Còn lại: <span className="font-medium text-pink-500">{remaining} lượt</span>
+            </p>
           )}
         </div>
 
