@@ -1,0 +1,11 @@
+Bây giờ dùng lệnh này:
+
+  Chạy bình thường có browser:
+  npx playwright test tests/coupon/admin-coupon-ui.spec.ts --headed
+
+  Chạy chậm để demo (800ms mỗi bước):
+  $env:SLOWMO=800; npx playwright test tests/coupon/admin-coupon-ui.spec.ts --headed
+
+  Chạy 1 browser thôi cho gọn khi demo:
+  $env:SLOWMO=800; npx playwright test tests/coupon/admin-coupon-ui.spec.ts --headed
+  --project=chromium

@@ -2,10 +2,11 @@ const express = require('express');
 const router = express.Router();
 const couponController = require('../controllers/couponController');
 const authMiddleware = require('../middlewares/authMiddleware');
+const optionalAuthMiddleware = require('../middlewares/optionalAuthMiddleware');
 const requireRole = require('../middlewares/requireRole');
 
 // Public/Auth routes
-router.get('/available', authMiddleware, couponController.getAvailableCoupons);
+router.get('/available', optionalAuthMiddleware, couponController.getAvailableCoupons);
 router.post('/validate', authMiddleware, couponController.validateCoupon);
 
 // Admin routes
