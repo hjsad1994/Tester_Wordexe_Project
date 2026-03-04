@@ -83,6 +83,9 @@ test.afterAll(() => {
   backendProcess = null;
 });
 
+// Chạy suite này trên duy nhất 1 project để tránh nhiều worker cùng tranh cổng backend 3001.
+test.skip(({ browserName }) => browserName !== 'chromium', 'Coupon API suite starts its own backend process');
+
 // ─── Coupon CRUD lifecycle ───────────────────────────────────────────────────
 
 test.describe('API Khuyến Mãi - Coupon CRUD (Backend thực)', () => {
