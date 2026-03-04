@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, Page, Route } from '@playwright/test';
 
 // ─── Mock helpers ─────────────────────────────────────────────────────────────
 
@@ -57,9 +57,9 @@ const mockCouponList = [
   },
 ];
 
-async function setupAdminMocks(page: Parameters<typeof test>[0]['page']) {
+async function setupAdminMocks(page: Page) {
   // Mock auth → admin
-  await page.route('**/api/auth/me', (route) =>
+  await page.route('**/api/auth/me', (route: Route) =>
     route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -68,7 +68,7 @@ async function setupAdminMocks(page: Parameters<typeof test>[0]['page']) {
   );
 
   // Mock GET /api/coupons
-  await page.route('**/api/coupons', (route) => {
+  await page.route('**/api/coupons', (route: Route) => {
     if (route.request().method() === 'GET') {
       return route.fulfill({
         status: 200,
