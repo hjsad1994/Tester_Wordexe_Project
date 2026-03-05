@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, Page, Route } from '@playwright/test';
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
 
@@ -67,8 +67,8 @@ const apiResponse = (data: unknown) =>
 
 // ─── Helper: mock /api/coupons/available ─────────────────────────────────────
 
-async function mockAvailableCoupons(page: Parameters<typeof test>[0]['page'], coupons = mockCoupons) {
-  await page.route('**/api/coupons/available', (route) =>
+async function mockAvailableCoupons(page: Page, coupons = mockCoupons) {
+  await page.route('**/api/coupons/available', (route: Route) =>
     route.fulfill({
       status: 200,
       contentType: 'application/json',

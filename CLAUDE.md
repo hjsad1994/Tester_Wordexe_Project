@@ -1,3 +1,9 @@
+---
+noteId: "39cd712017e911f19df205a6002ee5c4"
+tags: []
+
+---
+
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
