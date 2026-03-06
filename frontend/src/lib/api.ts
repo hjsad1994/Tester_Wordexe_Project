@@ -259,8 +259,6 @@ export interface ReviewSummary {
   reviewCount: number;
   distribution: RatingDistribution;
   userHasReviewed: boolean;
-  hasDeliveredPurchase: boolean;
-  canReview: boolean;
 }
 
 export interface ReviewListData {

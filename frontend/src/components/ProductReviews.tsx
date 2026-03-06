@@ -560,8 +560,6 @@ export default function ProductReviews({ productId }: { productId: string }) {
   const summary = reviewData?.summary;
   const reviews = reviewData?.reviews || [];
   const pagination = reviewData?.pagination;
-  const canReview = summary?.canReview ?? false;
-  const hasDeliveredPurchase = summary?.hasDeliveredPurchase ?? false;
 
   return (
     <div className="space-y-6">
@@ -574,14 +572,8 @@ export default function ProductReviews({ productId }: { productId: string }) {
           <div className="p-4 rounded-xl bg-pink-50/50 border border-pink-100 text-center text-[var(--text-secondary)]">
             Bạn đã đánh giá sản phẩm này
           </div>
-        ) : canReview ? (
-          <ReviewForm productId={productId} onReviewCreated={handleReviewCreated} />
         ) : (
-          <div className="p-4 rounded-xl bg-pink-50/50 border border-pink-100 text-center text-[var(--text-secondary)]">
-            {hasDeliveredPurchase
-              ? 'Bạn chưa thể đánh giá sản phẩm này'
-              : 'Chỉ khách đã mua và nhận hàng mới có thể đánh giá sản phẩm'}
-          </div>
+          <ReviewForm productId={productId} onReviewCreated={handleReviewCreated} />
         )
       ) : (
         <div className="p-6 rounded-2xl border border-pink-100 bg-white text-center">
