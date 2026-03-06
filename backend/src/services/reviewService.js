@@ -1,14 +1,32 @@
 const reviewRepository = require('../repositories/reviewRepository');
 const productRepository = require('../repositories/productRepository');
+const Order = require('../models/Order');
 const cloudinary = require('../config/cloudinary');
 const { NotFoundError, ValidationError, ConflictError, ForbiddenError } = require('../errors');
 
 class ReviewService {
+  async hasDeliveredPurchase(userId, productId) {
+    const order = await Order.exists({
+      user: userId,
+      status: 'delivered',
+      deletedAt: null,
+      'items.product': productId,
+    });
+
+    return !!order;
+  }
+
   async createReview(userId, productId, data, files = []) {
     // Validate product exists
     const product = await productRepository.findById(productId);
     if (!product) {
       throw new NotFoundError(`Product with id ${productId} not found`);
+    }
+
+    // Require delivered purchase before allowing review
+    const hasPurchased = await this.hasDeliveredPurchase(userId, productId);
+    if (!hasPurchased) {
+      throw new ForbiddenError('Bạn chỉ có thể đánh giá sản phẩm sau khi đã mua và nhận hàng');
     }
 
     // Check for duplicate review
@@ -105,9 +123,14 @@ class ReviewService {
 
     // Check if requesting user has already reviewed this product
     let userHasReviewed = false;
+    let hasDeliveredPurchase = false;
     if (requestingUserId) {
-      const existing = await reviewRepository.findByUserAndProduct(requestingUserId, productId);
+      const [existing, purchased] = await Promise.all([
+        reviewRepository.findByUserAndProduct(requestingUserId, productId),
+        this.hasDeliveredPurchase(requestingUserId, productId),
+      ]);
       userHasReviewed = !!existing;
+      hasDeliveredPurchase = purchased;
     }
 
     // Add isLiked flag for requesting user
@@ -129,6 +152,8 @@ class ReviewService {
         reviewCount: product.reviewCount || 0,
         distribution,
         userHasReviewed,
+        hasDeliveredPurchase,
+        canReview: !!requestingUserId && hasDeliveredPurchase && !userHasReviewed,
       },
     };
   }
