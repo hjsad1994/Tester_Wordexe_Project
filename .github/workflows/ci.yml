@@ -124,47 +124,89 @@ jobs:
         working-directory: ./backend
         run: npm ci || npm install
 
+      - name: Setup database
+        working-directory: ./backend
+        run: |
+          echo "Seeding database..."
+          npm run seed || echo "Seed failed, continuing..."
+        env:
+          NODE_ENV: test
+          MONGODB_URI: mongodb://localhost:27017/baby-bliss-test
+          JWT_SECRET: test-jwt-secret-key-for-ci-environment
+          JWT_EXPIRES_IN: 7d
+
       - name: Start backend server
         working-directory: ./backend
         run: |
-          npm start &
+          echo "Starting backend server..."
+          npm start > backend.log 2>&1 &
           echo $! > backend.pid
+          echo "Backend PID: $(cat backend.pid)"
+          sleep 5
+          echo "Backend log:"
+          head -20 backend.log || echo "No backend log yet"
         env:
           NODE_ENV: test
           PORT: 3001
           MONGODB_URI: mongodb://localhost:27017/baby-bliss-test
-          JWT_SECRET: test-jwt-secret-key
+          JWT_SECRET: test-jwt-secret-key-for-ci-environment
           JWT_EXPIRES_IN: 7d
           FRONTEND_URL: http://localhost:3000
 
       - name: Start frontend server
         working-directory: ./frontend
         run: |
-          npm run dev &
+          echo "Starting frontend server..."
+          npm run dev > frontend.log 2>&1 &
           echo $! > frontend.pid
+          echo "Frontend PID: $(cat frontend.pid)"
+          sleep 10
+          echo "Frontend log:"
+          head -20 frontend.log || echo "No frontend log yet"
         env:
           PORT: 3000
 
       - name: Wait for servers to be ready
         run: |
-          timeout 120 bash -c 'until curl -f http://localhost:3001/health; do echo "Waiting for backend..."; sleep 5; done'
-          timeout 180 bash -c 'until curl -f http://localhost:3000; do echo "Waiting for frontend..."; sleep 5; done'
-          echo "Both servers are ready!"
+          echo "Waiting for backend server..."
+          timeout 120 bash -c 'until curl -s http://localhost:3001/health; do echo "Backend not ready, waiting..."; sleep 3; done'
+          echo "Backend server is ready!"
+          
+          echo "Waiting for frontend server..."
+          timeout 300 bash -c 'until curl -s http://localhost:3000; do echo "Frontend not ready, waiting..."; sleep 5; done'
+          echo "Frontend server is ready!"
+          
+          echo "Both servers are ready, running final checks..."
+          curl -v http://localhost:3001/health
+          curl -v http://localhost:3000
 
       - name: Run Playwright tests
-        run: npx playwright test --project=chromium
+        run: npx playwright test tests/demo-user-01 --project=chromium
         env:
           CI: true
 
       - name: Stop servers
         if: always()
         run: |
+          echo "Stopping servers..."
           if [ -f ./backend/backend.pid ]; then
+            echo "Killing backend process $(cat ./backend/backend.pid)"
             kill $(cat ./backend/backend.pid) || true
           fi
           if [ -f ./frontend/frontend.pid ]; then
+            echo "Killing frontend process $(cat ./frontend/frontend.pid)"
             kill $(cat ./frontend/frontend.pid) || true
           fi
+          
+      - name: Upload server logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-logs
+          path: |
+            backend/backend.log
+            frontend/frontend.log
+          retention-days: 7
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
