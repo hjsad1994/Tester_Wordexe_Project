@@ -10,8 +10,11 @@ export class WishlistPage extends BasePage {
 
   constructor(page: Page) {
     super(page);
-    // Selector chính xác cho wishlist items - div có chứa h3 (tên sản phẩm)
-    this.productCards = page.locator('div.grid > div').filter({ has: page.locator('h3') });
+    // Chỉ lấy các thẻ sản phẩm trong grid của trang wishlist (bên trong <main>), tránh match footer
+    this.productCards = page
+      .locator('main')
+      .locator('div.grid.grid-cols-1 > div')
+      .filter({ has: page.locator('h3') });
     this.emptyStateMessage = page.locator('text=/Danh sách yêu thích trống/');
     this.exploreProductsButton = page.locator('a').filter({ hasText: /Khám phá sản phẩm/ });
     this.wishlistCount = page.locator('p').filter({ hasText: /sản phẩm trong danh sách yêu thích/ });
