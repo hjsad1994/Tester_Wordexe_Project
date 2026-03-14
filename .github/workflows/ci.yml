@@ -78,13 +78,23 @@ jobs:
         run: npm run build
 
   # ============================================
-  # Playwright E2E Tests (temporarily disabled)
+  # Playwright E2E Tests
   # ============================================
   playwright-tests:
     name: Playwright Tests
     runs-on: ubuntu-latest
-    if: false # Temporarily disabled
-    needs: [frontend-ci] # Run after frontend builds successfully
+    needs: [backend-ci, frontend-ci] # Run after both backend and frontend build successfully
+    
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ping: 1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     defaults:
       run:
         working-directory: ./playwright
@@ -110,14 +120,53 @@ jobs:
         working-directory: ./frontend
         run: npm ci || npm install
 
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm ci || npm install
+
       - name: Build frontend
         working-directory: ./frontend
         run: npm run build
+
+      - name: Start backend server
+        working-directory: ./backend
+        run: |
+          npm start &
+          echo $! > backend.pid
+        env:
+          NODE_ENV: test
+          PORT: 3001
+          MONGODB_URI: mongodb://localhost:27017/baby-bliss-test
+          JWT_SECRET: test-jwt-secret-key
+          JWT_EXPIRES_IN: 7d
+          FRONTEND_URL: http://localhost:3000
+
+      - name: Start frontend server
+        working-directory: ./frontend
+        run: |
+          npm start &
+          echo $! > frontend.pid
+        env:
+          PORT: 3000
+
+      - name: Wait for servers to be ready
+        run: |
+          timeout 60 bash -c 'until curl -f http://localhost:3000 && curl -f http://localhost:3001/health; do sleep 2; done' || echo "Servers may not be fully ready"
 
       - name: Run Playwright tests
         run: npx playwright test --project=chromium
         env:
           CI: true
+
+      - name: Stop servers
+        if: always()
+        run: |
+          if [ -f ./backend/backend.pid ]; then
+            kill $(cat ./backend/backend.pid) || true
+          fi
+          if [ -f ./frontend/frontend.pid ]; then
+            kill $(cat ./frontend/frontend.pid) || true
+          fi
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
@@ -141,14 +190,15 @@ jobs:
   ci-status:
     name: CI Status
     runs-on: ubuntu-latest
-    needs: [backend-ci, frontend-ci]
+    needs: [backend-ci, frontend-ci, playwright-tests]
     if: always()
 
     steps:
       - name: Check CI status
         run: |
           if [[ "${{ needs.backend-ci.result }}" == "failure" ]] || \
-             [[ "${{ needs.frontend-ci.result }}" == "failure" ]]; then
+             [[ "${{ needs.frontend-ci.result }}" == "failure" ]] || \
+             [[ "${{ needs.playwright-tests.result }}" == "failure" ]]; then
             echo "❌ CI failed"
             exit 1
           else
