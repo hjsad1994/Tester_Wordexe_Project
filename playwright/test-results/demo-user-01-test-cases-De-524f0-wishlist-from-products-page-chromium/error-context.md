@@ -1,0 +1,583 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - img [ref=e5]
+      - text: Miễn phí vận chuyển cho đơn hàng từ 500K
+      - img [ref=e9]
+    - banner [ref=e12]:
+      - generic [ref=e14]:
+        - link "Baby Bliss Yêu thương từng khoảnh khắc" [ref=e15] [cursor=pointer]:
+          - /url: /
+          - img [ref=e17]
+          - generic [ref=e29]:
+            - heading "Baby Bliss" [level=1] [ref=e30]
+            - paragraph [ref=e31]: Yêu thương từng khoảnh khắc
+        - navigation [ref=e32]:
+          - link "Trang chủ" [ref=e33] [cursor=pointer]:
+            - /url: /
+            - text: Trang chủ
+          - link "Sản phẩm" [ref=e34] [cursor=pointer]:
+            - /url: /products
+            - text: Sản phẩm
+          - link "Khuyến mãi" [ref=e35] [cursor=pointer]:
+            - /url: /sale
+            - text: Khuyến mãi
+          - link "Danh mục" [ref=e36] [cursor=pointer]:
+            - /url: /categories
+            - text: Danh mục
+          - link "Về chúng tôi" [ref=e37] [cursor=pointer]:
+            - /url: /about
+            - text: Về chúng tôi
+        - generic [ref=e38]:
+          - link "Xem danh sách yêu thích" [ref=e39] [cursor=pointer]:
+            - /url: /wishlist
+            - img [ref=e40]
+            - generic [ref=e42]: "1"
+          - link "Đăng nhập" [ref=e43] [cursor=pointer]:
+            - /url: /login
+            - img [ref=e44]
+            - generic [ref=e46]: Đăng nhập
+          - link "Đăng ký" [ref=e47] [cursor=pointer]:
+            - /url: /register
+            - img [ref=e48]
+            - generic [ref=e52]: Đăng ký
+          - link "Xem giỏ hàng" [ref=e53] [cursor=pointer]:
+            - /url: /cart
+            - img [ref=e54]
+    - generic [ref=e58]:
+      - generic [ref=e59]:
+        - generic [ref=e60]:
+          - heading "Sản phẩm cho Bé yêu" [level=1] [ref=e61]
+          - paragraph [ref=e62]: 17 sản phẩm
+        - generic [ref=e63]:
+          - textbox "Tìm kiếm sản phẩm" [ref=e64]:
+            - /placeholder: Tìm kiếm sản phẩm...
+          - img [ref=e65]
+      - generic [ref=e68]:
+        - button "Tất cả 17" [ref=e69]:
+          - img [ref=e71]
+          - generic [ref=e74]: Tất cả
+          - generic [ref=e75]: "17"
+        - button "Phụ kiện 4" [ref=e76]:
+          - img [ref=e78]
+          - generic [ref=e90]: Phụ kiện
+          - generic [ref=e91]: "4"
+        - button "Tã & Bỉm 3" [ref=e92]:
+          - img [ref=e94]
+          - generic [ref=e107]: Tã & Bỉm
+          - generic [ref=e108]: "3"
+        - button "Xe đẩy 2" [ref=e109]:
+          - img [ref=e111]
+          - generic [ref=e130]: Xe đẩy
+          - generic [ref=e131]: "2"
+        - button "Đồ chơi 3" [ref=e132]:
+          - img [ref=e134]
+          - generic [ref=e160]: Đồ chơi
+          - generic [ref=e161]: "3"
+        - button "Bình sữa 2" [ref=e162]:
+          - img [ref=e164]:
+            - generic [ref=e172]: "240"
+            - generic [ref=e173]: "120"
+          - generic [ref=e175]: Bình sữa
+          - generic [ref=e176]: "2"
+        - button "Quần áo 3" [ref=e177]:
+          - img [ref=e179]
+          - generic [ref=e193]: Quần áo
+          - generic [ref=e194]: "3"
+    - generic [ref=e197]:
+      - combobox "Lọc theo giá" [ref=e200] [cursor=pointer]:
+        - option "Tất cả" [selected]
+        - option "< 200K"
+        - option "200K - 500K"
+        - option "500K - 1M"
+        - option "> 1M"
+      - generic [ref=e201]:
+        - combobox "Sắp xếp sản phẩm" [ref=e203] [cursor=pointer]:
+          - option "Phổ biến nhất" [selected]
+          - option "Mới nhất"
+          - option "Giá thấp → cao"
+          - option "Giá cao → thấp"
+          - option "Đánh giá cao"
+        - generic [ref=e204]:
+          - button "Xem dạng lưới" [pressed] [ref=e205]:
+            - img [ref=e206]
+          - button "Xem dạng danh sách" [ref=e211]:
+            - img [ref=e212]
+    - generic [ref=e217]:
+      - generic [ref=e218]:
+        - generic [ref=e219]:
+          - link "Thêm vào yêu thích Ty khir" [ref=e220] [cursor=pointer]:
+            - /url: /products/ty-khir-mmbc4wuu
+            - generic [ref=e221]:
+              - button "Thêm vào yêu thích" [ref=e222]:
+                - img [ref=e223]
+              - img "Ty khir" [ref=e226]
+          - link "Ty khir 5 (1) 120Kđ" [ref=e227] [cursor=pointer]:
+            - /url: /products/ty-khir-mmbc4wuu
+            - heading "Ty khir" [level=3] [ref=e228]
+            - generic [ref=e229]:
+              - img [ref=e230]
+              - generic [ref=e232]: "5"
+              - generic [ref=e233]: (1)
+            - generic [ref=e235]: 120Kđ
+          - generic [ref=e236]:
+            - button "Thêm giỏ" [ref=e237]:
+              - img [ref=e238]
+              - generic [ref=e241]: Thêm giỏ
+            - link "Chi tiết" [ref=e242] [cursor=pointer]:
+              - /url: /products/ty-khir-mmbc4wuu
+        - generic [ref=e243]:
+          - link "Thêm vào yêu thích Tã quần Huggies Dry Pants" [ref=e244] [cursor=pointer]:
+            - /url: /products/ta-quan-huggies-dry-pants-1771157019291
+            - generic [ref=e245]:
+              - button "Thêm vào yêu thích" [ref=e246]:
+                - img [ref=e247]
+              - img "Tã quần Huggies Dry Pants" [ref=e250]
+          - link "Tã quần Huggies Dry Pants 5 (1) 289Kđ" [ref=e251] [cursor=pointer]:
+            - /url: /products/ta-quan-huggies-dry-pants-1771157019291
+            - heading "Tã quần Huggies Dry Pants" [level=3] [ref=e252]
+            - generic [ref=e253]:
+              - img [ref=e254]
+              - generic [ref=e256]: "5"
+              - generic [ref=e257]: (1)
+            - generic [ref=e259]: 289Kđ
+          - generic [ref=e260]:
+            - button "Thêm giỏ" [ref=e261]:
+              - img [ref=e262]
+              - generic [ref=e265]: Thêm giỏ
+            - link "Chi tiết" [ref=e266] [cursor=pointer]:
+              - /url: /products/ta-quan-huggies-dry-pants-1771157019291
+        - generic [ref=e267]:
+          - link "Thêm vào yêu thích Xe đẩy siêu nhẹ travel system" [ref=e268] [cursor=pointer]:
+            - /url: /products/xe-day-sieu-nhe-travel-system-1771157019406
+            - generic [ref=e269]:
+              - button "Thêm vào yêu thích" [ref=e270]:
+                - img [ref=e271]
+              - img "Xe đẩy siêu nhẹ travel system" [ref=e274]
+          - link "Xe đẩy siêu nhẹ travel system 0 (0) 3.2Mđ" [ref=e275] [cursor=pointer]:
+            - /url: /products/xe-day-sieu-nhe-travel-system-1771157019406
+            - heading "Xe đẩy siêu nhẹ travel system" [level=3] [ref=e276]
+            - generic [ref=e277]:
+              - img [ref=e278]
+              - generic [ref=e280]: "0"
+              - generic [ref=e281]: (0)
+            - generic [ref=e283]: 3.2Mđ
+          - generic [ref=e284]:
+            - button "Thêm giỏ" [ref=e285]:
+              - img [ref=e286]
+              - generic [ref=e289]: Thêm giỏ
+            - link "Chi tiết" [ref=e290] [cursor=pointer]:
+              - /url: /products/xe-day-sieu-nhe-travel-system-1771157019406
+        - generic [ref=e291]:
+          - link "Thêm vào yêu thích Thú nhồi bông hình thỏ dễ thương" [ref=e292] [cursor=pointer]:
+            - /url: /products/thu-nhoi-bong-hinh-tho-de-thuong-1771157019174
+            - generic [ref=e293]:
+              - button "Thêm vào yêu thích" [ref=e294]:
+                - img [ref=e295]
+              - img "Thú nhồi bông hình thỏ dễ thương" [ref=e298]
+          - link "Thú nhồi bông hình thỏ dễ thương 0 (0) 189Kđ" [ref=e299] [cursor=pointer]:
+            - /url: /products/thu-nhoi-bong-hinh-tho-de-thuong-1771157019174
+            - heading "Thú nhồi bông hình thỏ dễ thương" [level=3] [ref=e300]
+            - generic [ref=e301]:
+              - img [ref=e302]
+              - generic [ref=e304]: "0"
+              - generic [ref=e305]: (0)
+            - generic [ref=e307]: 189Kđ
+          - generic [ref=e308]:
+            - button "Thêm giỏ" [ref=e309]:
+              - img [ref=e310]
+              - generic [ref=e313]: Thêm giỏ
+            - link "Chi tiết" [ref=e314] [cursor=pointer]:
+              - /url: /products/thu-nhoi-bong-hinh-tho-de-thuong-1771157019174
+        - generic [ref=e315]:
+          - link "Thêm vào yêu thích Bình sữa thủy tinh cao cấp Comotomo" [ref=e316] [cursor=pointer]:
+            - /url: /products/binh-sua-thuy-tinh-cao-cap-comotomo-1771157019056
+            - generic [ref=e317]:
+              - button "Thêm vào yêu thích" [ref=e318]:
+                - img [ref=e319]
+              - img "Bình sữa thủy tinh cao cấp Comotomo" [ref=e322]
+          - link "Bình sữa thủy tinh cao cấp Comotomo 0 (0) 320Kđ" [ref=e323] [cursor=pointer]:
+            - /url: /products/binh-sua-thuy-tinh-cao-cap-comotomo-1771157019056
+            - heading "Bình sữa thủy tinh cao cấp Comotomo" [level=3] [ref=e324]
+            - generic [ref=e325]:
+              - img [ref=e326]
+              - generic [ref=e328]: "0"
+              - generic [ref=e329]: (0)
+            - generic [ref=e331]: 320Kđ
+          - generic [ref=e332]:
+            - button "Thêm giỏ" [ref=e333]:
+              - img [ref=e334]
+              - generic [ref=e337]: Thêm giỏ
+            - link "Chi tiết" [ref=e338] [cursor=pointer]:
+              - /url: /products/binh-sua-thuy-tinh-cao-cap-comotomo-1771157019056
+        - generic [ref=e339]:
+          - link "Xóa khỏi yêu thích Áo khoác giữ ấm lông cừu" [ref=e340] [cursor=pointer]:
+            - /url: /products/ao-khoac-giu-am-long-cuu-1771157018937
+            - generic [ref=e341]:
+              - button "Xóa khỏi yêu thích" [active] [ref=e342]:
+                - img [ref=e343]
+              - img "Áo khoác giữ ấm lông cừu" [ref=e346]
+          - link "Áo khoác giữ ấm lông cừu 0 (0) 450Kđ" [ref=e347] [cursor=pointer]:
+            - /url: /products/ao-khoac-giu-am-long-cuu-1771157018937
+            - heading "Áo khoác giữ ấm lông cừu" [level=3] [ref=e348]
+            - generic [ref=e349]:
+              - img [ref=e350]
+              - generic [ref=e352]: "0"
+              - generic [ref=e353]: (0)
+            - generic [ref=e355]: 450Kđ
+          - generic [ref=e356]:
+            - button "Thêm giỏ" [ref=e357]:
+              - img [ref=e358]
+              - generic [ref=e361]: Thêm giỏ
+            - link "Chi tiết" [ref=e362] [cursor=pointer]:
+              - /url: /products/ao-khoac-giu-am-long-cuu-1771157018937
+        - generic [ref=e363]:
+          - link "Thêm vào yêu thích Bột ăn dặm Gerber organic" [ref=e364] [cursor=pointer]:
+            - /url: /products/bot-an-dam-gerber-organic-1771157018821
+            - generic [ref=e365]:
+              - button "Thêm vào yêu thích" [ref=e366]:
+                - img [ref=e367]
+              - img "Bột ăn dặm Gerber organic" [ref=e370]
+          - link "Bột ăn dặm Gerber organic 0 (0) 175Kđ" [ref=e371] [cursor=pointer]:
+            - /url: /products/bot-an-dam-gerber-organic-1771157018821
+            - heading "Bột ăn dặm Gerber organic" [level=3] [ref=e372]
+            - generic [ref=e373]:
+              - img [ref=e374]
+              - generic [ref=e376]: "0"
+              - generic [ref=e377]: (0)
+            - generic [ref=e379]: 175Kđ
+          - generic [ref=e380]:
+            - button "Thêm giỏ" [ref=e381]:
+              - img [ref=e382]
+              - generic [ref=e385]: Thêm giỏ
+            - link "Chi tiết" [ref=e386] [cursor=pointer]:
+              - /url: /products/bot-an-dam-gerber-organic-1771157018821
+        - generic [ref=e387]:
+          - link "Thêm vào yêu thích Lục lạc đồ chơi phát triển giác quan" [ref=e388] [cursor=pointer]:
+            - /url: /products/luc-lac-do-choi-phat-trien-giac-quan-1771157018704
+            - generic [ref=e389]:
+              - button "Thêm vào yêu thích" [ref=e390]:
+                - img [ref=e391]
+              - img "Lục lạc đồ chơi phát triển giác quan" [ref=e394]
+          - link "Lục lạc đồ chơi phát triển giác quan 0 (0) 129Kđ" [ref=e395] [cursor=pointer]:
+            - /url: /products/luc-lac-do-choi-phat-trien-giac-quan-1771157018704
+            - heading "Lục lạc đồ chơi phát triển giác quan" [level=3] [ref=e396]
+            - generic [ref=e397]:
+              - img [ref=e398]
+              - generic [ref=e400]: "0"
+              - generic [ref=e401]: (0)
+            - generic [ref=e403]: 129Kđ
+          - generic [ref=e404]:
+            - button "Thêm giỏ" [ref=e405]:
+              - img [ref=e406]
+              - generic [ref=e409]: Thêm giỏ
+            - link "Chi tiết" [ref=e410] [cursor=pointer]:
+              - /url: /products/luc-lac-do-choi-phat-trien-giac-quan-1771157018704
+        - generic [ref=e411]:
+          - link "Thêm vào yêu thích Ti giả silicon mềm cho bé" [ref=e412] [cursor=pointer]:
+            - /url: /products/ti-gia-silicon-mem-cho-be-1771157018586
+            - generic [ref=e413]:
+              - button "Thêm vào yêu thích" [ref=e414]:
+                - img [ref=e415]
+              - img "Ti giả silicon mềm cho bé" [ref=e418]
+          - link "Ti giả silicon mềm cho bé 0 (0) 89Kđ" [ref=e419] [cursor=pointer]:
+            - /url: /products/ti-gia-silicon-mem-cho-be-1771157018586
+            - heading "Ti giả silicon mềm cho bé" [level=3] [ref=e420]
+            - generic [ref=e421]:
+              - img [ref=e422]
+              - generic [ref=e424]: "0"
+              - generic [ref=e425]: (0)
+            - generic [ref=e427]: 89Kđ
+          - generic [ref=e428]:
+            - button "Thêm giỏ" [ref=e429]:
+              - img [ref=e430]
+              - generic [ref=e433]: Thêm giỏ
+            - link "Chi tiết" [ref=e434] [cursor=pointer]:
+              - /url: /products/ti-gia-silicon-mem-cho-be-1771157018586
+        - generic [ref=e435]:
+          - link "Thêm vào yêu thích Giày tập đi mềm chống trơn" [ref=e436] [cursor=pointer]:
+            - /url: /products/giay-tap-di-mem-chong-tron-1771157018467
+            - generic [ref=e437]:
+              - button "Thêm vào yêu thích" [ref=e438]:
+                - img [ref=e439]
+              - img "Giày tập đi mềm chống trơn" [ref=e442]
+          - link "Giày tập đi mềm chống trơn 0 (0) 199Kđ" [ref=e443] [cursor=pointer]:
+            - /url: /products/giay-tap-di-mem-chong-tron-1771157018467
+            - heading "Giày tập đi mềm chống trơn" [level=3] [ref=e444]
+            - generic [ref=e445]:
+              - img [ref=e446]
+              - generic [ref=e448]: "0"
+              - generic [ref=e449]: (0)
+            - generic [ref=e451]: 199Kđ
+          - generic [ref=e452]:
+            - button "Thêm giỏ" [ref=e453]:
+              - img [ref=e454]
+              - generic [ref=e457]: Thêm giỏ
+            - link "Chi tiết" [ref=e458] [cursor=pointer]:
+              - /url: /products/giay-tap-di-mem-chong-tron-1771157018467
+        - generic [ref=e459]:
+          - link "Thêm vào yêu thích Bộ chăm sóc da cho bé Johnson" [ref=e460] [cursor=pointer]:
+            - /url: /products/bo-cham-soc-da-cho-be-johnson-1771157018334
+            - generic [ref=e461]:
+              - button "Thêm vào yêu thích" [ref=e462]:
+                - img [ref=e463]
+              - img "Bộ chăm sóc da cho bé Johnson" [ref=e466]
+          - link "Bộ chăm sóc da cho bé Johnson 0 (0) 329Kđ" [ref=e467] [cursor=pointer]:
+            - /url: /products/bo-cham-soc-da-cho-be-johnson-1771157018334
+            - heading "Bộ chăm sóc da cho bé Johnson" [level=3] [ref=e468]
+            - generic [ref=e469]:
+              - img [ref=e470]
+              - generic [ref=e472]: "0"
+              - generic [ref=e473]: (0)
+            - generic [ref=e475]: 329Kđ
+          - generic [ref=e476]:
+            - button "Thêm giỏ" [ref=e477]:
+              - img [ref=e478]
+              - generic [ref=e481]: Thêm giỏ
+            - link "Chi tiết" [ref=e482] [cursor=pointer]:
+              - /url: /products/bo-cham-soc-da-cho-be-johnson-1771157018334
+        - generic [ref=e483]:
+          - link "Thêm vào yêu thích Nôi điện tự động ru ngủ" [ref=e484] [cursor=pointer]:
+            - /url: /products/noi-dien-tu-dong-ru-ngu-1771157018216
+            - generic [ref=e485]:
+              - button "Thêm vào yêu thích" [ref=e486]:
+                - img [ref=e487]
+              - img "Nôi điện tự động ru ngủ" [ref=e490]
+          - link "Nôi điện tự động ru ngủ 0 (0) 1.9Mđ" [ref=e491] [cursor=pointer]:
+            - /url: /products/noi-dien-tu-dong-ru-ngu-1771157018216
+            - heading "Nôi điện tự động ru ngủ" [level=3] [ref=e492]
+            - generic [ref=e493]:
+              - img [ref=e494]
+              - generic [ref=e496]: "0"
+              - generic [ref=e497]: (0)
+            - generic [ref=e499]: 1.9Mđ
+          - generic [ref=e500]:
+            - button "Thêm giỏ" [ref=e501]:
+              - img [ref=e502]
+              - generic [ref=e505]: Thêm giỏ
+            - link "Chi tiết" [ref=e506] [cursor=pointer]:
+              - /url: /products/noi-dien-tu-dong-ru-ngu-1771157018216
+        - generic [ref=e507]:
+          - link "Thêm vào yêu thích Xe đẩy gấp gọn đa năng" [ref=e508] [cursor=pointer]:
+            - /url: /products/xe-day-gap-gon-da-nang-1771157018098
+            - generic [ref=e509]:
+              - button "Thêm vào yêu thích" [ref=e510]:
+                - img [ref=e511]
+              - img "Xe đẩy gấp gọn đa năng" [ref=e514]
+          - link "Xe đẩy gấp gọn đa năng 0 (0) 2.5Mđ" [ref=e515] [cursor=pointer]:
+            - /url: /products/xe-day-gap-gon-da-nang-1771157018098
+            - heading "Xe đẩy gấp gọn đa năng" [level=3] [ref=e516]
+            - generic [ref=e517]:
+              - img [ref=e518]
+              - generic [ref=e520]: "0"
+              - generic [ref=e521]: (0)
+            - generic [ref=e523]: 2.5Mđ
+          - generic [ref=e524]:
+            - button "Thêm giỏ" [ref=e525]:
+              - img [ref=e526]
+              - generic [ref=e529]: Thêm giỏ
+            - link "Chi tiết" [ref=e530] [cursor=pointer]:
+              - /url: /products/xe-day-gap-gon-da-nang-1771157018098
+        - generic [ref=e531]:
+          - link "Thêm vào yêu thích Tã dán cao cấp Bobby Extra Soft" [ref=e532] [cursor=pointer]:
+            - /url: /products/ta-dan-cao-cap-bobby-extra-soft-1771157017974
+            - generic [ref=e533]:
+              - button "Thêm vào yêu thích" [ref=e534]:
+                - img [ref=e535]
+              - img "Tã dán cao cấp Bobby Extra Soft" [ref=e538]
+          - link "Tã dán cao cấp Bobby Extra Soft 0 (0) 249Kđ" [ref=e539] [cursor=pointer]:
+            - /url: /products/ta-dan-cao-cap-bobby-extra-soft-1771157017974
+            - heading "Tã dán cao cấp Bobby Extra Soft" [level=3] [ref=e540]
+            - generic [ref=e541]:
+              - img [ref=e542]
+              - generic [ref=e544]: "0"
+              - generic [ref=e545]: (0)
+            - generic [ref=e547]: 249Kđ
+          - generic [ref=e548]:
+            - button "Thêm giỏ" [ref=e549]:
+              - img [ref=e550]
+              - generic [ref=e553]: Thêm giỏ
+            - link "Chi tiết" [ref=e554] [cursor=pointer]:
+              - /url: /products/ta-dan-cao-cap-bobby-extra-soft-1771157017974
+        - generic [ref=e555]:
+          - link "Thêm vào yêu thích Gấu bông Teddy Bear siêu mềm mại" [ref=e556] [cursor=pointer]:
+            - /url: /products/gau-bong-teddy-bear-sieu-mem-mai-1771157017851
+            - generic [ref=e557]:
+              - button "Thêm vào yêu thích" [ref=e558]:
+                - img [ref=e559]
+              - img "Gấu bông Teddy Bear siêu mềm mại" [ref=e562]
+          - link "Gấu bông Teddy Bear siêu mềm mại 0 (0) 159Kđ" [ref=e563] [cursor=pointer]:
+            - /url: /products/gau-bong-teddy-bear-sieu-mem-mai-1771157017851
+            - heading "Gấu bông Teddy Bear siêu mềm mại" [level=3] [ref=e564]
+            - generic [ref=e565]:
+              - img [ref=e566]
+              - generic [ref=e568]: "0"
+              - generic [ref=e569]: (0)
+            - generic [ref=e571]: 159Kđ
+          - generic [ref=e572]:
+            - button "Thêm giỏ" [ref=e573]:
+              - img [ref=e574]
+              - generic [ref=e577]: Thêm giỏ
+            - link "Chi tiết" [ref=e578] [cursor=pointer]:
+              - /url: /products/gau-bong-teddy-bear-sieu-mem-mai-1771157017851
+        - generic [ref=e579]:
+          - link "Thêm vào yêu thích Bình sữa chống đầy hơi Pigeon" [ref=e580] [cursor=pointer]:
+            - /url: /products/binh-sua-chong-day-hoi-pigeon-1771157017728
+            - generic [ref=e581]:
+              - button "Thêm vào yêu thích" [ref=e582]:
+                - img [ref=e583]
+              - img "Bình sữa chống đầy hơi Pigeon" [ref=e586]
+          - link "Bình sữa chống đầy hơi Pigeon 0 (0) 189Kđ" [ref=e587] [cursor=pointer]:
+            - /url: /products/binh-sua-chong-day-hoi-pigeon-1771157017728
+            - heading "Bình sữa chống đầy hơi Pigeon" [level=3] [ref=e588]
+            - generic [ref=e589]:
+              - img [ref=e590]
+              - generic [ref=e592]: "0"
+              - generic [ref=e593]: (0)
+            - generic [ref=e595]: 189Kđ
+          - generic [ref=e596]:
+            - button "Thêm giỏ" [ref=e597]:
+              - img [ref=e598]
+              - generic [ref=e601]: Thêm giỏ
+            - link "Chi tiết" [ref=e602] [cursor=pointer]:
+              - /url: /products/binh-sua-chong-day-hoi-pigeon-1771157017728
+        - generic [ref=e603]:
+          - link "Thêm vào yêu thích Bộ quần áo Cotton Organic cho bé sơ sinh" [ref=e604] [cursor=pointer]:
+            - /url: /products/bo-quan-ao-cotton-organic-cho-be-so-sinh-1771157017596
+            - generic [ref=e605]:
+              - button "Thêm vào yêu thích" [ref=e606]:
+                - img [ref=e607]
+              - img "Bộ quần áo Cotton Organic cho bé sơ sinh" [ref=e610]
+          - link "Bộ quần áo Cotton Organic cho bé sơ sinh 0 (0) 299Kđ" [ref=e611] [cursor=pointer]:
+            - /url: /products/bo-quan-ao-cotton-organic-cho-be-so-sinh-1771157017596
+            - heading "Bộ quần áo Cotton Organic cho bé sơ sinh" [level=3] [ref=e612]
+            - generic [ref=e613]:
+              - img [ref=e614]
+              - generic [ref=e616]: "0"
+              - generic [ref=e617]: (0)
+            - generic [ref=e619]: 299Kđ
+          - generic [ref=e620]:
+            - button "Thêm giỏ" [ref=e621]:
+              - img [ref=e622]
+              - generic [ref=e625]: Thêm giỏ
+            - link "Chi tiết" [ref=e626] [cursor=pointer]:
+              - /url: /products/bo-quan-ao-cotton-organic-cho-be-so-sinh-1771157017596
+      - button "Xem thêm sản phẩm" [ref=e628]
+    - contentinfo [ref=e629]:
+      - generic [ref=e630]:
+        - generic [ref=e631]:
+          - generic [ref=e632]:
+            - link "Baby Bliss Yêu thương từng khoảnh khắc" [ref=e633] [cursor=pointer]:
+              - /url: /
+              - img [ref=e634]
+              - generic [ref=e646]:
+                - heading "Baby Bliss" [level=2] [ref=e647]
+                - paragraph [ref=e648]: Yêu thương từng khoảnh khắc
+            - paragraph [ref=e649]: Chúng tôi mang đến những sản phẩm chất lượng cao và an toàn nhất cho bé yêu của bạn, với tình yêu thương và sự chăm sóc tận tâm.
+            - generic [ref=e650]:
+              - link "1900 123 456" [ref=e651] [cursor=pointer]:
+                - /url: tel:1900123456
+                - img [ref=e652]
+                - generic [ref=e654]: 1900 123 456
+              - link "hello@babybliss.vn" [ref=e655] [cursor=pointer]:
+                - /url: mailto:hello@babybliss.vn
+                - img [ref=e656]
+                - generic [ref=e659]: hello@babybliss.vn
+              - generic [ref=e660]:
+                - img [ref=e661]
+                - generic [ref=e664]: 123 Nguyễn Huệ, Q.1, TP.HCM
+            - generic [ref=e665]:
+              - link "Facebook" [ref=e666] [cursor=pointer]:
+                - /url: https://facebook.com
+                - img [ref=e667]
+              - link "Instagram" [ref=e669] [cursor=pointer]:
+                - /url: https://instagram.com
+                - img [ref=e670]
+          - generic [ref=e674]:
+            - heading "Mua sắm" [level=3] [ref=e675]
+            - list [ref=e676]:
+              - listitem [ref=e677]:
+                - link "Quần áo" [ref=e678] [cursor=pointer]:
+                  - /url: /products/clothes
+                  - text: Quần áo
+              - listitem [ref=e679]:
+                - link "Đồ chơi" [ref=e680] [cursor=pointer]:
+                  - /url: /products/toys
+                  - text: Đồ chơi
+              - listitem [ref=e681]:
+                - link "Chăm sóc" [ref=e682] [cursor=pointer]:
+                  - /url: /products/care
+                  - text: Chăm sóc
+              - listitem [ref=e683]:
+                - link "Xe đẩy & Nôi" [ref=e684] [cursor=pointer]:
+                  - /url: /products/strollers
+                  - text: Xe đẩy & Nôi
+              - listitem [ref=e685]:
+                - link "Khuyến mãi" [ref=e686] [cursor=pointer]:
+                  - /url: /sale
+                  - text: Khuyến mãi
+          - generic [ref=e687]:
+            - heading "Hỗ trợ" [level=3] [ref=e688]
+            - list [ref=e689]:
+              - listitem [ref=e690]:
+                - link "Hướng dẫn mua hàng" [ref=e691] [cursor=pointer]:
+                  - /url: /guide
+                  - text: Hướng dẫn mua hàng
+              - listitem [ref=e692]:
+                - link "Chính sách đổi trả" [ref=e693] [cursor=pointer]:
+                  - /url: /returns
+                  - text: Chính sách đổi trả
+              - listitem [ref=e694]:
+                - link "Chính sách vận chuyển" [ref=e695] [cursor=pointer]:
+                  - /url: /shipping
+                  - text: Chính sách vận chuyển
+              - listitem [ref=e696]:
+                - link "Câu hỏi thường gặp" [ref=e697] [cursor=pointer]:
+                  - /url: /faq
+                  - text: Câu hỏi thường gặp
+              - listitem [ref=e698]:
+                - link "Liên hệ" [ref=e699] [cursor=pointer]:
+                  - /url: /contact
+                  - text: Liên hệ
+          - generic [ref=e700]:
+            - heading "Về chúng tôi" [level=3] [ref=e701]
+            - list [ref=e702]:
+              - listitem [ref=e703]:
+                - link "Giới thiệu" [ref=e704] [cursor=pointer]:
+                  - /url: /about
+                  - text: Giới thiệu
+              - listitem [ref=e705]:
+                - link "Tuyển dụng" [ref=e706] [cursor=pointer]:
+                  - /url: /careers
+                  - text: Tuyển dụng
+              - listitem [ref=e707]:
+                - link "Blog" [ref=e708] [cursor=pointer]:
+                  - /url: /blog
+                  - text: Blog
+              - listitem [ref=e709]:
+                - link "Đối tác" [ref=e710] [cursor=pointer]:
+                  - /url: /partners
+                  - text: Đối tác
+        - generic [ref=e712]:
+          - paragraph [ref=e713]: © 2026 Baby Bliss. Tất cả quyền được bảo lưu.
+          - paragraph [ref=e714]:
+            - text: Made with
+            - img [ref=e715]
+            - text: in Vietnam
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e717]:
+        - button "Close toast" [ref=e718] [cursor=pointer]:
+          - img [ref=e719]
+        - img [ref=e723]
+        - generic [ref=e725]:
+          - generic [ref=e726]: Đã thêm vào danh sách yêu thích
+          - generic [ref=e727]: Áo khoác giữ ấm lông cừu
+        - button "Xem danh sách" [ref=e728] [cursor=pointer]
+  - button "Open Next.js Dev Tools" [ref=e734] [cursor=pointer]:
+    - img [ref=e735]
+  - alert [ref=e738]
+```

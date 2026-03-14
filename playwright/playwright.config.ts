@@ -6,6 +6,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
+  timeout: process.env.CI ? 60000 : 30000, // 60s timeout in CI
   reporter: [
     ['html', { open: 'never' }],
     ['list']
@@ -33,9 +34,10 @@ export default defineConfig({
       use: { ...devices['Desktop Safari'] },
     },
   ],
-  webServer: {
-    command: 'cd ../frontend && npm run dev',
+  webServer: process.env.CI ? undefined : {
+    command: 'npm run dev',
     url: 'http://localhost:3000',
+    cwd: '../frontend',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },
